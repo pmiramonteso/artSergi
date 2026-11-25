@@ -40,7 +40,7 @@ jobs:
           mkdir -p release/tmp
           tar -czf release-${{ github.sha }}.tar.gz -C release .
           sha256sum release-${{ github.sha }}.tar.gz > release-${{ github.sha }}.tar.gz.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ github.sha }}
           path: |
