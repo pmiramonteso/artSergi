@@ -1,28 +1,66 @@
 <script setup lang="ts">
 import { artworks, findArtwork } from '~/data/artworks'
-import { artworkTitle, isPurchasable } from '#shared/utils/artwork'
+import { isPurchasable } from '#shared/utils/artwork'
+import { breadcrumbJsonLd, visualArtworkJsonLd } from '#shared/utils/structured-data'
 
 const route = useRoute()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+const requestUrl = useRequestURL()
+const { public: config } = useRuntimeConfig()
+
 const artwork = findArtwork(String(route.params.slug))
 if (!artwork) {
   throw createError({ statusCode: 404, statusMessage: 'Artwork not found', fatal: true })
 }
 
 const index = artworks.indexOf(artwork)
-const title = artworkTitle(artwork)
+const title = computed(() => artwork.title ?? t('works.untitled'))
+const description = computed(
+  () => artwork.description ?? t('meta.work.description', { title: title.value }),
+)
 
 useSeoMeta({
   title,
-  description: artwork.description ?? `${title}: a painting by Sergi Tugas.`,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogImage: artwork.image?.src,
+})
+
+// Structured data: only verified, visible facts (VisualArtwork needs a real title).
+const origin = config.siteUrl || requestUrl.origin
+const abs = (path: string) => new URL(path, origin).toString()
+const jsonLd = computed(() =>
+  [
+    breadcrumbJsonLd([
+      { name: t('nav.home'), url: abs(localePath('/')) },
+      { name: t('nav.works'), url: abs(localePath('/works')) },
+      { name: title.value, url: abs(route.path) },
+    ]),
+    visualArtworkJsonLd(artwork, { url: abs(route.path), origin, inLanguage: locale.value }),
+  ].filter(Boolean),
+)
+useHead({
+  script: computed(() =>
+    jsonLd.value.map((data) => ({ type: 'application/ld+json', innerHTML: JSON.stringify(data) })),
+  ),
 })
 </script>
 
 <template>
   <UiContainer v-if="artwork" class="grid gap-12 pt-32 pb-(--spacing-section) md:grid-cols-12">
-    <nav aria-label="Breadcrumb" class="text-sm md:col-span-12">
+    <nav :aria-label="$t('nav.breadcrumb')" class="text-sm md:col-span-12">
       <ol class="flex flex-wrap gap-2">
-        <li><NuxtLink to="/" class="hover:underline">Home</NuxtLink> /</li>
-        <li><NuxtLink to="/works" class="hover:underline">Works</NuxtLink> /</li>
+        <li>
+          <NuxtLink :to="localePath('/')" class="hover:underline">{{ $t('nav.home') }}</NuxtLink> /
+        </li>
+        <li>
+          <NuxtLink :to="localePath('/works')" class="hover:underline">{{
+            $t('nav.works')
+          }}</NuxtLink>
+          /
+        </li>
         <li aria-current="page" class="opacity-80">{{ title }}</li>
       </ol>
     </nav>
@@ -42,14 +80,15 @@ useSeoMeta({
       <p v-if="artwork.description" class="max-w-(--container-prose)">
         {{ artwork.description }}
       </p>
-      <UiPendingNote v-else label="Description pending from the artist" />
+      <UiPendingNote v-else :label="$t('works.descriptionPending')" />
 
       <p v-if="!isPurchasable(artwork)" class="border-l-2 border-ink pl-4 text-sm">
-        This work is {{ artwork.status === 'sold' ? 'sold' : 'in the archive' }} and is not
-        available for purchase.
+        {{ $t(`works.notForSale.${artwork.status}`) }}
       </p>
 
-      <UiButton to="/works" variant="ghost" class="self-start">← All works</UiButton>
+      <UiButton :to="localePath('/works')" variant="ghost" class="self-start">
+        {{ $t('works.backArrow') }}
+      </UiButton>
     </div>
   </UiContainer>
 </template>

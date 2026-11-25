@@ -16,7 +16,7 @@ import { heroLettering } from '~/data/hero'
       class="motion-intro absolute -top-7 left-1 whitespace-nowrap md:-top-8"
       data-intro="decor"
     >
-      Placeholder lettering
+      {{ $t('hero.placeholderLettering') }}
     </UiLabel>
     <h1 data-intro="lettering" class="motion-intro" data-parallax="0.15">
       <img

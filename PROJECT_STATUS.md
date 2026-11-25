@@ -4,8 +4,10 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 5 — Homepage content: complete (with labeled placeholders), merged to `main`.**
-Next phase: Phase 6 (SEO, i18n and accessibility).
+**Phase 6 — SEO, i18n & accessibility: complete, merged to `main`.**
+Phase 7 (database & backend) in progress.
+
+See **OPEN_QUESTIONS.md** for everything still pending from the artist, the business and hosting.
 
 ## Phase 0 — Repository audit (done)
 
@@ -80,6 +82,19 @@ Next phase: Phase 6 (SEO, i18n and accessibility).
 - [x] Every placeholder is labeled: copy ("Placeholder: not an approved artist statement", "Biography pending", "Working name") and images (hatched placeholders, plus a compact variant for small slots)
 - [x] Checked: 64 unit tests; API responses checked against the running server (400 / 503 / 429 + Retry-After / 404 for GET); routes 200/404; screenshots at 1440 and 390 px with no console errors and no horizontal overflow
 
+## Phase 6 — Completed tasks
+
+- [x] `@nuxtjs/i18n` 10: `/en/`, `/es/`, `/ca/` (prefix strategy, no unprefixed duplicates). `/` redirects by browser language (cookie `i18n_locale`), falling back to EN. The locale list and default live in `shared/constants/i18n.ts`
+- [x] Localized slugs: `/en/works`, `/es/obras`, `/ca/obres` (+ `[slug]`). Artwork slugs are the same in every language
+- [x] All UI copy in `i18n/locales/{en,es,ca}.json` (ES/CA by Claude, pending native review: OPEN_QUESTIONS A10). Content data uses `LocalizedText`. A test checks that every locale has exactly the same keys
+- [x] Accessible language switcher (real links, `lang`/`hreflang`, `aria-current`) in the header and the mobile menu
+- [x] Per page: localized title and description, Open Graph (title, description, site name, type, `og:locale` + alternates), absolute canonical, hreflang alternates + x-default, `<html lang>`
+- [x] Single origin: `NUXT_PUBLIC_SITE_URL` feeds i18n canonicals/hreflang, the sitemap, robots and JSON-LD (falls back to the request origin when unset)
+- [x] `/sitemap.xml` (indexable pages × locales, with xhtml alternates) and `/robots.txt` (Disallow-all unless `NUXT_PUBLIC_SITE_INDEXABLE=true`). The static `public/robots.txt` was removed
+- [x] JSON-LD with only verified facts: WebSite + Person (home), BreadcrumbList (work page), VisualArtwork only when a real title exists. No prices, ratings or stock
+- [x] Accessibility: fixed `aria-labelledby` pointing to missing ids (new `headingId` prop), placeholder roles (`div[role=img]`), and footer contrast. An axe-core audit (WCAG 2.0/2.1/2.2 AA + best practice) of 4 pages × 3 locales shows **0 violations from site code** (the only finding is the Nuxt DevTools panel, dev only)
+- [x] Checked against a production build: canonical/hreflang use the configured domain, robots and sitemap output, 15 sitemap URLs, no noindex header when indexable
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -87,6 +102,9 @@ Next phase: Phase 6 (SEO, i18n and accessibility).
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
 ## Known issues
+
+- No social sharing image yet (OPEN_QUESTIONS A11), so `twitter:card` is `summary` without an image.
+- Legal page slugs are not localized (`/es/legal/privacy`). Fine for now; revisit when the real texts exist.
 
 - The newsletter rate limit is in-memory (one process). Production needs a shared store or Cloudflare rules (SECURITY.md).
 - The Art Mail Club section CTA points to the collection section because there is no club page yet.

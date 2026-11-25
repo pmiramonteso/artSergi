@@ -1,0 +1,183 @@
+{
+  "site": {
+    "name": "Sergi Tugas Art Studio",
+    "artist": "Sergi Tugas",
+    "skipToContent": "Skip to content",
+    "previewNotice": "Preview site: content in progress.",
+    "placeholder": "Placeholder"
+  },
+  "nav": {
+    "main": "Main",
+    "menu": "Menu",
+    "mainMenu": "Main menu",
+    "close": "Close",
+    "works": "Works",
+    "artMail": "Art Mail Club",
+    "collection": "Collection",
+    "studio": "Studio",
+    "about": "About",
+    "language": "Language",
+    "home": "Home",
+    "breadcrumb": "Breadcrumb"
+  },
+  "meta": {
+    "home": {
+      "title": "Art Studio",
+      "description": "Sergi Tugas: independent artist. Paintings, the Art Mail Club and the Places We Keep collection."
+    },
+    "works": {
+      "title": "Works",
+      "description": "Paintings by Sergi Tugas: available works and archive."
+    },
+    "work": {
+      "description": "{title}: a painting by Sergi Tugas."
+    }
+  },
+  "hero": {
+    "label": "Sergi Tugas, artist",
+    "placeholderLettering": "Placeholder lettering",
+    "originalPaintings": "Original paintings",
+    "artworkPending": "Painting {n}: photo pending",
+    "scroll": "Scroll",
+    "scrollLabel": "Scroll to the next section"
+  },
+  "intro": {
+    "eyebrow": "The artist",
+    "title": "Worlds, scenes and stories through painting",
+    "quote": "I create visual stories through painting, imagination and everyday objects. Each piece is a world of its own.",
+    "quoteNote": "Placeholder: not an approved artist statement",
+    "bio": "Sergi Tugas is an independent visual artist. His short biography will appear here once it has been written and approved with him.",
+    "bioNote": "Biography pending",
+    "portrait": "Portrait or studio photo of Sergi"
+  },
+  "works": {
+    "eyebrow": "Paintings",
+    "selected": "Selected works",
+    "all": "All works",
+    "allArrow": "All works →",
+    "backArrow": "← All works",
+    "intro": "Original paintings, available and sold. More works will be added as they are photographed.",
+    "untitled": "Untitled (title pending)",
+    "photoPending": "{title} · painting {n}: photo pending",
+    "number": "Nº {n}",
+    "year": "Year",
+    "medium": "Medium",
+    "size": "Size",
+    "pending": "To be confirmed",
+    "descriptionPending": "Description pending from the artist",
+    "notForSale": {
+      "sold": "This work is sold and is not available for purchase.",
+      "archived": "This work is in the archive and is not available for purchase."
+    },
+    "status": {
+      "available": "Available",
+      "sold": "Sold",
+      "archived": "Archive"
+    }
+  },
+  "artMail": {
+    "eyebrow": "Art Mail Club",
+    "title": "Collectible art, by post",
+    "workingName": "Working name: the club name is not chosen yet",
+    "lead": "A small envelope from Sergi’s artistic universe: an illustrated card, stickers, a short story and a collector detail, gathered around one collection at a time.",
+    "body": "The club is planned as a monthly subscription, with single collections, gifts and special editions too. Details and pricing will be announced at launch.",
+    "cta": "Discover the first collection",
+    "contentsLabel": "Package contents (placeholder images)",
+    "stickerSet": "Sticker set",
+    "pieces": {
+      "envelope": "Envelope + seal",
+      "card": "A6 Art Card",
+      "story": "A7 Story Card",
+      "detail": "Collector detail",
+      "sticker": "Sticker {n}"
+    }
+  },
+  "collection": {
+    "eyebrow": "Current collection",
+    "illustration": "{title}: main illustration",
+    "inside": "What’s inside",
+    "eachEnvelope": "In each envelope",
+    "edition": "Edition",
+    "pilotOf": "Pilot of {n}",
+    "price": "Price",
+    "priceLater": "Announced at launch",
+    "plusShipping": "+ shipping",
+    "notify": "Notify me",
+    "notOnSale": "Not on sale yet. Join the newsletter to hear first."
+  },
+  "process": {
+    "eyebrow": "Studio",
+    "title": "From the studio",
+    "lead": "How a piece takes shape, from the first sketch to the envelope.",
+    "photo": "Studio photo: {step}",
+    "steps": {
+      "painting": "Painting",
+      "brushes": "Brushes & acrylic textures",
+      "sketches": "Sketches",
+      "wip": "Work in progress",
+      "printing": "Printing",
+      "packing": "Packing envelopes"
+    }
+  },
+  "annual": {
+    "eyebrow": "Annual original",
+    "title": "One original, once a year",
+    "body": "An initiative around a single original painting each year. How it will work is still being defined, and it will be announced here first.",
+    "details": "Details coming",
+    "notify": "Get notified →",
+    "perYear": "yr"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter",
+    "title": "Letters from the studio",
+    "lead": "New collections, original works and the Art Mail Club launch, first.",
+    "email": "Email",
+    "consent": "I agree to receive occasional emails from Sergi Tugas Art Studio. I can unsubscribe at any time. See the {link}.",
+    "privacyLink": "privacy policy",
+    "subscribe": "Subscribe",
+    "sending": "Sending…",
+    "errors": {
+      "email": "Enter a valid email address, like name{'@'}example.com.",
+      "consent": "Please confirm you agree to receive the newsletter."
+    },
+    "success": "Thank you, you’re on the list.",
+    "unavailable": "Sign-up opens soon. Your email was not stored, so please come back later.",
+    "tooMany": "Too many attempts. Please wait a few minutes and try again.",
+    "error": "Something went wrong. Please check your details and try again."
+  },
+  "footer": {
+    "tagline": "Independent artist: paintings, collectible art by post, and prints.",
+    "label": "Footer",
+    "explore": "Explore",
+    "shop": "Shop",
+    "contact": "Contact",
+    "legal": "Legal",
+    "soon": "Soon",
+    "contactSoon": "Contact details coming soon",
+    "shopItems": {
+      "originals": "Original paintings",
+      "prints": "Art prints",
+      "gifts": "Gift subscriptions"
+    },
+    "copyright": "© {year} Sergi Tugas. All artworks © the artist."
+  },
+  "legal": {
+    "eyebrow": "Legal",
+    "preparing": "This page is being prepared and will be published before anything is sold on this site.",
+    "back": "← Back to the homepage",
+    "pages": {
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "terms": "Terms",
+      "shipping-returns": "Shipping & returns"
+    }
+  },
+  "error": {
+    "notFoundTitle": "Page not found",
+    "notFound": "This page does not exist.",
+    "genericTitle": "Something went wrong",
+    "generic": "Something went wrong.",
+    "code": "Error {code}",
+    "home": "Back to the homepage"
+  }
+}

@@ -1,17 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { artworks, featuredArtworks, findArtwork } from '../../app/data/artworks'
-import { artworkTitle, formatDimensions, isPurchasable, PENDING } from '../../shared/utils/artwork'
+import { formatDimensions, isPurchasable } from '../../shared/utils/artwork'
 
 describe('artwork utils', () => {
-  it('never makes up a title', () => {
-    expect(artworkTitle({ title: null })).toMatch(/pending/i)
-    expect(artworkTitle({ title: 'Real title' })).toBe('Real title')
-  })
-
-  it('formats dimensions as height × width (× depth)', () => {
-    expect(formatDimensions(null)).toBe(PENDING)
+  it('formats dimensions as height × width (× depth), per locale', () => {
+    expect(formatDimensions(null)).toBeNull()
     expect(formatDimensions({ widthCm: 80, heightCm: 100 })).toBe('100 × 80 cm')
     expect(formatDimensions({ widthCm: 80, heightCm: 100.5, depthCm: 4 })).toBe('100.5 × 80 × 4 cm')
+    expect(formatDimensions({ widthCm: 80, heightCm: 100.5 }, 'es')).toBe('100,5 × 80 cm')
   })
 
   it('only available works are purchasable', () => {
@@ -32,6 +28,13 @@ describe('artwork data', () => {
     for (const a of featuredArtworks) {
       expect(a.status).toBe('sold')
       expect(isPurchasable(a)).toBe(false)
+    }
+  })
+
+  it('never invents data: unknown fields stay null', () => {
+    for (const a of featuredArtworks) {
+      expect(a.title).toBeNull()
+      expect(a.year).toBeNull()
     }
   })
 

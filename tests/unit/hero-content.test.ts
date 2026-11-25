@@ -17,9 +17,7 @@ describe('hero content', () => {
     }
   })
 
-  it('placeholders are clearly labeled', () => {
-    for (const a of heroArtworks.filter((x) => x.image === null)) {
-      expect(a.placeholderLabel).toMatch(/pending/i)
-    }
+  it('positions are 1, 2, 3 (used for localized placeholder labels)', () => {
+    expect(heroArtworks.map((a) => a.position)).toEqual([1, 2, 3])
   })
 })

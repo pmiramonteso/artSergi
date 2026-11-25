@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Artwork } from '#shared/types/artwork'
-import { artworkTitle } from '#shared/utils/artwork'
 
 /** Framed artwork image, or a labeled placeholder until the photo exists. */
 const props = withDefaults(
@@ -8,8 +7,12 @@ const props = withDefaults(
   { eager: false, sizes: undefined },
 )
 
-const placeholder = computed(
-  () => `${artworkTitle(props.artwork)} · painting ${props.index + 1}: photo pending`,
+const { t } = useI18n()
+const placeholder = computed(() =>
+  t('works.photoPending', {
+    title: props.artwork.title ?? t('works.untitled'),
+    n: props.index + 1,
+  }),
 )
 </script>
 
