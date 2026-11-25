@@ -21,3 +21,16 @@ describe('normalizeSiteUrl', () => {
     expect(normalizeSiteUrl('not a url')).toBeNull()
   })
 })
+
+describe('normalizeSiteUrl hardening', () => {
+  it('rejects credentials, IP-like or malformed hosts', () => {
+    expect(normalizeSiteUrl('https://user:pass@example.com')).toBeNull()
+    expect(normalizeSiteUrl('https://-bad-.com')).toBeNull()
+    expect(normalizeSiteUrl('https://example')).toBeNull()
+  })
+  it('keeps real domains and subdomains', () => {
+    expect(normalizeSiteUrl('https://www.sergi-tugas.example.co.uk/')).toBe(
+      'https://www.sergi-tugas.example.co.uk',
+    )
+  })
+})
