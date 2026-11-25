@@ -27,6 +27,11 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 | Backups: scheduled DB dumps, encrypted off-site storage, retention policy, restore drills                                                                   | 10     |
 | Cloudflare DNS/proxy/WAF in front of the origin (does not replace app-level controls)                                                                       | 10     |
 
+## Notes for the CSP (Phase 6/10)
+
+- `LivingCanvas.vue` adds one small inline `<script>` (the intro flag). Allow it with a hash or nonce, never with `unsafe-inline`.
+- GSAP writes inline `style` attributes. This is allowed by CSP's style-src-attr; check it when writing the policy.
+
 ## Known advisories
 
 See PROJECT_STATUS.md → Known issues.
