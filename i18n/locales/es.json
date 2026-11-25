@@ -179,5 +179,34 @@
     "generic": "Algo ha fallado.",
     "code": "Error {code}",
     "home": "Volver al inicio"
+  },
+  "commerce": {
+    "testBanner": "MODO TEST: los pagos usan tarjetas de prueba de Stripe (p. ej. 4242 4242 4242 4242). No se cobra dinero real.",
+    "buy": "Comprar",
+    "subscribe": "Suscribirme",
+    "perMonth": "/ mes",
+    "perYear": "/ año",
+    "left": "Quedan {n}",
+    "soldOut": "Agotado",
+    "provisional": "Precios de prueba provisionales",
+    "redirecting": "Abriendo el pago seguro…",
+    "errors": {
+      "soldOut": "Lo sentimos, esta edición se acaba de agotar.",
+      "unavailable": "El pago no está disponible ahora mismo. Inténtalo más tarde.",
+      "generic": "Algo ha fallado al iniciar el pago. Inténtalo de nuevo."
+    },
+    "success": {
+      "title": "¡Gracias!",
+      "confirmed": "Tu pago está confirmado. Pedido {number}.",
+      "pending": "Estamos confirmando tu pago con el banco…",
+      "pendingLong": "La confirmación está tardando más de lo habitual. Recibirás un email cuando se complete.",
+      "cancelled": "Este pago se ha cancelado. No se ha cobrado nada.",
+      "unknown": "No hemos encontrado este pago."
+    },
+    "cancel": {
+      "title": "Pago cancelado",
+      "body": "No se ha cobrado nada y tu reserva se ha liberado.",
+      "back": "Volver a la colección"
+    }
   }
 }

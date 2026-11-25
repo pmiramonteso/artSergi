@@ -39,6 +39,16 @@ page/component ─useFetch─▶ /api/* (Zod) ─▶ services/content ─┬─ 
 - The database enforces the invariants too (CHECK/FK/UNIQUE): code bugs cannot oversell or create inconsistent totals.
 - **Migrations:** `npm run db:generate` after schema changes (commit the SQL). Apply with `npm run db:migrate` against the target DB from CI or a trusted machine. The app process never migrates on its own.
 
+## Payments (Phase 8)
+
+```
+browser ──{sku, qty, Idempotency-Key}──▶ POST /api/checkout ─▶ DB: order + stock reservation
+                                                             └▶ Stripe Checkout session ─▶ redirect
+Stripe ──signed webhook──▶ POST /api/webhooks/stripe ─▶ verify signature ─▶ webhook_events (dedupe)
+                                                      └▶ order paid / cancelled, stock commit/release, subscriptions
+success page ─▶ GET /api/checkout/status ─▶ DB (or server-side reconcile with Stripe)
+```
+
 ## Planned layout (added only when a phase needs it)
 
 - `app/components/{ui,layout,navigation,hero,artwork,art-mail,shop}`, `app/composables/` (GSAP composables), `app/pages/...` (localized routes). Phases 2–6.
@@ -109,3 +119,7 @@ Empty folders are not created ahead of time.
 | 30  | Conditional UPDATE for stock + DB CHECK as a second guard                               | Race-safe without explicit locks; overselling is impossible even if code is bypassed.                                                                                     |
 | 31  | Seeded offers are inactive                                                              | Hypothesis prices exist in the DB for Phase 8 wiring, but nothing is sellable until the business approves.                                                                |
 | 32  | Pages link localized routes by name (`localePath('works')`)                             | Path strings don't translate (`/es/works` is a 404). Enforced by a test.                                                                                                  |
+| 33  | Stripe Checkout with inline `price_data` from our DB                                    | No need to mirror prices in Stripe yet. Our DB is the source of truth; `stripe_price_id` can be adopted later.                                                            |
+| 34  | Commerce safety switch (off/test/live) as a pure, tested function                       | A misconfiguration disables checkout instead of charging real cards by accident.                                                                                          |
+| 35  | Webhook amount check + server-side reconciliation                                       | Defends against tampered/mismatched sessions and late webhooks; never trusts the redirect.                                                                                |
+| 36  | Stripe client injected into services (`StripeCheckoutApi`)                              | Fully testable without network; webhooks are tested with real SDK signatures.                                                                                             |

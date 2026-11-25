@@ -34,3 +34,14 @@ npm run dev            # http://localhost:3000
 - [ARCHITECTURE.md](ARCHITECTURE.md): structure, hosting, decision log
 - [SECURITY.md](SECURITY.md): security controls and roadmap
 - [ASSET_GUIDELINES.md](ASSET_GUIDELINES.md): how the artist provides images and files
+
+## Testing payments locally (Stripe TEST mode)
+
+No real money is involved. You need a free Stripe account, Docker (for Postgres) and the [Stripe CLI](https://docs.stripe.com/stripe-cli).
+
+1. `docker compose up -d`, then put `NUXT_DATABASE_URL=postgres://artsergi:artsergi@localhost:5432/artsergi` in `.env`.
+2. `npm run db:migrate`, then start `npm run dev` and run `npm run db:seed` in another terminal.
+3. Stripe Dashboard (Test mode) → Developers → API keys: copy the **secret test key** (`sk_test_…`) into `.env` as `NUXT_STRIPE_SECRET_KEY`. Never paste it in chats or commit it.
+4. `stripe login`, then `stripe listen --forward-to localhost:3000/api/webhooks/stripe`. Copy the printed `whsec_…` into `NUXT_STRIPE_WEBHOOK_SECRET`.
+5. Set `NUXT_COMMERCE_MODE=test` and `NUXT_PUBLIC_COMMERCE_MODE=test`, then restart `npm run dev`.
+6. Open `/es#collection` → Comprar → pay with card **4242 4242 4242 4242**, any future date, any CVC.

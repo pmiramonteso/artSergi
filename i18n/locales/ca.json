@@ -179,5 +179,34 @@
     "generic": "Alguna cosa ha fallat.",
     "code": "Error {code}",
     "home": "Torna a l’inici"
+  },
+  "commerce": {
+    "testBanner": "MODE TEST: els pagaments fan servir targetes de prova d’Stripe (p. ex. 4242 4242 4242 4242). No es cobren diners reals.",
+    "buy": "Comprar",
+    "subscribe": "Subscriure’m",
+    "perMonth": "/ mes",
+    "perYear": "/ any",
+    "left": "En queden {n}",
+    "soldOut": "Exhaurit",
+    "provisional": "Preus de prova provisionals",
+    "redirecting": "Obrint el pagament segur…",
+    "errors": {
+      "soldOut": "Ho sentim, aquesta edició s’acaba d’exhaurir.",
+      "unavailable": "El pagament no està disponible ara mateix. Torna-ho a provar més tard.",
+      "generic": "Alguna cosa ha fallat en iniciar el pagament. Torna-ho a provar."
+    },
+    "success": {
+      "title": "Gràcies!",
+      "confirmed": "El teu pagament està confirmat. Comanda {number}.",
+      "pending": "Estem confirmant el teu pagament amb el banc…",
+      "pendingLong": "La confirmació està trigant més del normal. Rebràs un correu quan s’hagi completat.",
+      "cancelled": "Aquest pagament s’ha cancel·lat. No s’ha cobrat res.",
+      "unknown": "No hem trobat aquest pagament."
+    },
+    "cancel": {
+      "title": "Pagament cancel·lat",
+      "body": "No s’ha cobrat res i la teva reserva s’ha alliberat.",
+      "back": "Torna a la col·lecció"
+    }
   }
 }

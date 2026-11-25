@@ -75,6 +75,8 @@ const { data: c } = await useCollection('places-we-keep')
           </div>
         </dl>
 
+        <CommerceOffers />
+
         <div class="flex flex-col gap-2">
           <UiButton :to="{ path: localePath('/'), hash: '#newsletter' }" size="lg">
             {{ $t('collection.notify') }}

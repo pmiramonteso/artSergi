@@ -21,6 +21,9 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
   - Use a least-privilege DB role in production (DML only; migrations run with a separate owner role).
   - `compose.yaml` credentials are for local development only and bound to 127.0.0.1.
 
+- **Payments (Phase 8):** Stripe secret and webhook secret are server-only runtime config. The commerce switch refuses live keys outside live mode and live mode without validated pricing. The client can't set prices (strict Zod schema). The webhook signature is verified on the raw body, and invalid or tampered requests get 400. Events are deduplicated by id. The amount charged must equal the order total. Orders are marked paid only by verified webhooks or server-side reconciliation with Stripe. Checkout is rate-limited and needs an Idempotency-Key. No card data ever touches our servers (Stripe-hosted Checkout). Webhook payloads are not stored.
+  - CSP (Phase 10) must allow Stripe's documented origins only if Stripe.js is ever embedded. Hosted Checkout is a plain redirect.
+
 ## Planned controls (by phase)
 
 | Control                                                                                                                                                     | Phase  |
