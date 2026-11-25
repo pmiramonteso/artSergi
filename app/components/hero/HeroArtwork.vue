@@ -26,6 +26,8 @@ defineProps<{
             <img
               v-if="artwork.image"
               :src="artwork.image.src"
+              :srcset="artwork.image.srcset"
+              sizes="(min-width: 1024px) 320px, (min-width: 768px) 24vw, 34vw"
               :width="artwork.image.width"
               :height="artwork.image.height"
               :alt="artwork.image.alt"

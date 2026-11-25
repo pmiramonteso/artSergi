@@ -39,9 +39,9 @@ describe('seed', () => {
 })
 
 describe('database content matches the static fallback', () => {
-  it('artworks list is identical in shape and values', async () => {
-    const fromDb = await contentRepositories(db).artworks.list('en')
-    const fromStatic = await contentRepositories(null).artworks.list('en')
+  it.each(['en', 'es', 'ca'] as const)('artworks list is identical in %s', async (locale) => {
+    const fromDb = await contentRepositories(db).artworks.list(locale)
+    const fromStatic = await contentRepositories(null).artworks.list(locale)
     expect(fromDb).toEqual(fromStatic)
   })
 

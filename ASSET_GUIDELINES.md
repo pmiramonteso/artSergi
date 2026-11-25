@@ -33,6 +33,12 @@ For each painting, also send: **title, year, medium, dimensions (cm), short desc
 - Final artwork for the A6 postcard (front and back), the 3 stickers, the A7 story card, the collector detail and the envelope/seal.
 - Print-ready files (PDF/TIFF, CMYK, with bleed) are kept separately from the web versions. Web versions are generated from the originals.
 
+## Updating painting photos (for developers)
+
+1. Put the new photo in `assets-src/artworks/<slug>/original.<ext>` (replace the old one; it stays in git history).
+2. Adjust the crop box in `assets-src/artworks/manifest.json` if the framing changed.
+3. Run `npm run images:artworks` and update the width/height in `app/data/artworks.ts` if the size changed.
+
 ## How files are organised (for developers)
 
 ```

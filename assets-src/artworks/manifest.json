@@ -1,0 +1,15 @@
+{
+  "$comment": "Source photos are never modified. `crop` (px, in the original) frames the painting incl. its frame; derivatives are regenerated with `npm run images:artworks`.",
+  "painting-001": {
+    "name": "car-suitcases",
+    "crop": { "left": 150, "top": 92, "width": 610, "height": 800 }
+  },
+  "painting-002": {
+    "name": "cloud-climber",
+    "crop": { "left": 104, "top": 116, "width": 668, "height": 800 }
+  },
+  "painting-003": {
+    "name": "torn-memories",
+    "crop": { "left": 120, "top": 132, "width": 628, "height": 772 }
+  }
+}

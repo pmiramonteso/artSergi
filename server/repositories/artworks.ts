@@ -2,6 +2,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { Artwork } from '../../shared/types/artwork'
 import { DEFAULT_LOCALE, type LocaleCode } from '../../shared/constants/i18n'
 import type { Database } from '../database/client'
+import { localizeArtwork, type ArtworkSource } from '../../app/data/artworks'
 import { artists, artworks, artworkTranslations } from '../database/schema'
 
 export interface ArtworkRepository {
@@ -95,9 +96,12 @@ export function createDbArtworkRepository(
 }
 
 /** Fallback when no database is configured: serves app/data content. */
-export function createStaticArtworkRepository(data: Artwork[]): ArtworkRepository {
+export function createStaticArtworkRepository(data: ArtworkSource[]): ArtworkRepository {
   return {
-    list: async () => data,
-    findBySlug: async (slug) => data.find((a) => a.slug === slug) ?? null,
+    list: async (locale) => data.map((a) => localizeArtwork(a, locale)),
+    findBySlug: async (slug, locale) => {
+      const a = data.find((x) => x.slug === slug)
+      return a ? localizeArtwork(a, locale) : null
+    },
   }
 }

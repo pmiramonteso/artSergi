@@ -4,7 +4,7 @@ import type { Artwork } from '#shared/types/artwork'
 /** Framed artwork image, or a labeled placeholder until the photo exists. */
 const props = withDefaults(
   defineProps<{ artwork: Artwork; index: number; eager?: boolean; sizes?: string }>(),
-  { eager: false, sizes: undefined },
+  { eager: false, sizes: '(min-width: 768px) 45vw, 92vw' },
 )
 
 const { t } = useI18n()
@@ -21,6 +21,7 @@ const placeholder = computed(() =>
     <img
       v-if="artwork.image"
       :src="artwork.image.src"
+      :srcset="artwork.image.srcset"
       :width="artwork.image.width"
       :height="artwork.image.height"
       :alt="artwork.image.alt"
