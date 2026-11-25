@@ -6,6 +6,7 @@
     >
       Skip to content
     </a>
+    <LayoutHeader />
     <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
       <slot />
     </main>

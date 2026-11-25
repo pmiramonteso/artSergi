@@ -164,3 +164,13 @@
     --grid-size: 2rem;
   }
 }
+
+/* Intro gate (see app/composables/useIntroGate.ts): hidden only until the GSAP intro sets its start state. */
+[data-motion-intro='pending'] .motion-intro {
+  opacity: 0;
+}
+
+/* No background scrolling while a modal dialog (mobile menu) is open. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
