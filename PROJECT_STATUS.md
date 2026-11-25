@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 3 — Living Canvas: complete, merged to `main`.**
-Next phase: Phase 4 (Artist hero). It needs the artist's assets (see below).
+**Phase 4 — Artist hero: complete (with placeholders), merged to `main`.**
+Next phase: Phase 5 (Homepage content). The real artwork photos and lettering are still pending.
 
 ## Phase 0 — Repository audit (done)
 
@@ -54,6 +54,17 @@ Next phase: Phase 4 (Artist hero). It needs the artist's assets (see below).
 - [x] The homepage has a section skeleton in the final order (labeled placeholders) for reviewing the transitions
 - [x] Checked in a headless browser at 1440 px and 390 px and with reduced motion: no console errors, no horizontal overflow
 
+## Phase 4 — Completed tasks
+
+- [x] `LayoutHeader`: fixed header with items on paper chips (readable over any background). Desktop has inline nav; mobile uses a native `<dialog>` menu (focus moves inside, Escape closes, `aria-expanded`, background scroll locked). Nav points to homepage sections until the pages exist
+- [x] `HeroSection` ("The Floating Studio"): a centred `<h1>` lettering with three floating framed artworks around it (upper-left large, right-centre medium, lower-left partly outside the frame), editorial labels, decorative marks and a scroll cue
+- [x] Separate positions per breakpoint. Desktop: 3 artworks + labels. Tablet: 3 smaller. Mobile: 2 artworks, no labels, name on two lines. The lettering is always above the artworks
+- [x] `useHeroAnimation`: intro timeline (artworks 0.3–1.1 s, lettering clip reveal 0.7–1.4 s, details 1.0–1.6 s), idle floating from 1.6 s (desktop/tablet, paused off-screen), and a scroll transition where the artworks drift down and straighten toward Selected Works while the details fade
+- [x] `usePointerParallax`: depth-based pointer parallax with `gsap.quickTo` and a passive listener. Inactive off-screen and disabled on touch, small screens and reduced motion
+- [x] `useIntroGate`: a shared mechanism that hides elements before first paint (canvas + hero), with a 3 s fallback
+- [x] Content lives in `app/data/hero.ts`. Real photos and lettering replace the placeholders by setting `image` / `heroLettering`. The first artwork gets `fetchpriority="high"` (LCP candidate)
+- [x] Checked in the browser: 1440, 1024 and 390 px, mid-scroll, and reduced motion. No console errors and no horizontal overflow. Pointer parallax measured (moves in proportion to depth on desktop, none on touch). Mobile menu tested (opens, focus, Escape, aria-expanded)
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -74,6 +85,6 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Owner reviews Phase 3 locally: scroll the homepage on desktop and mobile.
-2. **Blocking for Phase 4:** the three painting photographs and Sergi's handwritten lettering (scan). Until they arrive, Phase 4 can only use labeled placeholders.
-3. Phase 4: header, lettering, three floating artworks, hero GSAP timeline, pointer parallax (`usePointerParallax`, `useHeroAnimation`) and the hero → Selected Works transition.
+1. Owner reviews Phase 4 locally (move the mouse on desktop, and try the mobile menu).
+2. **Still blocking the final hero:** the three painting photos plus their real data (title, year, medium, dimensions), and the scanned lettering. Once they arrive it is a data-only change in `app/data/hero.ts`.
+3. Phase 5: homepage sections (introduction, Selected Works, Art Mail Club, collection, process, annual original, newsletter, footer). Copy and images will be clearly labeled placeholders until supplied.

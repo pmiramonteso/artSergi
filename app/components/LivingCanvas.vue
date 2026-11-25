@@ -21,6 +21,7 @@ import {
   type FieldState,
 } from '~/utils/canvas-scenes'
 import { MOTION_CONDITIONS, useScrollAnimations } from '~/composables/useScrollAnimations'
+import { releaseIntroGate, useIntroGate } from '~/composables/useIntroGate'
 
 const root = ref<HTMLElement | null>(null)
 
@@ -53,13 +54,13 @@ const fieldClass: Record<CanvasField, string> = {
 }
 
 const doodles = [
-  { id: 'star-a', is: 'star', x: 36, y: 20, depth: 0.6, cls: 'text-ink', size: 28, mobile: true },
+  { id: 'star-a', is: 'star', x: 44, y: 22, depth: 0.6, cls: 'text-ink', size: 28, mobile: true },
   { id: 'star-b', is: 'star', x: 90, y: 42, depth: 1, cls: 'text-tomato', size: 18, mobile: false },
   {
     id: 'squiggle',
     is: 'squiggle',
-    x: 58,
-    y: 44,
+    x: 24,
+    y: 62,
     depth: 0.4,
     cls: 'text-tomato-ink',
     mobile: false,
@@ -67,20 +68,8 @@ const doodles = [
   { id: 'dots', is: 'dots', x: 56, y: 86, depth: 0.8, cls: 'text-electric-blue', mobile: true },
 ] as const
 
-/*
- * Hide intro elements before first paint (only when motion is allowed and JS
- * runs), so the GSAP intro does not flash the final state first.
- * A timeout clears the flag even if GSAP never loads.
- */
-useHead({
-  script: [
-    {
-      key: 'living-canvas-intro',
-      innerHTML:
-        "(function(){var d=document.documentElement;if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches)return;d.dataset.canvasIntro='pending';setTimeout(function(){delete d.dataset.canvasIntro},3000)})()",
-    },
-  ],
-})
+// Hide intro elements until the GSAP intro has set its start state.
+useIntroGate()
 
 let introPlayed = false
 
@@ -149,7 +138,7 @@ useScrollAnimations(root, ({ gsap, mm }) => {
         )
     }
     // The `from` tweens above have already applied their start state.
-    delete document.documentElement.dataset.canvasIntro
+    releaseIntroGate()
 
     if (reduce) return
 
@@ -218,7 +207,7 @@ useScrollAnimations(root, ({ gsap, mm }) => {
 
     <!-- L2 · Grid -->
     <div data-layer="grid" class="absolute inset-0">
-      <div data-intro="grid" class="canvas-grid canvas-intro absolute inset-0 bg-grid" />
+      <div data-intro="grid" class="canvas-grid motion-intro absolute inset-0 bg-grid" />
     </div>
 
     <!-- L3 · Color fields (outer = scene state, inner = intro) -->
@@ -229,7 +218,7 @@ useScrollAnimations(root, ({ gsap, mm }) => {
       class="canvas-field absolute top-0 left-0 will-change-transform"
       :style="fieldStyle(field)"
     >
-      <div data-intro="field" class="canvas-intro" :class="fieldClass[field]" />
+      <div data-intro="field" class="motion-intro" :class="fieldClass[field]" />
     </div>
 
     <!-- L4 · Hand-drawn details (outer = parallax, inner = intro) -->
@@ -242,7 +231,7 @@ useScrollAnimations(root, ({ gsap, mm }) => {
         :class="[d.cls, d.mobile ? '' : 'hidden md:block']"
         :style="{ left: `${d.x}vw`, top: `${d.y}vh` }"
       >
-        <div data-intro="doodle" class="canvas-intro">
+        <div data-intro="doodle" class="motion-intro">
           <DecorStar v-if="d.is === 'star'" :size="'size' in d ? d.size : 24" />
           <DecorSquiggle v-else-if="d.is === 'squiggle'" />
           <DecorDots v-else />
@@ -268,10 +257,5 @@ useScrollAnimations(root, ({ gsap, mm }) => {
 /* Grid opacity varies across the surface: denser centre-left, fading at the edges. */
 .living-canvas .canvas-grid {
   mask-image: radial-gradient(ellipse 80% 75% at 40% 45%, #000 35%, rgb(0 0 0 / 0.35) 100%);
-}
-
-/* Hidden only until the GSAP intro takes over (flag set by an inline head script). */
-[data-canvas-intro='pending'] .living-canvas .canvas-intro {
-  opacity: 0;
 }
 </style>
