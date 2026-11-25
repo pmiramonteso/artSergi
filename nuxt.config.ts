@@ -27,6 +27,13 @@ export default defineNuxtConfig({
    * Keys outside `public` are server-only and never reach the browser.
    */
   runtimeConfig: {
+    /** Newsletter provider id. Empty = sign-up not open yet (nothing stored). */
+    newsletterProvider: '',
+    /**
+     * Trust X-Forwarded-For for the client IP (rate limiting). Enable ONLY when
+     * the app runs behind a proxy that overwrites the header (cPanel/Cloudflare).
+     */
+    trustProxy: false,
     public: {
       /** Absolute site origin, e.g. https://example.com — set per environment. */
       siteUrl: '',

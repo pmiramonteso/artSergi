@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 4 — Artist hero: complete (with placeholders), merged to `main`.**
-Next phase: Phase 5 (Homepage content). The real artwork photos and lettering are still pending.
+**Phase 5 — Homepage content: complete (with labeled placeholders), merged to `main`.**
+Next phase: Phase 6 (SEO, i18n and accessibility).
 
 ## Phase 0 — Repository audit (done)
 
@@ -65,6 +65,21 @@ Next phase: Phase 5 (Homepage content). The real artwork photos and lettering ar
 - [x] Content lives in `app/data/hero.ts`. Real photos and lettering replace the placeholders by setting `image` / `heroLettering`. The first artwork gets `fetchpriority="high"` (LCP candidate)
 - [x] Checked in the browser: 1440, 1024 and 390 px, mid-scroll, and reduced motion. No console errors and no horizontal overflow. Pointer parallax measured (moves in proportion to depth on desktop, none on touch). Mobile menu tested (opens, focus, Escape, aria-expanded)
 
+## Phase 5 — Completed tasks
+
+- [x] Homepage sections as independent components, in order: `HomeIntro`, `HomeSelectedWorks`, `HomeArtMail`, `HomeCollection`, `HomeProcess`, `HomeAnnual`, `HomeNewsletter`, plus `LayoutFooter`
+- [x] Typed data: `shared/types/artwork.ts` (spec model), `app/data/artworks.ts` (3 sold works; unknown fields stay `null` and show "To be confirmed"), `app/data/collections.ts` (Places We Keep Nº 001, pilot of 50), `app/data/site.ts` (contact, socials and legal pages; empty values are hidden)
+- [x] The hero now derives its artworks from the artwork data (single source)
+- [x] Central prices in `shared/constants/products.ts` (integer cents, the brief's hypothesis), hidden while `PRICING_PUBLISHED = false` ("Announced at launch")
+- [x] `isPurchasable()` is the single commerce gate. Sold and archived works are never purchasable (tested)
+- [x] `/works` and `/works/[slug]` (detail page with breadcrumb, sold notice, no checkout; 404 for unknown slugs)
+- [x] `/legal/[slug]` reserved pages (privacy, cookies, terms, shipping & returns), noindex, saying "being prepared". 404 for anything else
+- [x] Newsletter: an accessible form (labels, inline errors, `aria-invalid`, live status), a honeypot and a timing check. The API at `POST /api/newsletter` does Zod validation and a per-IP rate limit (5 per 10 min). **No provider is connected:** valid sign-ups get 503 "opens soon" and nothing is stored or logged
+- [x] Scroll reveal (`useRevealOnScroll`, batched, plays once, never leaves content hidden)
+- [x] Canvas readability: outside the hero, color fields are capped at 35% opacity and details are hidden. A unit test checks that ink text stays at AA contrast over every field
+- [x] Every placeholder is labeled: copy ("Placeholder: not an approved artist statement", "Biography pending", "Working name") and images (hatched placeholders, plus a compact variant for small slots)
+- [x] Checked: 64 unit tests; API responses checked against the running server (400 / 503 / 429 + Retry-After / 404 for GET); routes 200/404; screenshots at 1440 and 390 px with no console errors and no horizontal overflow
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -72,6 +87,9 @@ Next phase: Phase 5 (Homepage content). The real artwork photos and lettering ar
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
 ## Known issues
+
+- The newsletter rate limit is in-memory (one process). Production needs a shared store or Cloudflare rules (SECURITY.md).
+- The Art Mail Club section CTA points to the collection section because there is no club page yet.
 
 - `npm audit` reports 9 **moderate** advisories, all from one root cause: `minimatch` (ReDoS, GHSA-g3hv-75wg-m249) pulled in through `nitropack → archiver → readdir-glob`. This is build-time tooling, not the request path. The suggested "fix" downgrades Nuxt, so it is not applied. CI fails only on high or critical advisories. Re-check when Nuxt/Nitro update.
 - npm 11 shows a warning that the `esbuild` postinstall script is not approved. The build works anyway because the platform binary comes from an optional dependency.
@@ -85,6 +103,7 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Owner reviews Phase 4 locally (move the mouse on desktop, and try the mobile menu).
-2. **Still blocking the final hero:** the three painting photos plus their real data (title, year, medium, dimensions), and the scanned lettering. Once they arrive it is a data-only change in `app/data/hero.ts`.
-3. Phase 5: homepage sections (introduction, Selected Works, Art Mail Club, collection, process, annual original, newsletter, footer). Copy and images will be clearly labeled placeholders until supplied.
+1. Owner reviews Phase 5 locally.
+2. **Content from Sergi:** painting photos and data, lettering, portrait and studio photos, the approved statement and biography, the club name, contact email and social profiles.
+3. **Business decisions:** validate prices (then set `PRICING_PUBLISHED`), choose the newsletter provider (privacy review), and get the legal texts (privacy, cookies, terms, shipping) written by the business or its advisor.
+4. Phase 6: multilingual routing (/en /es /ca), metadata, canonicals, hreflang, sitemap, robots, structured data and an accessibility pass.

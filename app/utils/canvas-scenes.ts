@@ -53,10 +53,26 @@ const f = (x: number, y: number, scale = 1, rotate = 0, opacity = 1): FieldState
 })
 
 /**
+ * Behind section content, color fields are capped at this opacity so ink
+ * text keeps WCAG AA contrast over any field (verified by unit test), and
+ * hand-drawn details are hidden so they never cross text.
+ */
+export const CONTENT_FIELD_MAX_OPACITY = 0.35
+
+function contentScene(scene: CanvasScene): CanvasScene {
+  const fields = {} as Record<CanvasField, FieldState>
+  for (const field of CANVAS_FIELDS) {
+    const s = scene.fields[field]
+    fields[field] = { ...s, opacity: Math.min(s.opacity, CONTENT_FIELD_MAX_OPACITY) }
+  }
+  return { grid: scene.grid, doodles: 0, fields }
+}
+
+/**
  * Desktop composition. Content sits mostly in the left/centre column, so
  * outside the hero the color fields stay near the edges.
  */
-export const desktopScenes: Record<CanvasSceneName, CanvasScene> = {
+const desktopDesign: Record<CanvasSceneName, CanvasScene> = {
   hero: {
     grid: 1,
     doodles: 1,
@@ -138,6 +154,13 @@ export const desktopScenes: Record<CanvasSceneName, CanvasScene> = {
     },
   },
 }
+
+export const desktopScenes = Object.fromEntries(
+  CANVAS_SCENE_NAMES.map((name) => [
+    name,
+    name === 'hero' ? desktopDesign[name] : contentScene(desktopDesign[name]),
+  ]),
+) as Record<CanvasSceneName, CanvasScene>
 
 /**
  * Mobile is not a scaled-down desktop: fewer elements, smaller fields pushed

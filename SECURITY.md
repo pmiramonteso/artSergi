@@ -14,6 +14,9 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 - **CI:** lint, strict type check, tests, build, and `npm audit` (fails on high/critical) on every PR. The workflow token is `contents: read`.
 - **Error page** shows no stack traces or internal details.
 
+- **Newsletter endpoint (Phase 5):** Zod validation (email normalised, max length, literal consent, locale enum), a honeypot and a timing check, and a per-IP fixed-window rate limit returning 429 + Retry-After. No PII is stored or logged while no provider is configured. The client IP comes from `X-Forwarded-For` only when `NUXT_TRUST_PROXY=true`, so it cannot be spoofed when the app is reached directly.
+  - Limitation: the rate-limit store is in-memory per process. Add a shared store and/or Cloudflare rate limiting before launch.
+
 ## Planned controls (by phase)
 
 | Control                                                                                                                                                     | Phase  |
