@@ -13,7 +13,14 @@
  * Purely decorative: aria-hidden, no pointer events, and the static
  * composition is fully rendered on the server (works without JS).
  */
-import type { CanvasField, FieldState } from '~/utils/canvas-scenes'
+import {
+  CANVAS_FIELDS,
+  getCanvasScene,
+  isCanvasSceneName,
+  type CanvasField,
+  type FieldState,
+} from '~/utils/canvas-scenes'
+import { MOTION_CONDITIONS, useScrollAnimations } from '~/composables/useScrollAnimations'
 
 const root = ref<HTMLElement | null>(null)
 
