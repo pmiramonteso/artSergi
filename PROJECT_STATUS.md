@@ -179,7 +179,8 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 
   SEO shows 69 only because previews are noindex (intended). Fixes: the LCP artwork is no longer faded in, the LCP image is preloaded, 240w artwork variants, label-in-name (WCAG 2.5.3) on the scroll cue, a 7-day cache for public images, and `private, no-cache` HTML (bfcache works)
 
-- [ ] Mobile LCP target (< 2.5 s) not yet met in the simulation. Next lever if field data (Search Console) confirms it: trim initial JS (~48 KB unused in the entry chunk)
+- [x] Zod removed from the browser bundle (it came in through the site-URL validator used by a client plugin; that validator now uses native `URL`, with tests). Entry chunk 368 → 314 KB raw, 111 KB gzip; GSAP stays prefetch-only
+- [ ] Mobile LCP is **simulated** at a median of ~3.3 s (range 2.4–3.8 s over 5 runs) on a throttled mid-range phone over slow 4G. Unthrottled, the LCP image arrives at ~85 ms and paints at ~230 ms. Decide on further work (lazy hydration, a smaller framework baseline) once **field data** from Search Console is available after launch
 
 ## Fix — Vercel deployments (2026-11-25)
 
