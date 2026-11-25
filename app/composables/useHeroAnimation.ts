@@ -53,6 +53,8 @@ export function useHeroAnimation(scope: Readonly<Ref<HTMLElement | null>>) {
             },
             0.3,
           )
+          // LCP artwork: same entrance without fading, so it paints immediately.
+          .from('[data-intro="art-lcp"]', { y: 40, scale: 0.96, rotation: -6, duration: 0.8 }, 0.3)
           .fromTo(
             '[data-intro="lettering"]',
             { clipPath: 'inset(0% 100% 0% 0%)', autoAlpha: 1 },

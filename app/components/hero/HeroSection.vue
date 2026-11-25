@@ -21,6 +21,24 @@ const slots = computed(() => toHeroSlots(artworks.value))
 const art1 = computed(() => slots.value[0])
 const art2 = computed(() => slots.value[1])
 const art3 = computed(() => slots.value[2])
+
+// Preload the LCP image (first hero artwork) so it starts with the HTML,
+// before CSS, fonts and scripts compete for bandwidth on slow connections.
+const HERO_SIZES = '(min-width: 1024px) 320px, (min-width: 768px) 24vw, 34vw'
+useHead(() => ({
+  link: art1.value?.image
+    ? [
+        {
+          rel: 'preload',
+          as: 'image',
+          href: art1.value.image.src,
+          imagesrcset: art1.value.image.srcset,
+          imagesizes: HERO_SIZES,
+          fetchpriority: 'high',
+        },
+      ]
+    : [],
+}))
 </script>
 
 <template>

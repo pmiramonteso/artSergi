@@ -15,14 +15,16 @@ export function useRevealOnScroll(scope: Readonly<Ref<HTMLElement | null>>) {
 
       const items = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'))
       if (!items.length) return
-      gsap.set(items, { autoAlpha: 0, y: 28 })
+      // Opacity only (not autoAlpha/visibility): content stays in the
+      // accessibility tree and reachable by keyboard/screen readers.
+      gsap.set(items, { opacity: 0, y: 28 })
 
       const triggers = ScrollTrigger.batch(items, {
         start: 'top 90%',
         once: true,
         onEnter: (batch) =>
           gsap.to(batch, {
-            autoAlpha: 1,
+            opacity: 1,
             y: 0,
             duration: 0.8,
             ease: 'power3.out',
@@ -33,7 +35,7 @@ export function useRevealOnScroll(scope: Readonly<Ref<HTMLElement | null>>) {
 
       // Anything above the trigger line already (e.g. reload mid-page): show now.
       for (const t of triggers) {
-        if (t.scroll() >= t.start) gsap.set(t.trigger!, { autoAlpha: 1, y: 0 })
+        if (t.scroll() >= t.start) gsap.set(t.trigger!, { opacity: 1, y: 0 })
       }
     })
   })

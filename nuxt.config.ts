@@ -98,6 +98,17 @@ export default defineNuxtConfig({
     },
   },
 
+  /** Public assets keep stable names: cache for a week, revalidate in the background. */
+  routeRules: {
+    '/images/**': {
+      headers: { 'cache-control': 'public, max-age=604800, stale-while-revalidate=86400' },
+    },
+    '/illustrations/**': {
+      headers: { 'cache-control': 'public, max-age=604800, stale-while-revalidate=86400' },
+    },
+    '/og/**': { headers: { 'cache-control': 'public, max-age=604800' } },
+  },
+
   typescript: {
     strict: true,
     typeCheck: false, // run explicitly via `npm run typecheck` (keeps dev server fast)

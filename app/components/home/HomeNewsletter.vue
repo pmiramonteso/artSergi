@@ -88,7 +88,13 @@ async function submit() {
       </div>
 
       <div data-reveal class="bg-paper p-6 shadow-paper md:col-span-6 md:col-start-7 md:p-8">
-        <form novalidate class="flex flex-col gap-6" @submit.prevent="submit">
+        <form
+          method="post"
+          action="/api/newsletter"
+          novalidate
+          class="flex flex-col gap-6"
+          @submit.prevent="submit"
+        >
           <div class="flex flex-col gap-2">
             <label for="nl-email" class="text-eyebrow">{{ $t('newsletter.email') }}</label>
             <input

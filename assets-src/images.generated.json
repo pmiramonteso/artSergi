@@ -1,6 +1,12 @@
 {
   "artworks/painting-001": [
     {
+      "file": "public/images/artworks/painting-001/artwork-car-suitcases-240.webp",
+      "width": 240,
+      "height": 315,
+      "kb": 15
+    },
+    {
       "file": "public/images/artworks/painting-001/artwork-car-suitcases-480.webp",
       "width": 480,
       "height": 630,
@@ -15,6 +21,12 @@
   ],
   "artworks/painting-002": [
     {
+      "file": "public/images/artworks/painting-002/artwork-cloud-climber-240.webp",
+      "width": 240,
+      "height": 287,
+      "kb": 12
+    },
+    {
       "file": "public/images/artworks/painting-002/artwork-cloud-climber-480.webp",
       "width": 480,
       "height": 575,
@@ -28,6 +40,12 @@
     }
   ],
   "artworks/painting-003": [
+    {
+      "file": "public/images/artworks/painting-003/artwork-torn-memories-240.webp",
+      "width": 240,
+      "height": 295,
+      "kb": 16
+    },
     {
       "file": "public/images/artworks/painting-003/artwork-torn-memories-480.webp",
       "width": 480,

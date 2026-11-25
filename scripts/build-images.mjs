@@ -12,7 +12,7 @@ import { join, sep } from 'node:path'
 import sharp from 'sharp'
 
 const GROUPS = [
-  { group: 'artworks', prefix: 'artwork-', widths: [480, 960] },
+  { group: 'artworks', prefix: 'artwork-', widths: [240, 480, 960] },
   { group: 'artist', prefix: '', widths: [480, 960, 1400] },
 ]
 

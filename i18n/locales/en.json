@@ -4,7 +4,8 @@
     "artist": "Sergi Tugas",
     "skipToContent": "Skip to content",
     "previewNotice": "Preview site: content in progress.",
-    "placeholder": "Placeholder"
+    "placeholder": "Placeholder",
+    "ogAlt": "Paintings by Sergi Tugas and his handwritten signature"
   },
   "nav": {
     "main": "Main",

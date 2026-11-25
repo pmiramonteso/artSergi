@@ -44,8 +44,9 @@ export default defineNitroPlugin((nitro) => {
     response.headers = {
       ...response.headers,
       'Content-Security-Policy': contentSecurityPolicy(nonce, { upgradeInsecure: https }),
-      // HTML is per-request (nonce, session): never store it in shared caches.
-      'Cache-Control': 'private, no-store',
+      // HTML is per-request (nonce, session): never in shared caches, always
+      // revalidated; 'no-cache' (not 'no-store') keeps back/forward cache working.
+      'Cache-Control': 'private, no-cache',
     }
   })
 })

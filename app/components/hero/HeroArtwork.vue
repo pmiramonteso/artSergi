@@ -21,7 +21,11 @@ defineProps<{
   <div :data-hero-art="scrollDepth">
     <div :data-parallax="parallax">
       <div data-float>
-        <div data-intro="art" class="motion-intro">
+        <!-- The priority artwork is the LCP element: never hidden, motion only. -->
+        <div
+          :data-intro="priority ? 'art-lcp' : 'art'"
+          :class="priority ? undefined : 'motion-intro'"
+        >
           <figure class="bg-paper p-[3.5%] shadow-float">
             <img
               v-if="artwork.image"

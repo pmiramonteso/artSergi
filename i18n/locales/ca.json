@@ -4,7 +4,8 @@
     "artist": "Sergi Tugas",
     "skipToContent": "Salta al contingut",
     "previewNotice": "Web en versió preliminar: contingut en preparació.",
-    "placeholder": "Provisional"
+    "placeholder": "Provisional",
+    "ogAlt": "Pintures de Sergi Tugas i la seva signatura manuscrita"
   },
   "nav": {
     "main": "Principal",

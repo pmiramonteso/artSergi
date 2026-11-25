@@ -5,6 +5,8 @@
  */
 const i18nHead = useLocaleHead({ dir: true, lang: true, seo: true })
 const { t } = useI18n()
+const { public: config } = useRuntimeConfig()
+const origin = config.siteUrl || useRequestURL().origin
 
 useHead(() => ({
   htmlAttrs: { lang: i18nHead.value.htmlAttrs?.lang, dir: i18nHead.value.htmlAttrs?.dir },
@@ -15,7 +17,12 @@ useHead(() => ({
 useSeoMeta({
   ogSiteName: () => t('site.name'),
   ogType: 'website',
-  twitterCard: 'summary',
+  // Composed from real paintings + signature (npm run og).
+  ogImage: `${origin}/og/default.jpg`,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: () => t('site.ogAlt'),
+  twitterCard: 'summary_large_image',
 })
 </script>
 
