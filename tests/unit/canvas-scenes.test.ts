@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { palette } from '../../shared/design/tokens'
+import { contrastRatio } from '../../shared/utils/contrast'
 import {
   CANVAS_FIELDS,
+  CONTENT_FIELD_MAX_OPACITY,
   CANVAS_SCENE_NAMES,
   desktopScenes,
   getCanvasScene,
@@ -64,5 +67,34 @@ describe('canvas scenes', () => {
     expect(isCanvasSceneName('hero')).toBe(true)
     expect(isCanvasSceneName('nope')).toBe(false)
     expect(isCanvasSceneName(undefined)).toBe(false)
+  })
+
+  it('keeps ink text readable (AA) over every field behind section content', () => {
+    const fieldColor = {
+      blue: palette['electric-blue'],
+      tomato: palette.tomato,
+      butter: palette.butter,
+      dot: palette['electric-blue'],
+    } as const
+    // Browsers composite in sRGB space: blend paper with the field color.
+    const blend = (hex: string, alpha: number) => {
+      const ch = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16)
+      const out = [0, 1, 2].map((i) =>
+        Math.round(ch(palette.paper, i) * (1 - alpha) + ch(hex, i) * alpha),
+      )
+      return '#' + out.map((v) => v.toString(16).padStart(2, '0')).join('')
+    }
+    for (const name of CANVAS_SCENE_NAMES.filter((n) => n !== 'hero')) {
+      for (const bp of ['desktop', 'mobile'] as const) {
+        const scene = getCanvasScene(name, bp)
+        expect(scene.doodles).toBe(0)
+        for (const field of CANVAS_FIELDS) {
+          const { opacity } = scene.fields[field]
+          expect(opacity).toBeLessThanOrEqual(CONTENT_FIELD_MAX_OPACITY)
+          const bg = blend(fieldColor[field], opacity)
+          expect(contrastRatio(palette.ink, bg)).toBeGreaterThanOrEqual(4.5)
+        }
+      }
+    }
   })
 })

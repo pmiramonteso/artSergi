@@ -10,5 +10,6 @@
     <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
       <slot />
     </main>
+    <LayoutFooter />
   </div>
 </template>
