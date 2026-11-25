@@ -27,7 +27,8 @@ export function createAuth(
     baseURL: string
     secret: string
     secure: boolean
-    trustProxy: boolean
+    /** Header carrying the real client IP behind our proxy ('' = TCP peer). */
+    clientIpHeader: '' | 'cf-connecting-ip' | 'x-real-ip' | 'x-forwarded-for'
     send: (mail: { to: string; subject: string; text: string }) => Promise<void>
   },
 ) {
@@ -52,7 +53,7 @@ export function createAuth(
       database: { generateId: 'uuid' },
       useSecureCookies: opts.secure,
       cookiePrefix: 'st',
-      ipAddress: { ipAddressHeaders: opts.trustProxy ? ['x-forwarded-for'] : [] },
+      ipAddress: { ipAddressHeaders: opts.clientIpHeader ? [opts.clientIpHeader] : [] },
     },
     emailAndPassword: {
       enabled: true,
@@ -119,7 +120,7 @@ export function useAuth(event: H3Event): Auth | null {
         baseURL,
         secret,
         secure: baseURL.startsWith('https://'),
-        trustProxy: c.trustProxy === true,
+        clientIpHeader: clientIpHeader(event),
         send: sendMail,
       }),
     }

@@ -48,3 +48,38 @@ export function createRateLimiter(options: {
     },
   }
 }
+
+/**
+ * Shared (multi-process) fixed-window limiter on the rate_limits table.
+ * One atomic upsert per hit: a stale window restarts at 1, otherwise the
+ * counter increments. Keys are namespaced with "app:" so they never
+ * collide with Better Auth's own entries.
+ */
+export async function hitDbRateLimit(
+  db: import('../database/client').Database,
+  key: string,
+  opts: { limit: number; windowMs: number; now?: number },
+): Promise<RateLimitResult> {
+  const { sql } = await import('drizzle-orm')
+  const { rateLimits } = await import('../database/schema')
+  const now = opts.now ?? Date.now()
+  const windowStart = now - opts.windowMs
+  const [row] = await db
+    .insert(rateLimits)
+    .values({ key: `app:${key}`, count: 1, lastRequest: now })
+    .onConflictDoUpdate({
+      target: rateLimits.key,
+      set: {
+        count: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN 1 ELSE ${rateLimits.count} + 1 END`,
+        lastRequest: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN ${now} ELSE ${rateLimits.lastRequest} END`,
+      },
+    })
+    .returning({ count: rateLimits.count, lastRequest: rateLimits.lastRequest })
+  const count = row?.count ?? 1
+  const started = row?.lastRequest ?? now
+  return {
+    allowed: count <= opts.limit,
+    remaining: Math.max(0, opts.limit - count),
+    retryAfter: Math.max(1, Math.ceil((started + opts.windowMs - now) / 1000)),
+  }
+}

@@ -1,9 +1,6 @@
 import { checkoutRequestSchema, idempotencyKeySchema } from '#shared/schemas/checkout'
 import { CheckoutError, createCheckout } from '../../services/checkout'
 import { InsufficientStockError } from '../../services/inventory'
-import { createRateLimiter } from '../../utils/rate-limit'
-
-const limiter = createRateLimiter({ limit: 10, windowMs: 10 * 60_000 })
 
 /**
  * POST /api/checkout  { sku, quantity?, locale? } + header Idempotency-Key
@@ -11,12 +8,7 @@ const limiter = createRateLimiter({ limit: 10, windowMs: 10 * 60_000 })
  * the client. Disabled (503) unless commerce is configured.
  */
 export default defineEventHandler(async (event) => {
-  const ip = getRequestIP(event, { xForwardedFor: useRuntimeConfig(event).trustProxy === true })
-  const rate = limiter.hit(`checkout:${ip ?? 'unknown'}`)
-  if (!rate.allowed) {
-    setResponseHeader(event, 'Retry-After', rate.retryAfter)
-    throw createError({ statusCode: 429, statusMessage: 'Too many requests' })
-  }
+  await hitRateLimit(event, `checkout:${clientIp(event)}`, { limit: 10, windowMs: 10 * 60_000 })
 
   const { stripe, db, mode } = requireCommerce(event)
 
