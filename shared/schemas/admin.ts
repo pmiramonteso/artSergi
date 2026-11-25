@@ -44,6 +44,7 @@ const text = (max: number) => z.string().trim().max(max).nullable().optional()
 export const artworkUpdateSchema = z.strictObject({
   status: z.enum(['available', 'sold', 'archived']).optional(),
   featured: z.boolean().optional(),
+  sortOrder: z.number().int().min(0).max(10_000).optional(),
   year: z.number().int().min(1900).max(2200).nullable().optional(),
   medium: text(200),
   widthCm: z.number().positive().max(10_000).nullable().optional(),
@@ -57,5 +58,24 @@ export const artworkUpdateSchema = z.strictObject({
     .optional(),
 })
 
+/** New artwork: a URL slug plus the same editable fields. */
+export const artworkCreateSchema = artworkUpdateSchema.extend({
+  slug: z
+    .string()
+    .min(3)
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'lowercase letters, digits and hyphens'),
+  status: z.enum(['available', 'sold', 'archived']),
+})
+
+/** Alt text for an uploaded photo: English required, ES/CA recommended. */
+export const imageAltSchema = z.strictObject({
+  en: z.string().trim().min(10).max(600),
+  es: z.string().trim().max(600).optional(),
+  ca: z.string().trim().max(600).optional(),
+})
+
+export type ArtworkCreate = z.infer<typeof artworkCreateSchema>
+export type ImageAlt = z.infer<typeof imageAltSchema>
 export type OrderUpdate = z.infer<typeof orderUpdateSchema>
 export type ArtworkUpdate = z.infer<typeof artworkUpdateSchema>

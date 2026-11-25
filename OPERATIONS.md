@@ -13,7 +13,7 @@
 
 ## Backups
 
-- **What:** the PostgreSQL database (orders, customers, accounts, content). Code and images live in git. Original artwork files must also be kept outside the server (artist's own archive).
+- **What:** the PostgreSQL database (orders, customers, accounts, content) **and the uploads folder** (`NUXT_UPLOADS_DIR`, admin-uploaded photos: copy it with rsync/tar next to the DB dump). Code and images live in git. Original artwork files must also be kept outside the server (artist's own archive).
 - **How:** `scripts/db-backup.sh` (pg_dump custom format, integrity check, sha256, optional `age` encryption, retention `BACKUP_KEEP_DAYS`, default 30).
 - **Schedule:** daily via cron on a trusted machine (or the host's cron if `pg_dump` is available):
   ```

@@ -24,15 +24,19 @@ export function toPublicArtwork(
   translations: TranslationRow[],
   locale: LocaleCode,
 ): Artwork {
-  const tr =
-    translations.find((t) => t.locale === locale) ??
-    translations.find((t) => t.locale === DEFAULT_LOCALE)
-  const alt = tr?.imageAlt ?? ''
+  // Per-field fallback: a translation row may exist with only some fields.
+  const own = translations.find((t) => t.locale === locale)
+  const base = translations.find((t) => t.locale === DEFAULT_LOCALE)
+  const tr = {
+    title: own?.title ?? base?.title ?? null,
+    description: own?.description ?? base?.description ?? null,
+  }
+  const alt = own?.imageAlt ?? base?.imageAlt ?? ''
   return {
     id: row.slug,
     slug: row.slug,
-    title: tr?.title ?? null,
-    description: tr?.description ?? null,
+    title: tr.title,
+    description: tr.description,
     year: row.year,
     medium: row.medium,
     dimensions:

@@ -56,6 +56,11 @@ export default defineNuxtConfig({
     mailFrom: 'Sergi Tugas Art Studio <no-reply@localhost>',
     /** Comma-separated emails allowed to become admin (with verified email + 2FA). */
     adminEmails: '',
+    /**
+     * Where admin-uploaded images are stored (served at /media/**). Use a
+     * persistent path OUTSIDE the release folders in production.
+     */
+    uploadsDir: '.data/uploads',
     /** Apply DB migrations at startup (deploys only; see server/plugins/migrate-on-start.ts). */
     dbMigrateOnStart: false,
     /** ISO countries offered at checkout (provisional, OPEN_QUESTIONS B3). */

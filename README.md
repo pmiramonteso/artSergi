@@ -36,6 +36,7 @@ npm run dev            # http://localhost:3000
 - [ARCHITECTURE.md](ARCHITECTURE.md): structure, hosting, decision log
 - [SECURITY.md](SECURITY.md): security controls and roadmap
 - [ASSET_GUIDELINES.md](ASSET_GUIDELINES.md): how the artist provides images and files
+- [ADMIN_GUIDE.md](ADMIN_GUIDE.md): admin panel guide for the artist (Spanish)
 - [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): everything still pending from the artist, the business and hosting
 - [DEPLOYMENT.md](DEPLOYMENT.md): cPanel/Cloudflare deployment, environment variables, releases
 - [OPERATIONS.md](OPERATIONS.md): monitoring, backups, rollback, incidents

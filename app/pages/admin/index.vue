@@ -4,7 +4,7 @@
  * the server (admin role + 2FA); this page only renders what the API allows.
  */
 import { formatPrice } from '#shared/constants/products'
-import { manualTargets, type OrderStatus } from '#shared/domain/order-status'
+import type { OrderStatus } from '#shared/domain/order-status'
 
 useSeoMeta({ title: 'Admin', robots: 'noindex, nofollow' })
 
@@ -36,7 +36,6 @@ const denied = computed(() => {
 const lazy = { headers, immediate: false } as const
 const orders = useFetch('/api/admin/orders', { ...lazy, query: { limit: 100 } })
 const catalogue = useFetch('/api/admin/catalogue', lazy)
-const artworks = useFetch('/api/admin/artworks', lazy)
 const customers = useFetch('/api/admin/customers', lazy)
 const subscriptions = useFetch('/api/admin/subscriptions', lazy)
 const audit = useFetch('/api/admin/audit', lazy)
@@ -44,7 +43,6 @@ const audit = useFetch('/api/admin/audit', lazy)
 watch(tab, (t) => {
   if (t === 'orders') orders.execute()
   if (t === 'catalogue') catalogue.execute()
-  if (t === 'artworks') artworks.execute()
   if (t === 'people') {
     customers.execute()
     subscriptions.execute()
@@ -67,20 +65,17 @@ async function patch(url: string, body: Record<string, unknown>, after: () => un
 
 // Orders
 const openOrder = ref<string | null>(null)
-const orderDetail = ref<Record<string, unknown> | null>(null)
-const tracking = reactive({ carrier: '', trackingReference: '' })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const orderDetail = ref<any>(null)
 async function toggleOrder(id: string) {
   openOrder.value = openOrder.value === id ? null : id
   orderDetail.value = openOrder.value ? await $fetch(`/api/admin/orders/${id}`) : null
 }
-function setStatus(id: string, status: OrderStatus) {
-  const extra =
-    status === 'shipped'
-      ? {
-          ...(tracking.carrier ? { carrier: tracking.carrier } : {}),
-          ...(tracking.trackingReference ? { trackingReference: tracking.trackingReference } : {}),
-        }
-      : {}
+function setStatus(
+  id: string,
+  status: OrderStatus,
+  extra: { carrier?: string; trackingReference?: string } = {},
+) {
   return patch(`/api/admin/orders/${id}`, { status, ...extra }, async () => {
     await orders.refresh()
     if (openOrder.value) orderDetail.value = await $fetch(`/api/admin/orders/${openOrder.value}`)
@@ -91,63 +86,6 @@ function setStatus(id: string, status: OrderStatus) {
 const priceInputs = reactive<Record<string, string>>({})
 const stockInputs = reactive<Record<string, string>>({})
 const eur = (cents: number) => formatPrice(cents, 'EUR', 'en')
-
-// Artwork edits
-type ArtworkRow = {
-  slug: string
-  status: string
-  year: number | null
-  medium: string | null
-  widthCm: number | null
-  heightCm: number | null
-  translations: Record<string, { title: string | null; description: string | null }>
-}
-const editing = ref<string | null>(null)
-const form = reactive({
-  status: 'sold',
-  year: '',
-  medium: '',
-  widthCm: '',
-  heightCm: '',
-  titleEn: '',
-  titleEs: '',
-  titleCa: '',
-  descEn: '',
-})
-function edit(a: ArtworkRow) {
-  editing.value = a.slug
-  Object.assign(form, {
-    status: a.status,
-    year: a.year?.toString() ?? '',
-    medium: a.medium ?? '',
-    widthCm: a.widthCm?.toString() ?? '',
-    heightCm: a.heightCm?.toString() ?? '',
-    titleEn: a.translations.en?.title ?? '',
-    titleEs: a.translations.es?.title ?? '',
-    titleCa: a.translations.ca?.title ?? '',
-    descEn: a.translations.en?.description ?? '',
-  })
-}
-const num = (v: string) => (v.trim() === '' ? null : Number(v))
-const str = (v: string) => (v.trim() === '' ? null : v.trim())
-function saveArtwork() {
-  return patch(
-    `/api/admin/artworks/${editing.value}`,
-    {
-      status: form.status,
-      year: num(form.year),
-      medium: str(form.medium),
-      widthCm: num(form.widthCm),
-      heightCm: num(form.heightCm),
-      translations: {
-        en: { title: str(form.titleEn), description: str(form.descEn) },
-        es: { title: str(form.titleEs) },
-        ca: { title: str(form.titleCa) },
-      },
-    },
-    () => artworks.refresh(),
-  )
-}
 
 const cell = 'border-b border-ink/10 px-3 py-2 text-left align-top'
 </script>
@@ -242,25 +180,10 @@ const cell = 'border-b border-ink/10 px-3 py-2 text-left align-top'
               </tr>
               <tr v-if="openOrder === o.id && orderDetail">
                 <td :class="cell" colspan="5">
-                  <pre class="max-h-64 overflow-auto bg-ink/5 p-3 text-xs">{{ orderDetail }}</pre>
-                  <div class="mt-3 flex flex-wrap items-end gap-3">
-                    <template v-if="o.status === 'fulfilled'">
-                      <UiInput id="ship-carrier" v-model="tracking.carrier" label="Carrier" />
-                      <UiInput
-                        id="ship-tracking"
-                        v-model="tracking.trackingReference"
-                        label="Tracking reference"
-                      />
-                    </template>
-                    <UiButton
-                      v-for="target in manualTargets(o.status as OrderStatus)"
-                      :key="target"
-                      :variant="target === 'cancelled' ? 'secondary' : 'primary'"
-                      @click="setStatus(o.id, target)"
-                    >
-                      Mark {{ target }}
-                    </UiButton>
-                  </div>
+                  <AdminOrderDetail
+                    :detail="orderDetail"
+                    @set-status="(st, extra) => setStatus(o.id, st, extra)"
+                  />
                 </td>
               </tr>
             </template>
@@ -366,60 +289,7 @@ const cell = 'border-b border-ink/10 px-3 py-2 text-left align-top'
       </section>
 
       <!-- Artworks -->
-      <section v-if="tab === 'artworks'" class="flex flex-col gap-4">
-        <ul class="flex flex-col gap-2">
-          <li
-            v-for="a in (artworks.data.value ?? []) as ArtworkRow[]"
-            :key="a.slug"
-            class="flex flex-wrap items-center justify-between gap-3 bg-paper p-4 shadow-paper"
-          >
-            <span>
-              <strong>{{ a.slug }}</strong> · {{ a.translations.en?.title ?? 'title pending' }} ·
-              {{ a.status }}
-            </span>
-            <UiButton variant="secondary" @click="edit(a)">Edit</UiButton>
-          </li>
-        </ul>
-        <form
-          v-if="editing"
-          class="grid max-w-3xl gap-4 bg-paper p-6 shadow-paper md:grid-cols-2"
-          @submit.prevent="saveArtwork"
-        >
-          <h2 class="text-h3 font-semibold md:col-span-2">Edit {{ editing }}</h2>
-          <div class="flex flex-col gap-2">
-            <label for="aw-status" class="text-eyebrow">Status</label>
-            <select
-              id="aw-status"
-              v-model="form.status"
-              class="min-h-12 border-[1.5px] border-ink bg-paper px-3"
-            >
-              <option value="available">available</option>
-              <option value="sold">sold</option>
-              <option value="archived">archived</option>
-            </select>
-          </div>
-          <UiInput id="aw-year" v-model="form.year" label="Year" inputmode="numeric" />
-          <UiInput id="aw-medium" v-model="form.medium" label="Medium" />
-          <UiInput id="aw-w" v-model="form.widthCm" label="Width (cm)" inputmode="numeric" />
-          <UiInput id="aw-h" v-model="form.heightCm" label="Height (cm)" inputmode="numeric" />
-          <UiInput id="aw-ten" v-model="form.titleEn" label="Title (EN)" />
-          <UiInput id="aw-tes" v-model="form.titleEs" label="Title (ES)" />
-          <UiInput id="aw-tca" v-model="form.titleCa" label="Title (CA)" />
-          <div class="flex flex-col gap-2 md:col-span-2">
-            <label for="aw-desc" class="text-eyebrow">Description (EN)</label>
-            <textarea
-              id="aw-desc"
-              v-model="form.descEn"
-              rows="4"
-              class="border-[1.5px] border-ink bg-paper p-3"
-            />
-          </div>
-          <div class="flex gap-3 md:col-span-2">
-            <UiButton type="submit">Save</UiButton>
-            <UiButton variant="ghost" @click="editing = null">Close</UiButton>
-          </div>
-        </form>
-      </section>
+      <AdminArtworks v-if="tab === 'artworks'" @message="(m) => (message = m)" />
 
       <!-- People -->
       <section v-if="tab === 'people'" class="grid gap-6 lg:grid-cols-2">
