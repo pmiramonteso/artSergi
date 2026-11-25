@@ -71,7 +71,7 @@ const art3 = computed(() => slots.value[2])
           Art Mail Club · Nº 001
         </UiLabel>
       </div>
-      <div data-parallax="0.5" class="absolute top-[62%] left-[58%] hidden md:block">
+      <div data-parallax="0.5" class="absolute top-[72%] left-[66%] hidden md:block">
         <DecorStar data-intro="decor" class="motion-intro text-electric-blue" :size="22" />
       </div>
       <div

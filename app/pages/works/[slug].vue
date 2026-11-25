@@ -91,7 +91,6 @@ useHead({
       <p v-if="artwork.description" class="max-w-(--container-prose)">
         {{ artwork.description }}
       </p>
-      <UiPendingNote v-else :label="$t('works.descriptionPending')" />
 
       <p v-if="!isPurchasable(artwork)" class="border-l-2 border-ink pl-4 text-sm">
         {{ $t(`works.notForSale.${artwork.status}`) }}

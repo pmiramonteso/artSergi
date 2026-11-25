@@ -35,7 +35,6 @@
   },
   "hero": {
     "label": "Sergi Tugas, artista",
-    "placeholderLettering": "Lettering provisional",
     "originalPaintings": "Pintures originals",
     "artworkPending": "Pintura {n}: foto pendent",
     "scroll": "Llisca",
@@ -45,9 +44,7 @@
     "eyebrow": "L’artista",
     "title": "Mons, escenes i històries a través de la pintura",
     "quote": "Creo històries visuals a través de la pintura, la imaginació i els objectes quotidians. Cada peça és un món propi.",
-    "quoteNote": "Provisional: no és una declaració aprovada per l’artista",
-    "bio": "Sergi Tugas és un artista visual independent. La seva biografia breu apareixerà aquí quan s’hagi redactat i aprovat amb ell.",
-    "bioNote": "Biografia pendent",
+    "bio": "Sergi Tugas és un artista visual independent establert a Barcelona. La seva pintura es mou entre el surrealisme i l’art conceptual: escenes oníriques, objectes quotidians i personatges inesperats que expliquen petites històries. Amb elles busca capturar emocions en cru i sentiments veritables.",
     "portrait": "Retrat o foto d’en Sergi a l’estudi"
   },
   "works": {
@@ -64,7 +61,6 @@
     "medium": "Tècnica",
     "size": "Mides",
     "pending": "Per confirmar",
-    "descriptionPending": "Descripció pendent de l’artista",
     "notForSale": {
       "sold": "Aquesta obra està venuda i no està disponible per a la compra.",
       "archived": "Aquesta obra forma part de l’arxiu i no està disponible per a la compra."
@@ -78,7 +74,6 @@
   "artMail": {
     "eyebrow": "Art Mail Club",
     "title": "Art col·leccionable, per correu",
-    "workingName": "Nom provisional: el nom del club encara no està decidit",
     "lead": "Un petit sobre de l’univers artístic d’en Sergi: una targeta il·lustrada, adhesius, una història breu i un detall de col·leccionista, reunits al voltant d’una col·lecció cada vegada.",
     "body": "El club es planteja com una subscripció mensual, també amb col·leccions soltes, regals i edicions especials. Els detalls i els preus s’anunciaran al llançament.",
     "cta": "Descobreix la primera col·lecció",

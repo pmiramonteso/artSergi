@@ -113,7 +113,7 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 ## Content update — real paintings (2026-11-25)
 
 - [x] The 3 sold paintings supplied by Sergi are live in the hero, Selected Works, /works and the detail pages
-- [x] Originals preserved in `assets-src/artworks/<slug>/original.jpeg`. Web derivatives (WebP 480w + full size, 33–77 KB) built reproducibly by `npm run images:artworks` (sharp: crop to the framed painting, no colour filters, never upscaled). Crop boxes are in `assets-src/artworks/manifest.json`
+- [x] Originals preserved in `assets-src/artworks/<slug>/original.jpeg`. Web derivatives (WebP 480w + full size, 33–77 KB) built reproducibly by `npm run images` (sharp: crop to the framed painting, no colour filters, never upscaled). Crop boxes are in `assets-src/artworks/manifest.json`
 - [x] Alt text in EN/ES/CA describing only what is visible. Title, year, medium, size and description stay "to be confirmed" (A2)
 - [x] `srcset`/`sizes` on artwork images. The hero's first painting keeps `fetchpriority="high"` (LCP)
 - [x] Tests: alt text in every locale, every referenced file exists, and DB ↔ static parity in all 3 locales (110 tests)
@@ -156,6 +156,12 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] **Release workflow** (manual; full checks + prod audit; artifact + sha256; deploy only through the protected `production` environment, with pinned SSH host key, atomic symlink switch, Passenger restart and smoke test). **Dependabot** for npm and Actions
 - [x] **Backups:** `scripts/db-backup.sh` / `db-restore.sh` (custom-format dump, integrity check, sha256, optional age encryption, retention; restore refuses non-empty targets). **Restore drill passed** (identical row counts)
 - [x] **OPERATIONS.md** (monitoring, backups, rollback, incident checklist, routine) and an OWASP Top 10 mapping in SECURITY.md
+
+## Content update — artist portrait and signature (2026-11-25)
+
+- [x] **Studio portrait** in the artist introduction: optimized master (1818×2400, 288 KB, no metadata) in `assets-src/artist/` (the 5.6 MB camera original is kept by the owner outside git), WebP 480/960/1400 (24–95 KB) with **all metadata stripped** (the original has no GPS), EN/ES/CA alt text describing only what is visible, and added as `image` to the Person JSON-LD
+- [x] **Signature** vectorized to SVG (`npm run lettering`, potrace as a dev-only tool: traced, not redrawn, brand ink colour, 16 KB). Used as the hero `<h1>` (alt "Sergi Tugas", clip-reveal intro), and in the header and footer. The "placeholder lettering" label is gone
+- [x] `npm run images` now builds artworks and artist photos from one script. Hero decorations moved so they no longer cross the signature
 
 ## Pending (owner)
 

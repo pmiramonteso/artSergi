@@ -35,11 +35,14 @@ const showAccount = config.commerceMode !== 'off'
 <template>
   <header class="pointer-events-none fixed inset-x-0 top-0 z-40">
     <div class="page-container flex items-center justify-between gap-4 py-4">
-      <NuxtLink
-        :to="localePath('/')"
-        class="pointer-events-auto bg-paper px-3 py-1.5 font-serif text-xl leading-none italic shadow-paper"
-      >
-        {{ $t('site.artist') }}
+      <NuxtLink :to="localePath('/')" class="pointer-events-auto bg-paper px-3 py-1.5 shadow-paper">
+        <img
+          src="/illustrations/lettering/hero-lettering.svg"
+          :alt="$t('site.artist')"
+          width="1532"
+          height="729"
+          class="block h-8 w-auto"
+        />
       </NuxtLink>
 
       <div class="pointer-events-auto hidden items-center gap-2 md:flex">
@@ -86,7 +89,13 @@ const showAccount = config.commerceMode !== 'off'
     >
       <div class="page-container flex h-full flex-col bg-grid py-4">
         <div class="flex items-center justify-between">
-          <span class="font-serif text-xl italic">{{ $t('site.artist') }}</span>
+          <img
+            src="/illustrations/lettering/hero-lettering.svg"
+            :alt="$t('site.artist')"
+            width="1532"
+            height="729"
+            class="block h-8 w-auto"
+          />
           <button
             type="button"
             class="bg-ink px-3 py-1.5 text-eyebrow text-paper"

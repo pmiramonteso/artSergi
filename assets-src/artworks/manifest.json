@@ -1,5 +1,5 @@
 {
-  "$comment": "Source photos are never modified. `crop` (px, in the original) frames the painting incl. its frame; derivatives are regenerated with `npm run images:artworks`.",
+  "$comment": "Source photos are never modified. `crop` (px, in the original) frames the painting incl. its frame; derivatives are regenerated with `npm run images`.",
   "painting-001": {
     "name": "car-suitcases",
     "crop": { "left": 150, "top": 92, "width": 610, "height": 800 }

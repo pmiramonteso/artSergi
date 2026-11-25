@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { artworkSources } from '../../app/data/artworks'
 import { LOCALE_CODES } from '../../shared/constants/i18n'
+import { artistPortrait } from '../../app/data/artist'
 
 const publicFile = (p: string) => fileURLToPath(new URL(`../../public${p}`, import.meta.url))
 
@@ -24,5 +25,16 @@ describe.each(artworkSources.filter((a) => a.image))('$slug image', (a) => {
   it('declares real dimensions', () => {
     expect(image.width).toBeGreaterThan(0)
     expect(image.height).toBeGreaterThan(0)
+  })
+})
+
+describe('artist portrait', () => {
+  it('exists in every size, with alt text in every locale', () => {
+    expect(artistPortrait).not.toBeNull()
+    const p = artistPortrait!
+    for (const f of [p.src, ...p.srcset.split(',').map((c) => c.trim().split(' ')[0]!)]) {
+      expect(existsSync(publicFile(f)), f).toBe(true)
+    }
+    for (const l of LOCALE_CODES) expect(p.alt[l].length).toBeGreaterThan(40)
   })
 })

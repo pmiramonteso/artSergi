@@ -20,13 +20,14 @@ export function websiteJsonLd(opts: { url: string; name: string; inLanguage: str
   }
 }
 
-/** Person: the artist. Only name + url + confirmed social profiles (sameAs). */
-export function personJsonLd(opts: { url: string; sameAs?: string[] }): JsonLd {
+/** Person: the artist. Name, url, a real photo and confirmed social profiles only. */
+export function personJsonLd(opts: { url: string; sameAs?: string[]; image?: string }): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: ARTIST_NAME,
     url: opts.url,
+    ...(opts.image ? { image: opts.image } : {}),
     ...(opts.sameAs?.length ? { sameAs: opts.sameAs } : {}),
   }
 }

@@ -35,7 +35,6 @@ const pieces = [
             :eyebrow="$t('artMail.eyebrow')"
             :title="$t('artMail.title')"
           />
-          <UiPendingNote :label="$t('artMail.workingName')" />
         </div>
         <div data-reveal class="flex flex-col gap-4">
           <p class="text-lead">{{ $t('artMail.lead') }}</p>

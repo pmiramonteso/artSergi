@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRevealOnScroll } from '~/composables/useRevealOnScroll'
 import { socialLinks } from '~/data/site'
+import { artistPortrait } from '~/data/artist'
 import { personJsonLd, websiteJsonLd } from '#shared/utils/structured-data'
 
 const { t, locale } = useI18n()
@@ -27,7 +28,11 @@ useHead({
     {
       type: 'application/ld+json',
       innerHTML: JSON.stringify(
-        personJsonLd({ url: pageUrl.value, sameAs: socialLinks.map((s) => s.href) }),
+        personJsonLd({
+          url: pageUrl.value,
+          sameAs: socialLinks.map((s) => s.href),
+          image: artistPortrait ? new URL(artistPortrait.src, origin).toString() : undefined,
+        }),
       ),
     },
   ]),
