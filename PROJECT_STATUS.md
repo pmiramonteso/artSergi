@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 8 — E-commerce (Stripe TEST mode): complete, merged to `main`.** Real payments are impossible by design until the business approves (see Commerce safety switch).
-Next phase: Phase 9 (customer accounts & admin).
+**Phase 9 — Customer accounts & admin: complete, merged to `main`.**
+Phase 10 (security hardening & production readiness) in progress.
 
 See **OPEN_QUESTIONS.md** for everything still pending from the artist, the business and hosting.
 
@@ -131,6 +131,19 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] End-to-end against real PostgreSQL + HTTP: offers listed; missing idempotency key or a client price → 400; a Stripe error → order cancelled and reservation released; webhooks without, forged or tampered signatures → 400; valid → order paid; duplicate → skipped; status endpoint → paid
 - [ ] Not done here: **Customer Portal** (needs customer accounts, Phase 9); **real Stripe test run** (needs the owner's Stripe TEST keys, see README); shipping rates and tax (B3/B4)
 
+## Phase 9 — Completed tasks
+
+- [x] **Authentication with Better Auth 1.7** (maintained, Drizzle adapter), not custom crypto: email + password (scrypt hashing), **required email verification**, password reset (1 h token, **revokes all sessions**), DB-stored revocable sessions (30 days, refreshed daily) in HttpOnly cookies, sign-out invalidation, **TOTP 2FA with backup codes**, account deletion, and **DB-backed rate limiting** (sign-in 5/min, sign-up, reset, 2FA). Session tokens are stripped from JSON responses, so browser JS never sees them
+- [x] Schema: Better Auth tables (`users`, `sessions`, `accounts`, `verifications`, `two_factors`, `rate_limits`) with UUID ids. Roles live in `users.role` (admin plugin), replacing the earlier placeholder roles tables. The initial migration was regenerated (no production DB existed yet): **27 tables**
+- [x] Transactional email via SMTP (`NUXT_SMTP_URL`). In development without SMTP, links are printed to the dev console; in production without SMTP, sending fails loudly. Trilingual plain-text templates
+- [x] **Admin authorization on the server for every request:** role `admin` AND 2FA enabled (`MFA_REQUIRED` otherwise). First-admin bootstrap through `NUXT_ADMIN_EMAILS` (verified email only), persisted and audited
+- [x] Admin API (Zod strict schemas, no caching): summary, orders (list/detail/fulfilment: paid→fulfilled→shipped with tracking→delivered; cancel only unpaid; **staff can never set payment states**), catalogue (price in cents, active, which also clears a stale Stripe price), stock (never below reserved + sold), artworks (facts + EN/ES/CA translations), customers, subscriptions, audit log. **Every change is written to admin_audit_logs with a field-level diff**
+- [x] Customer area (EN/ES/CA, noindex): sign-in (with 2FA step), sign-up, forgot/reset password (no account enumeration), account overview (own paid orders, matched by user or **verified** email; subscriptions), **Stripe Customer Portal** for billing, security page (2FA with locally generated QR via `uqr`, backup codes, disable) and account deletion. Safe same-site redirects only
+- [x] Admin panel `/admin` (English, not localized, noindex): overview, orders, catalogue & stock, artworks, customers & subscriptions, audit log
+- [x] Tests (151): auth integration (hash ≠ password, verification required, short passwords rejected, rate limit 429, sign-out invalidates, reset revokes sessions, 2FA blocks password-only sign-in), admin services (fulfilment path, forbidden transitions, audited price change, stock floor, artwork edits), customer isolation (only own and verified data), order-status and schema rules
+- [x] End-to-end against real PostgreSQL over HTTP: anonymous 401 → unverified 403 → verified account → allowlisted admin without 2FA → MFA_REQUIRED → 2FA enabled → password-only sign-in has no admin access → TOTP → admin 200 → artwork edit visible on the public API, invalid or unknown fields 400, audit entries written. Admin and account pages render server-side with the session; axe shows 0 violations from site code
+- [x] **Bugs found and fixed during e2e:** Zod 4 `record(enum)` required every locale (now `partialRecord`, with a test); session token echoed in JSON bodies (now stripped)
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -138,6 +151,10 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
 ## Known issues
+
+- Accounts need `NUXT_DATABASE_URL` + `NUXT_AUTH_SECRET`; otherwise `/api/auth/*` returns 503. The header "Account" link only shows when commerce is not `off`.
+- Production email needs an SMTP provider (OPEN_QUESTIONS B6).
+- Deleting an account keeps that person's orders (accounting) but unlinks them; the privacy policy must say so (B5).
 
 - Commerce needs a database. Without `NUXT_DATABASE_URL` checkout stays disabled (503) even in test mode.
 - Shipping is 0 and tax is not computed until B3/B4 are decided. Live mode is blocked anyway.
@@ -166,6 +183,5 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. **Owner:** create a Stripe account and run a real TEST purchase locally (README → "Testing payments locally"). Card 4242 4242 4242 4242, any future date and any CVC.
-2. **Business:** B2 prices, B3 shipping, B4 tax/entity, B5 legal texts, B11 gift model. Only then can live mode be considered.
-3. Phase 9: customer accounts (secure sessions), order history, subscription management via the Stripe Customer Portal, and the admin area with RBAC, MFA and audit log.
+1. Phase 10 (in progress): security headers/CSP, production deployment (cPanel), backups, monitoring, rollback.
+2. Owner: choose the SMTP/email provider (B6) and the admin email(s) (`NUXT_ADMIN_EMAILS`).

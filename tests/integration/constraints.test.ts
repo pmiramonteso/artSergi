@@ -27,8 +27,8 @@ const rejects = (p: Promise<unknown>) => expect(p).rejects.toThrow()
 
 describe('database integrity', () => {
   it('rejects duplicate emails case-insensitively', async () => {
-    await db.insert(users).values({ email: 'Person@Example.com' })
-    await rejects(db.insert(users).values({ email: 'person@example.com' }))
+    await db.insert(users).values({ name: 'A', email: 'Person@Example.com' })
+    await rejects(db.insert(users).values({ name: 'B', email: 'person@example.com' }))
   })
 
   it('rejects impossible artwork data', async () => {

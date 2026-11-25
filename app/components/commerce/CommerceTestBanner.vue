@@ -4,11 +4,11 @@ const { public: config } = useRuntimeConfig()
 </script>
 
 <template>
-  <p
+  <aside
     v-if="config.commerceMode === 'test'"
-    role="note"
+    aria-label="Test mode"
     class="fixed bottom-3 left-1/2 z-50 w-[min(92vw,44rem)] -translate-x-1/2 bg-butter px-4 py-2 text-center text-sm font-medium text-ink shadow-float"
   >
     {{ $t('commerce.testBanner') }}
-  </p>
+  </aside>
 </template>

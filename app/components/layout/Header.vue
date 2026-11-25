@@ -26,6 +26,10 @@ const route = useRoute()
 watch(() => route.fullPath, closeMenu)
 
 const sectionLink = (hash: string) => ({ path: localePath('/'), hash: `#${hash}` })
+
+// Accounts only make sense once commerce is on (test or live).
+const { public: config } = useRuntimeConfig()
+const showAccount = config.commerceMode !== 'off'
 </script>
 
 <template>
@@ -51,6 +55,13 @@ const sectionLink = (hash: string) => ({ path: localePath('/'), hash: `#${hash}`
             </li>
           </ul>
         </nav>
+        <NuxtLink
+          v-if="showAccount"
+          :to="localePath('/account')"
+          class="bg-paper px-3 py-2 text-sm shadow-paper hover:bg-ink hover:text-paper"
+        >
+          {{ $t('account.nav') }}
+        </NuxtLink>
         <LayoutLanguageSwitcher class="bg-paper p-1 shadow-paper" />
       </div>
 
@@ -98,6 +109,14 @@ const sectionLink = (hash: string) => ({ path: localePath('/'), hash: `#${hash}`
             </li>
           </ul>
         </nav>
+        <NuxtLink
+          v-if="showAccount"
+          :to="localePath('/account')"
+          class="mt-8 text-eyebrow underline"
+          @click="closeMenu"
+        >
+          {{ $t('account.nav') }}
+        </NuxtLink>
         <LayoutLanguageSwitcher variant="menu" class="mt-auto pb-4" />
       </div>
     </dialog>

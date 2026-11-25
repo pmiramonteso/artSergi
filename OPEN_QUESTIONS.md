@@ -24,24 +24,26 @@ Legend: 🔴 blocks launch · 🟠 blocks a specific feature · 🟢 nice to hav
 
 ## B. Business decisions
 
-| #   | Decision                                                                                                                                             | Blocks                                  | Status |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------ |
-| B1  | Final name for the "Art Mail Club" (working name)                                                                                                    | Branding, copy, possible domain         | 🔴     |
-| B2  | Validate prices (hypothesis: €8.90/month, €9.90 single, €26.70 3-month gift, €99 annual) → then set `PRICING_PUBLISHED`                              | Showing prices, checkout                | 🔴     |
-| B3  | Shipping: destinations, carriers, rates, delivery promises                                                                                           | Checkout (Phase 8)                      | 🔴     |
-| B4  | Legal entity and tax setup (self-employed vs company, VAT/OSS for EU sales)                                                                          | Checkout, invoices, Organization schema | 🔴     |
-| B5  | Legal texts: privacy, cookies, terms, shipping & returns (written by the business or its advisor)                                                    | Launch, newsletter                      | 🔴     |
-| B6  | Newsletter provider (e.g. own DB + mailer, Brevo, Mailchimp…), privacy review, double opt-in                                                         | Opening newsletter sign-up              | 🟠     |
-| B7  | Annual Original: how it works (must not be a lottery/giveaway without an approved legal structure)                                                   | Annual section content                  | 🟠     |
-| B8  | Final domain (and whether Art Mail Club gets its own domain later)                                                                                   | Canonicals, sitemap, email              | 🔴     |
-| B9  | Public contact email and social profiles                                                                                                             | Footer, Person schema                   | 🟠     |
-| B10 | Default language and whether `/` should auto-redirect by browser language (currently: yes, falls back to EN)                                         | i18n                                    | 🟢     |
-| B11 | Whether the 3-month gift is prepaid or a recurring subscription with an end date                                                                     | Stripe Billing (Phase 8)                | 🟠     |
-| B15 | Stripe account: who owns it (business entity, B4), payout bank account, statement descriptor. Needed for TEST keys now (free) and live later         | Testing payments, live                  | 🟠     |
-| B16 | Gift purchases: collect the recipient's name/address/email and a gift message at checkout?                                                           | Gift flow                               | 🟠     |
-| B13 | Cookie policy must list the functional cookie `i18n_locale` (remembers the chosen language, 1 year). No analytics or marketing cookies are set today | Cookie policy (B5)                      | 🟠     |
-| B14 | Should legal page URLs be localized (e.g. `/es/legal/privacidad`)?                                                                                   | SEO polish                              | 🟢     |
-| B12 | Annual collector product contents (€99, "subject to validation")                                                                                     | Product catalogue                       | 🟠     |
+| #   | Decision                                                                                                                                                           | Blocks                                  | Status |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- | ------ |
+| B1  | Final name for the "Art Mail Club" (working name)                                                                                                                  | Branding, copy, possible domain         | 🔴     |
+| B2  | Validate prices (hypothesis: €8.90/month, €9.90 single, €26.70 3-month gift, €99 annual) → then set `PRICING_PUBLISHED`                                            | Showing prices, checkout                | 🔴     |
+| B3  | Shipping: destinations, carriers, rates, delivery promises                                                                                                         | Checkout (Phase 8)                      | 🔴     |
+| B4  | Legal entity and tax setup (self-employed vs company, VAT/OSS for EU sales)                                                                                        | Checkout, invoices, Organization schema | 🔴     |
+| B5  | Legal texts: privacy, cookies, terms, shipping & returns (written by the business or its advisor)                                                                  | Launch, newsletter                      | 🔴     |
+| B6  | Email provider: transactional SMTP for account emails (verification, reset) **and** newsletter (own DB + mailer, Brevo, Mailchimp…), privacy review, double opt-in | Accounts in production, newsletter      | 🔴     |
+| B7  | Annual Original: how it works (must not be a lottery/giveaway without an approved legal structure)                                                                 | Annual section content                  | 🟠     |
+| B8  | Final domain (and whether Art Mail Club gets its own domain later)                                                                                                 | Canonicals, sitemap, email              | 🔴     |
+| B9  | Public contact email and social profiles                                                                                                                           | Footer, Person schema                   | 🟠     |
+| B10 | Default language and whether `/` should auto-redirect by browser language (currently: yes, falls back to EN)                                                       | i18n                                    | 🟢     |
+| B11 | Whether the 3-month gift is prepaid or a recurring subscription with an end date                                                                                   | Stripe Billing (Phase 8)                | 🟠     |
+| B15 | Stripe account: who owns it (business entity, B4), payout bank account, statement descriptor. Needed for TEST keys now (free) and live later                       | Testing payments, live                  | 🟠     |
+| B16 | Gift purchases: collect the recipient's name/address/email and a gift message at checkout?                                                                         | Gift flow                               | 🟠     |
+| B17 | Who are the admins (emails for `NUXT_ADMIN_EMAILS`)? Each must set up 2FA                                                                                          | Admin access                            | 🟠     |
+| B18 | Data retention: how long to keep orders of deleted accounts (tax/accounting rules) and newsletter consents                                                         | Privacy policy, deletion flow           | 🟠     |
+| B13 | Cookie policy must list the functional cookie `i18n_locale` (remembers the chosen language, 1 year). No analytics or marketing cookies are set today               | Cookie policy (B5)                      | 🟠     |
+| B14 | Should legal page URLs be localized (e.g. `/es/legal/privacidad`)?                                                                                                 | SEO polish                              | 🟢     |
+| B12 | Annual collector product contents (€99, "subject to validation")                                                                                                   | Product catalogue                       | 🟠     |
 
 ## C. Hosting and infrastructure
 

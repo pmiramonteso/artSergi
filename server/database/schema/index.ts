@@ -1,5 +1,5 @@
 export * from './enums'
-export { users, roles, userRoles } from './auth'
+export { users, sessions, accounts, verifications, twoFactors, rateLimits } from './auth'
 export * from './content'
 export * from './commerce'
 export {
