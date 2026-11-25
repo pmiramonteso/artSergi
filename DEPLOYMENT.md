@@ -9,9 +9,19 @@ Status: **prepared, not executed.** It needs the hosting checks in OPEN_QUESTION
 | cPanel → Setup Node.js App offers **Node 24** (min 22.22.3)                        | Nuxt 4.7 engine requirement                           |
 | An app can use a **CommonJS startup file** (`server.cjs`) and runs under Passenger | `server.cjs` loads the ESM server                     |
 | **SSH access** (for the release workflow) or at least SFTP                         | Upload releases, switch symlink, restart              |
-| **PostgreSQL** ≥ 14 available (or a managed Postgres reachable from the host)      | Accounts and commerce need it                         |
+| **MySQL 8.4** database in the same account (Sered: ✅ MySQL 8.4.9)                 | Accounts, orders, content                             |
 | Memory per process ≥ 512 MB                                                        | The Node server uses ~120–200 MB; headroom for spikes |
 | HTTPS certificate (AutoSSL / Let's Encrypt) on the final domain                    | HSTS, secure cookies                                  |
+
+## 1b. Database (cPanel → MySQL)
+
+1. **Bases de datos → Asistente de base de datos** (Database Wizard):
+   - database `artsergi` → cPanel names it `<cpaneluser>_artsergi`;
+   - user `app` → `<cpaneluser>_app`, with a long generated password;
+   - privileges: **ALL PRIVILEGES** on that database only (the app creates its tables through migrations).
+2. `NUXT_DATABASE_URL=mysql://<cpaneluser>_app:<password>@localhost:3306/<cpaneluser>_artsergi`. In the password, encode `@ : / ? # %` as `%40 %3A %2F %3F %23 %25`, or generate one with letters and digits only.
+3. First start: `NUXT_DB_MIGRATE_ON_START=true` creates the tables and `NUXT_DB_SEED_ON_START=true` loads the initial content (only into an empty database, so it never overwrites admin edits). Afterwards set the migrate flag back to `false`.
+4. Never expose MySQL publicly: leave **Acceso remoto a bases de datos** (Remote MySQL) empty. The app connects through `localhost`.
 
 ## 2. Server layout (atomic releases)
 
@@ -29,20 +39,21 @@ Passenger restarts the app when `current/tmp/restart.txt` is touched (the releas
 
 Set them in the cPanel app settings. Never commit them. Generate secrets with `openssl rand -base64 48`.
 
-| Variable                                               | Value                                                                                                                                  |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `NODE_ENV`                                             | `production`                                                                                                                           |
-| `NUXT_PUBLIC_SITE_URL`                                 | `https://<final-domain>` (B8)                                                                                                          |
-| `NUXT_PUBLIC_SITE_INDEXABLE`                           | `true` only for the real launch                                                                                                        |
-| `NUXT_DATABASE_URL`                                    | Postgres URL (least-privilege app role; `?sslmode=require` if remote)                                                                  |
-| `NUXT_AUTH_SECRET`                                     | ≥ 32 random characters                                                                                                                 |
-| `NUXT_SMTP_URL`, `NUXT_MAIL_FROM`                      | transactional email (B6)                                                                                                               |
-| `NUXT_ADMIN_EMAILS`                                    | admin email(s) (B17)                                                                                                                   |
-| `NUXT_CLIENT_IP_HEADER`                                | `cf-connecting-ip` behind Cloudflare, else the host proxy's header                                                                     |
-| `NUXT_COMMERCE_MODE`, `NUXT_PUBLIC_COMMERCE_MODE`      | `off` until approved; `test` for staging                                                                                               |
-| `NUXT_STRIPE_SECRET_KEY`, `NUXT_STRIPE_WEBHOOK_SECRET` | only when commerce is on                                                                                                               |
-| `NUXT_UPLOADS_DIR`                                     | Persistent folder for admin-uploaded photos, **outside** `releases/`, e.g. `/home/<user>/apps/artsergi/uploads`. Include it in backups |
-| `NUXT_DB_MIGRATE_ON_START`                             | `true` **only** for a release that adds migrations, then back to `false`                                                               |
+| Variable                                               | Value                                                                                                                                   |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`                                             | `production`                                                                                                                            |
+| `NUXT_PUBLIC_SITE_URL`                                 | `https://<final-domain>` (B8)                                                                                                           |
+| `NUXT_PUBLIC_SITE_INDEXABLE`                           | `true` only for the real launch                                                                                                         |
+| `NUXT_DATABASE_URL`                                    | `mysql://<user>:<password>@localhost:3306/<database>` (cPanel prefixes names with the account user; URL-encode symbols in the password) |
+| `NUXT_AUTH_SECRET`                                     | ≥ 32 random characters                                                                                                                  |
+| `NUXT_SMTP_URL`, `NUXT_MAIL_FROM`                      | transactional email (B6)                                                                                                                |
+| `NUXT_ADMIN_EMAILS`                                    | admin email(s) (B17)                                                                                                                    |
+| `NUXT_CLIENT_IP_HEADER`                                | `cf-connecting-ip` behind Cloudflare, else the host proxy's header                                                                      |
+| `NUXT_COMMERCE_MODE`, `NUXT_PUBLIC_COMMERCE_MODE`      | `off` until approved; `test` for staging                                                                                                |
+| `NUXT_STRIPE_SECRET_KEY`, `NUXT_STRIPE_WEBHOOK_SECRET` | only when commerce is on                                                                                                                |
+| `NUXT_UPLOADS_DIR`                                     | Persistent folder for admin-uploaded photos, **outside** `releases/`, e.g. `/home/<user>/apps/artsergi/uploads`. Include it in backups  |
+| `NUXT_DB_MIGRATE_ON_START`                             | `true` **only** for a release that adds migrations, then back to `false`                                                                |
+| `NUXT_DB_SEED_ON_START`                                | `true` for the first install: loads initial content only if the database is empty                                                       |
 
 At startup the server runs a **config audit**. It logs warnings and refuses to start on unsafe settings: an indexable non-https site, or a weak auth secret.
 

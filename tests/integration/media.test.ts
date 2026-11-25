@@ -94,7 +94,7 @@ describe('creating artworks with photos', () => {
       await db
         .insert(users)
         .values({ name: 'A', email: 'a@example.com', role: 'admin' })
-        .returning()
+        .$returningId()
     )[0]!.id
     uploads = await mkdtemp(join(tmpdir(), 'artsergi-uploads-'))
   })

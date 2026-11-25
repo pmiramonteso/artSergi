@@ -51,7 +51,7 @@ Legend: 🔴 blocks launch · 🟠 blocks a specific feature · 🟢 nice to hav
 | --- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ------ |
 | C1  | Sered cPanel: Node version available (needs ≥ 22.22.3, ideally 24 LTS)                                                               | Production deploy                | 🔴     |
 | C2  | Sered cPanel: does the Node.js App Manager run an ESM entry? Memory limits per process?                                              | Production deploy                | 🔴     |
-| C3  | **PostgreSQL**: is it available on Sered Plan M? If not, which managed Postgres (cost)?                                              | Production DB (Phase 7+)         | 🔴     |
+| C3  | ~~PostgreSQL on Sered?~~ **Resolved:** Sered has MySQL 8.4.9 → the app now uses MySQL (2026-11-25)                                   | Production DB (Phase 7+)         | ✅     |
 | C4  | Vercel plan: Hobby is non-commercial. Use it only for previews, or upgrade?                                                          | Commercial previews              | 🟠     |
 | C5  | Cloudflare in front (DNS/WAF/rate limiting)? Account owner?                                                                          | Security hardening               | 🟢     |
 | C6  | Backup destination for DB dumps (off-site, encrypted)                                                                                | Phase 10                         | 🟠     |

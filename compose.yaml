@@ -1,20 +1,23 @@
-# Local development database only. Never use these credentials anywhere else.
+# Local development + test database only (same engine as production: MySQL 8.4).
+# Never use these credentials anywhere else.
 #   docker compose up -d
-#   NUXT_DATABASE_URL=postgres://artsergi:artsergi@localhost:5432/artsergi
+#   NUXT_DATABASE_URL=mysql://artsergi:artsergi@127.0.0.1:3306/artsergi
+#   TEST_MYSQL_URL=mysql://root:artsergi@127.0.0.1:3306   (integration tests)
 services:
-  postgres:
-    image: postgres:17-alpine
+  mysql:
+    image: mysql:8.4
     environment:
-      POSTGRES_USER: artsergi
-      POSTGRES_PASSWORD: artsergi
-      POSTGRES_DB: artsergi
+      MYSQL_ROOT_PASSWORD: artsergi
+      MYSQL_DATABASE: artsergi
+      MYSQL_USER: artsergi
+      MYSQL_PASSWORD: artsergi
     ports:
-      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:3306:3306'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mysqldata:/var/lib/mysql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U artsergi -d artsergi']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-partsergi']
       interval: 5s
-      retries: 10
+      retries: 20
 volumes:
-  pgdata:
+  mysqldata:

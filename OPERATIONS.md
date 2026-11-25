@@ -13,21 +13,21 @@
 
 ## Backups
 
-- **What:** the PostgreSQL database (orders, customers, accounts, content) **and the uploads folder** (`NUXT_UPLOADS_DIR`, admin-uploaded photos: copy it with rsync/tar next to the DB dump). Code and images live in git. Original artwork files must also be kept outside the server (artist's own archive).
-- **How:** `scripts/db-backup.sh` (pg_dump custom format, integrity check, sha256, optional `age` encryption, retention `BACKUP_KEEP_DAYS`, default 30).
-- **Schedule:** daily via cron on a trusted machine (or the host's cron if `pg_dump` is available):
+- **What:** the MySQL database (orders, customers, accounts, content) **and the uploads folder** (`NUXT_UPLOADS_DIR`, admin-uploaded photos: copy it with rsync/tar next to the DB dump). Code and images live in git. Original artwork files must also be kept outside the server (artist's own archive).
+- **How:** `scripts/db-backup.sh` (bash; `mysqldump --single-transaction` so the shop keeps running, gzip, completeness check, sha256, optional `age` encryption, retention `BACKUP_KEEP_DAYS`, default 30). The password goes into a private temporary option file, never on the command line. Sered also keeps its own cPanel backups, but don't rely on them alone.
+- **Schedule:** daily from **cPanel → Cron Jobs** (`mysqldump` is available there), then copy the files off the server:
   ```
-  15 3 * * *  DATABASE_URL=… BACKUP_DIR=/secure/backups BACKUP_AGE_RECIPIENT=age1… /path/scripts/db-backup.sh
+  15 3 * * *  DATABASE_URL=… BACKUP_DIR=$HOME/backups BACKUP_AGE_RECIPIENT=age1… $HOME/apps/artsergi/current/scripts/db-backup.sh
   ```
 - **Storage:** encrypted, off the hosting account (C6), at least 2 copies in different places. The `age` private key is stored separately from the backups.
 - **Retention:** 30 daily + 12 monthly (keep one per month). Align with the legal retention for accounting (B18).
 - **Restore drill (quarterly, and after schema changes):**
   ```
-  createdb restore_drill
-  TARGET_DATABASE_URL=postgres://…/restore_drill ./scripts/db-restore.sh backups/artsergi-<ts>.dump
+  # create an empty database restore_drill in cPanel first
+  TARGET_DATABASE_URL=mysql://…/<cpaneluser>_restore_drill ./scripts/db-restore.sh backups/artsergi-<ts>.sql.gz
   ```
   Compare row counts for orders, payments, subscriptions, artworks and users, then drop the drill database. The restore script refuses non-empty targets.
-  - Verified on 2026-11-25 against PostgreSQL 17: all 27 tables restored with identical counts; the refusal on a non-empty target works.
+  - Verified on 2026-11-25 against MySQL 8.4 (password with `@ : /` symbols): all tables, rows, 21 CHECK constraints and 24 foreign keys restored identically; the refusal on a non-empty target works.
 
 ## Rollback
 

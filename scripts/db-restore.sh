@@ -1,30 +1,33 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Restore a backup into an EMPTY database (restore drills, disaster recovery).
-#   TARGET_DATABASE_URL=postgres://…/restore_test ./scripts/db-restore.sh backups/artsergi-….dump
+#   TARGET_DATABASE_URL=mysql://user:pass@localhost:3306/restore_test ./scripts/db-restore.sh backups/artsergi-….sql.gz
 # Encrypted (.age) files need AGE_IDENTITY=/path/to/key.txt.
 # Refuses to touch a database that already has tables.
-set -eu
+set -euo pipefail
 FILE="${1:?usage: db-restore.sh <backup file>}"
 : "${TARGET_DATABASE_URL:?TARGET_DATABASE_URL is required}"
+umask 077
+DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=scripts/db-url.sh
+. "$DIR/db-url.sh"
+parse_db_url "$TARGET_DATABASE_URL"
 
-TABLES="$(psql "$TARGET_DATABASE_URL" -tAc "select count(*) from information_schema.tables where table_schema='public'")"
+TABLES="$(mysql --defaults-extra-file="$DB_CNF" -N -B -e \
+  "select count(*) from information_schema.tables where table_schema = '$DB_NAME'")"
 if [ "$TABLES" != "0" ]; then
   echo "refusing: target database is not empty ($TABLES tables)" >&2
   exit 1
 fi
 
-if [ -f "$FILE.sha256" ] && command -v sha256sum > /dev/null; then sha256sum -c "$FILE.sha256"; fi
+if [ -f "$FILE.sha256" ] && command -v sha256sum > /dev/null; then
+  (cd "$(dirname "$FILE")" && sha256sum -c "$(basename "$FILE").sha256")
+fi
 
 case "$FILE" in
   *.age)
     : "${AGE_IDENTITY:?AGE_IDENTITY is required for encrypted backups}"
-    TMP="$(mktemp)"
-    trap 'rm -f "$TMP"' EXIT
-    age --decrypt --identity "$AGE_IDENTITY" --output "$TMP" "$FILE"
-    SRC="$TMP"
+    age --decrypt --identity "$AGE_IDENTITY" "$FILE" | gzip -dc | mysql --defaults-extra-file="$DB_CNF" "$DB_NAME"
     ;;
-  *) SRC="$FILE" ;;
+  *) gzip -dc "$FILE" | mysql --defaults-extra-file="$DB_CNF" "$DB_NAME" ;;
 esac
-
-pg_restore --no-owner --no-privileges --exit-on-error --dbname="$TARGET_DATABASE_URL" "$SRC"
-echo "restore ok into target database"
+echo "restore ok into $DB_NAME"

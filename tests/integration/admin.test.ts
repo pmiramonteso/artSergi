@@ -36,7 +36,7 @@ beforeEach(async () => {
   const [u] = await db
     .insert(users)
     .values({ name: 'Admin', email: 'admin@example.com', emailVerified: true, role: 'admin' })
-    .returning()
+    .$returningId()
   actor = u!.id
 })
 afterAll(() => close?.())
@@ -53,7 +53,7 @@ const mkOrder = async (status: 'paid' | 'awaiting_payment', email = 'buyer@examp
         totalAmount: 990,
         idempotencyKey: crypto.randomUUID(),
       })
-      .returning()
+      .$returningId()
   )[0]!
 
 describe('admin: orders', () => {

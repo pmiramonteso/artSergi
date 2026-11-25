@@ -16,6 +16,17 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      # Same engine as production (cPanel at Sered: MySQL 8.4).
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -pci-only"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v7
 
@@ -35,8 +46,10 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      - name: Unit tests
+      - name: Unit + integration tests (MySQL 8.4)
         run: npm test
+        env:
+          TEST_MYSQL_URL: mysql://root:ci-only@127.0.0.1:3306
 
       - name: Production build
         run: npm run build
