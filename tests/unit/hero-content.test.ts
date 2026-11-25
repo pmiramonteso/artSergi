@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { heroArtworks, heroLettering } from '../../app/data/hero'
+import { artworks } from '../../app/data/artworks'
+import { heroLettering, toHeroSlots } from '../../app/data/hero'
 
 describe('hero content', () => {
-  it('has exactly three artwork slots with unique ids', () => {
-    expect(heroArtworks).toHaveLength(3)
-    expect(new Set(heroArtworks.map((a) => a.id)).size).toBe(3)
+  const slots = toHeroSlots(artworks)
+
+  it('uses the first three featured artworks, positions 1–3', () => {
+    expect(slots).toHaveLength(3)
+    expect(slots.map((s) => s.position)).toEqual([1, 2, 3])
+    expect(new Set(slots.map((s) => s.id)).size).toBe(3)
   })
 
   it('every supplied image has real dimensions and non-empty alt text', () => {
-    const images = [...heroArtworks.map((a) => a.image), heroLettering].filter((i) => i !== null)
+    const images = [...slots.map((a) => a.image), heroLettering].filter((i) => i !== null)
     for (const image of images) {
       expect(image.src).toMatch(/^\//)
       expect(image.width).toBeGreaterThan(0)
       expect(image.height).toBeGreaterThan(0)
       expect(image.alt.trim()).not.toBe('')
     }
-  })
-
-  it('positions are 1, 2, 3 (used for localized placeholder labels)', () => {
-    expect(heroArtworks.map((a) => a.position)).toEqual([1, 2, 3])
   })
 })

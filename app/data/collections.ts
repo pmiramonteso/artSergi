@@ -1,28 +1,14 @@
-import type { LocalizedText } from '#shared/constants/i18n'
+import type { Collection } from '#shared/types/collection'
+
+export type { Collection, CollectionItem } from '#shared/types/collection'
 
 /**
  * Collections. Copy comes from the approved business brief (concept,
  * contents, pilot size), translated to ES/CA (pending native review,
  * OPEN_QUESTIONS A10). Imagery is pending: placeholders are shown.
- * This is also the seed source for the database (Phase 7).
+ * This is also the seed source for the database (server/database/seed.ts)
+ * and the fallback content when no database is configured.
  */
-export interface CollectionItem {
-  name: string
-  detail: LocalizedText
-}
-
-export interface Collection {
-  slug: string
-  number: string
-  title: string
-  tagline: LocalizedText
-  description: LocalizedText
-  contents: CollectionItem[]
-  /** Pilot inventory. Real stock is validated server-side (Phase 8). */
-  editionSize: number
-  accent: 'tomato' | 'electric-blue' | 'butter'
-}
-
 export const currentCollection: Collection = {
   slug: 'places-we-keep',
   number: 'Nº 001',

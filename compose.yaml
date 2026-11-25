@@ -1,0 +1,20 @@
+# Local development database only. Never use these credentials anywhere else.
+#   docker compose up -d
+#   NUXT_DATABASE_URL=postgres://artsergi:artsergi@localhost:5432/artsergi
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: artsergi
+      POSTGRES_PASSWORD: artsergi
+      POSTGRES_DB: artsergi
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U artsergi -d artsergi']
+      interval: 5s
+      retries: 10
+volumes:
+  pgdata:

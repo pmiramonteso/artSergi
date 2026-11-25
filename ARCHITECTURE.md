@@ -2,23 +2,42 @@
 
 One Nuxt 4 application (SSR, Nitro server) serves all three business areas: the portfolio, the Art Mail Club and the shop. It is deliberately a modular monolith with no microservices.
 
-## Current layout (Phase 1)
+## Current layout
 
 ```
-app/                  Vue application (Nuxt 4 srcDir)
-  app.vue             Root: route announcer + layout + page
-  error.vue           Error / 404 page
-  layouts/default.vue
-  pages/index.vue     Temporary placeholder homepage
-  assets/css/main.css Tailwind entry + theme tokens
-server/               Nitro server (business logic lives here, never in components)
-  api/health.get.ts
-  middleware/robots-header.ts
-shared/               Code shared by app/ and server/ (auto-imported in both)
-  utils/site-url.ts
-tests/unit/           Vitest (pure logic)
-public/               Static files served as-is
+app/                    Vue application (Nuxt 4 srcDir)
+  components/{ui,decor,hero,home,artwork,layout}/
+  composables/          GSAP (useScrollAnimations…), useContent (API fetch)
+  data/                 Static content = seed source + no-DB fallback
+  pages/                index, works/, works/[slug], legal/[slug], design-system
+  plugins/              i18n base URL
+i18n/locales/           en / es / ca UI messages
+server/
+  api/                  artworks, collections, newsletter, health
+  database/             schema/ (Drizzle), migrations/ (SQL), seed.ts, client.ts
+  repositories/         DB + static implementations, public DTO mapping
+  services/             content (repo selection), inventory (reservations)
+  routes/               sitemap.xml, robots.txt
+  tasks/                db:seed, inventory:expire
+  utils/                database, rate-limit, site
+shared/
+  constants/            i18n (locales, localized paths), products (offers)
+  domain/               subscription lifecycle, order arithmetic
+  schemas/              Zod: newsletter, content params
+  types/ utils/         Artwork/Collection models, formatting, JSON-LD, sitemap
+tests/{unit,integration}/
 ```
+
+## Data access
+
+```
+page/component ─useFetch─▶ /api/* (Zod) ─▶ services/content ─┬─ DB repository (Drizzle → PostgreSQL)
+                                                             └─ static repository (app/data)  ← no NUXT_DATABASE_URL
+```
+
+- Business rules live in `server/services` and `shared/domain`, never in components.
+- The database enforces the invariants too (CHECK/FK/UNIQUE): code bugs cannot oversell or create inconsistent totals.
+- **Migrations:** `npm run db:generate` after schema changes (commit the SQL). Apply with `npm run db:migrate` against the target DB from CI or a trusted machine. The app process never migrates on its own.
 
 ## Planned layout (added only when a phase needs it)
 
@@ -84,3 +103,9 @@ Empty folders are not created ahead of time.
 | 24  | Hand-written `/sitemap.xml` and `/robots.txt` server routes (no SEO modules)            | Small, explicit, environment-aware, and no extra dependencies.                                                                                                            |
 | 25  | `NUXT_PUBLIC_SITE_URL` copied into i18n `baseUrl` by a pre-plugin                       | One env var for the domain instead of two that could drift apart.                                                                                                         |
 | 26  | JSON-LD builders in `shared/utils/structured-data.ts`                                   | Unit-tested rule: unknown facts are omitted. Placeholder titles are never published as data.                                                                              |
+| 27  | Drizzle ORM + postgres.js; schema split by domain                                       | Typed SQL with no runtime magic, plain SQL migrations to review, works on any Node host.                                                                                  |
+| 28  | Repositories with DB and static implementations                                         | The site works before a DB exists (C3 unresolved), and a test guarantees parity.                                                                                          |
+| 29  | PGlite for integration tests (+ optional real-Postgres test)                            | Real Postgres semantics in CI with no Docker. Real concurrency is checked separately against Postgres.                                                                    |
+| 30  | Conditional UPDATE for stock + DB CHECK as a second guard                               | Race-safe without explicit locks; overselling is impossible even if code is bypassed.                                                                                     |
+| 31  | Seeded offers are inactive                                                              | Hypothesis prices exist in the DB for Phase 8 wiring, but nothing is sellable until the business approves.                                                                |
+| 32  | Pages link localized routes by name (`localePath('works')`)                             | Path strings don't translate (`/es/works` is a 404). Enforced by a test.                                                                                                  |

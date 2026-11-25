@@ -1,12 +1,13 @@
 import { DEFAULT_LOCALE } from '#shared/constants/i18n'
 import { buildSitemap, type SitemapEntry } from '#shared/utils/sitemap'
-import { artworks } from '~~/app/data/artworks'
+import { contentRepositories } from '../services/content'
 
 /**
  * /sitemap.xml: indexable pages in every locale with hreflang alternates.
  * Legal stubs and the internal design-system page are excluded (noindex).
  */
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
+  const artworks = await contentRepositories(useDatabase()).artworks.list(DEFAULT_LOCALE)
   const entries: SitemapEntry[] = [
     { page: 'index' },
     { page: 'works' },

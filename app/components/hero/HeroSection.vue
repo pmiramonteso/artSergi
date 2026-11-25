@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { heroArtworks } from '~/data/hero'
+import { toHeroSlots } from '~/data/hero'
 import { useHeroAnimation } from '~/composables/useHeroAnimation'
 import { usePointerParallax } from '~/composables/usePointerParallax'
 import { useIntroGate } from '~/composables/useIntroGate'
@@ -16,7 +16,11 @@ useIntroGate()
 useHeroAnimation(root)
 usePointerParallax(root)
 
-const [art1, art2, art3] = heroArtworks
+const { data: artworks } = await useArtworks()
+const slots = computed(() => toHeroSlots(artworks.value))
+const art1 = computed(() => slots.value[0])
+const art2 = computed(() => slots.value[1])
+const art3 = computed(() => slots.value[2])
 </script>
 
 <template>

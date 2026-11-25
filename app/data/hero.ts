@@ -1,9 +1,8 @@
-import { featuredArtworks } from './artworks'
-import type { ArtworkImage } from '#shared/types/artwork'
+import type { Artwork, ArtworkImage } from '#shared/types/artwork'
 
 /**
  * Hero content. The floating artworks are the first three featured artworks
- * (app/data/artworks.ts), so adding a photo there updates the hero too.
+ * (from the content API), so adding a photo there updates the hero too.
  */
 export type HeroImage = ArtworkImage
 
@@ -16,12 +15,17 @@ export interface HeroArtworkSlot {
   image: HeroImage | null
 }
 
-export const heroArtworks: HeroArtworkSlot[] = featuredArtworks.slice(0, 3).map((a, i) => ({
-  id: a.id,
-  position: i + 1,
-  ratio: a.image ? `${a.image.width} / ${a.image.height}` : '4 / 5',
-  image: a.image,
-}))
+export function toHeroSlots(artworks: Artwork[]): HeroArtworkSlot[] {
+  return artworks
+    .filter((a) => a.featured)
+    .slice(0, 3)
+    .map((a, i) => ({
+      id: a.id,
+      position: i + 1,
+      ratio: a.image ? `${a.image.width} / ${a.image.height}` : '4 / 5',
+      image: a.image,
+    }))
+}
 
 /**
  * Sergi's handwritten lettering (SVG). `null` shows a clearly labeled
