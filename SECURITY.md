@@ -17,6 +17,10 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 - **Newsletter endpoint (Phase 5):** Zod validation (email normalised, max length, literal consent, locale enum), a honeypot and a timing check, and a per-IP fixed-window rate limit returning 429 + Retry-After. No PII is stored or logged while no provider is configured. The client IP comes from `X-Forwarded-For` only when `NUXT_TRUST_PROXY=true`, so it cannot be spoofed when the app is reached directly.
   - Limitation: the rate-limit store is in-memory per process. Add a shared store and/or Cloudflare rate limiting before launch.
 
+- **Database (Phase 7):** credentials only in `NUXT_DATABASE_URL` (server-only runtime config). Queries go through Drizzle's parameterised builder (no string-built SQL). Small pool, and query parameters are never logged. Public APIs return DTOs, so internal ids, timestamps and foreign keys are not exposed. Route/query params are Zod-validated (slug regex, locale enum). Invariants are enforced by the database (CHECK/FK/UNIQUE).
+  - Use a least-privilege DB role in production (DML only; migrations run with a separate owner role).
+  - `compose.yaml` credentials are for local development only and bound to 127.0.0.1.
+
 ## Planned controls (by phase)
 
 | Control                                                                                                                                                     | Phase  |

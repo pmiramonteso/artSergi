@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { featuredArtworks } from '~/data/artworks'
-
 /**
  * 02 · Selected works: an asymmetric editorial layout (not identical shop
  * cards). Each work links to its detail page. The supplied works are sold.
  */
 const localePath = useLocalePath()
-const works = featuredArtworks.slice(0, 3)
+const { data: artworks } = await useArtworks()
+const works = computed(() => artworks.value.filter((a) => a.featured).slice(0, 3))
 
 // Column placement and vertical offset per position (desktop).
 const layout = [
@@ -32,7 +31,7 @@ const tilt = ['-rotate-1', 'rotate-2', '-rotate-2']
           :eyebrow="$t('works.eyebrow')"
           :title="$t('works.selected')"
         />
-        <UiButton :to="localePath('/works')" variant="ghost">{{ $t('works.allArrow') }}</UiButton>
+        <UiButton :to="localePath('works')" variant="ghost">{{ $t('works.allArrow') }}</UiButton>
       </div>
 
       <ol class="grid gap-16 md:grid-cols-12 md:gap-8" role="list">

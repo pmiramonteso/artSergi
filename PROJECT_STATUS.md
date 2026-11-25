@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 6 — SEO, i18n & accessibility: complete, merged to `main`.**
-Phase 7 (database & backend) in progress.
+**Phase 7 — Database & backend: complete, merged to `main`.**
+Next phase: Phase 8 (e-commerce in Stripe **test mode**). It needs business decisions first: B2 prices, B3 shipping, B4 tax/legal entity, B11 gift model.
 
 See **OPEN_QUESTIONS.md** for everything still pending from the artist, the business and hosting.
 
@@ -95,6 +95,21 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] Accessibility: fixed `aria-labelledby` pointing to missing ids (new `headingId` prop), placeholder roles (`div[role=img]`), and footer contrast. An axe-core audit (WCAG 2.0/2.1/2.2 AA + best practice) of 4 pages × 3 locales shows **0 violations from site code** (the only finding is the Nuxt DevTools panel, dev only)
 - [x] Checked against a production build: canonical/hreflang use the configured domain, robots and sitemap output, 15 sitemap URLs, no noindex header when indexable
 
+## Phase 7 — Completed tasks
+
+- [x] PostgreSQL + Drizzle ORM (`drizzle-orm`, `postgres` driver). Schema in `server/database/schema/*`: **24 tables** (the 19 from the spec plus artwork/collection/product translations, user_roles and inventory_reservations)
+- [x] Integrity in the database itself: 23 FKs, 23 CHECK constraints (no oversell, integer cents ≥ 0, order totals must add up, line total = unit × qty, refunded ≤ paid, ISO currency/country, gift subscriptions need a recipient…), unique keys (Stripe ids, order idempotency key, case-insensitive email) and indexes
+- [x] Versioned SQL migrations (`server/database/migrations`). Applied successfully to a real PostgreSQL 17 (Docker) and to PGlite
+- [x] Repositories with two implementations: database (Drizzle) and static (`app/data`). Without `NUXT_DATABASE_URL` the site serves the static content, so previews keep working. A test proves both return identical data
+- [x] Public API (Zod-validated, DTOs only, no internal columns): `GET /api/artworks`, `GET /api/artworks/:slug`, `GET /api/collections/:slug`. Pages, hero and sitemap now read through it
+- [x] Inventory service: atomic conditional reservation (race-safe), idempotent per reference, commit/release/expire, plus a scheduled `inventory:expire` task every 5 min (not on Vercel)
+- [x] Domain logic (pure, tested): subscription lifecycle (Stripe statuses, valid transitions, out-of-order webhooks ignored, entitlement) and order arithmetic (integer cents, order numbers)
+- [x] Idempotent seed (`npm run db:seed`, a Nitro task) from the approved content. Art Mail offers are created **inactive** with the hypothesis prices; only the single collection gets stock (50); no shipping methods (not defined)
+- [x] `compose.yaml` for a local Postgres (localhost only), and `npm run db:generate | db:migrate | db:studio | db:seed`
+- [x] Tests: unit + integration projects. PGlite runs the real migrations in memory (seed, repositories, constraints, inventory: 60 buyers for 50 units). An optional real-Postgres test with 20 connections (`TEST_DATABASE_URL`) showed **200 simultaneous checkouts → exactly 50 reservations**
+- [x] **Bug from Phase 6 found and fixed:** "All works" and the breadcrumbs linked to `/es/works` and `/ca/works` (404) instead of `/es/obras` and `/ca/obres`. Regression test added; the internal link crawler shows 27 URLs × 3 locales with 0 broken
+- [x] Checked end-to-end with a real DB: migrate → seed (idempotent) → API/pages served from Postgres. Without a DB the site falls back to static content
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -102,6 +117,10 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
 ## Known issues
+
+- **Production migrations:** run `npm run db:migrate` from CI or a trusted machine against the production DB (not from the app process). This is documented in ARCHITECTURE; the automated pipeline comes in Phase 10.
+- `npm run db:seed` runs as a Nitro task and needs the dev server running with `NUXT_DATABASE_URL` set.
+- A fresh, unseeded database shows an empty site (no artworks). Always seed after migrating.
 
 - No social sharing image yet (OPEN_QUESTIONS A11), so `twitter:card` is `summary` without an image.
 - Legal page slugs are not localized (`/es/legal/privacy`). Fine for now; revisit when the real texts exist.
@@ -121,7 +140,7 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Owner reviews Phase 5 locally.
-2. **Content from Sergi:** painting photos and data, lettering, portrait and studio photos, the approved statement and biography, the club name, contact email and social profiles.
-3. **Business decisions:** validate prices (then set `PRICING_PUBLISHED`), choose the newsletter provider (privacy review), and get the legal texts (privacy, cookies, terms, shipping) written by the business or its advisor.
-4. Phase 6: multilingual routing (/en /es /ca), metadata, canonicals, hreflang, sitemap, robots, structured data and an accessibility pass.
+1. Owner reviews Phases 6–7 locally (switch languages; everything else looks the same).
+2. **Hosting (C3, blocking):** confirm whether Sered offers PostgreSQL. If not, choose a managed Postgres (cost to review).
+3. **Business decisions before Phase 8:** B2 prices, B3 shipping, B4 tax/legal entity, B11 gift model, B5 legal texts.
+4. Phase 8: Stripe Checkout and Billing in **test mode only**, verified webhooks, Customer Portal.

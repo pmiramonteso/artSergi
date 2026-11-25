@@ -1,11 +1,25 @@
 import { defineConfig } from 'vitest/config'
 
-// Plain Node environment for pure logic (shared/, server services).
-// A Nuxt-aware environment (@nuxt/test-utils) will be added when
-// component/integration tests are introduced.
+/**
+ * unit: pure logic (shared/, app/data, server utils), plain Node.
+ * integration: real PostgreSQL semantics via PGlite (in-memory Postgres
+ * compiled to WASM) with the real migrations: no Docker or server needed.
+ */
 export default defineConfig({
   test: {
-    include: ['tests/unit/**/*.test.ts'],
-    environment: 'node',
+    projects: [
+      {
+        test: { name: 'unit', include: ['tests/unit/**/*.test.ts'], environment: 'node' },
+      },
+      {
+        test: {
+          name: 'integration',
+          include: ['tests/integration/**/*.test.ts'],
+          environment: 'node',
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
+        },
+      },
+    ],
   },
 })

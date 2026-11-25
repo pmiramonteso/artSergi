@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { artworks, findArtwork } from '~/data/artworks'
 import { isPurchasable } from '#shared/utils/artwork'
 import { breadcrumbJsonLd, visualArtworkJsonLd } from '#shared/utils/structured-data'
 
@@ -9,15 +8,22 @@ const localePath = useLocalePath()
 const requestUrl = useRequestURL()
 const { public: config } = useRuntimeConfig()
 
-const artwork = findArtwork(String(route.params.slug))
-if (!artwork) {
+const slug = computed(() => String(route.params.slug))
+const { data: artwork, error } = await useArtwork(slug)
+if (error.value || !artwork.value) {
   throw createError({ statusCode: 404, statusMessage: 'Artwork not found', fatal: true })
 }
+const { data: all } = await useArtworks()
+const index = computed(() =>
+  Math.max(
+    0,
+    all.value.findIndex((a) => a.slug === slug.value),
+  ),
+)
 
-const index = artworks.indexOf(artwork)
-const title = computed(() => artwork.title ?? t('works.untitled'))
+const title = computed(() => artwork.value?.title ?? t('works.untitled'))
 const description = computed(
-  () => artwork.description ?? t('meta.work.description', { title: title.value }),
+  () => artwork.value?.description ?? t('meta.work.description', { title: title.value }),
 )
 
 useSeoMeta({
@@ -25,7 +31,7 @@ useSeoMeta({
   ogTitle: title,
   description,
   ogDescription: description,
-  ogImage: artwork.image?.src,
+  ogImage: () => artwork.value?.image?.src,
 })
 
 // Structured data: only verified, visible facts (VisualArtwork needs a real title).
@@ -35,10 +41,15 @@ const jsonLd = computed(() =>
   [
     breadcrumbJsonLd([
       { name: t('nav.home'), url: abs(localePath('/')) },
-      { name: t('nav.works'), url: abs(localePath('/works')) },
+      { name: t('nav.works'), url: abs(localePath('works')) },
       { name: title.value, url: abs(route.path) },
     ]),
-    visualArtworkJsonLd(artwork, { url: abs(route.path), origin, inLanguage: locale.value }),
+    artwork.value &&
+      visualArtworkJsonLd(artwork.value, {
+        url: abs(route.path),
+        origin,
+        inLanguage: locale.value,
+      }),
   ].filter(Boolean),
 )
 useHead({
@@ -56,7 +67,7 @@ useHead({
           <NuxtLink :to="localePath('/')" class="hover:underline">{{ $t('nav.home') }}</NuxtLink> /
         </li>
         <li>
-          <NuxtLink :to="localePath('/works')" class="hover:underline">{{
+          <NuxtLink :to="localePath('works')" class="hover:underline">{{
             $t('nav.works')
           }}</NuxtLink>
           /
@@ -86,7 +97,7 @@ useHead({
         {{ $t(`works.notForSale.${artwork.status}`) }}
       </p>
 
-      <UiButton :to="localePath('/works')" variant="ghost" class="self-start">
+      <UiButton :to="localePath('works')" variant="ghost" class="self-start">
         {{ $t('works.backArrow') }}
       </UiButton>
     </div>

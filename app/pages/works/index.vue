@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { artworks } from '~/data/artworks'
-
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { data: artworks } = await useArtworks()
 
 useSeoMeta({
   title: () => t('meta.works.title'),

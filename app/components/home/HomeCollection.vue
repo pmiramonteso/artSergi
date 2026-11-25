@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { currentCollection as c } from '~/data/collections'
 import { PRICING_PUBLISHED, artMailOffers, formatPrice } from '#shared/constants/products'
 import type { LocaleCode } from '#shared/constants/i18n'
 
@@ -12,6 +11,7 @@ const { locale } = useI18n()
 const localePath = useLocalePath()
 const lang = computed(() => locale.value as LocaleCode)
 const single = artMailOffers.find((o) => o.id === 'art-mail-single')
+const { data: c } = await useCollection('places-we-keep')
 </script>
 
 <template>
@@ -21,7 +21,7 @@ const single = artMailOffers.find((o) => o.id === 'art-mail-single')
     aria-labelledby="collection-title"
     class="min-h-svh scroll-mt-16 py-(--spacing-section)"
   >
-    <UiContainer class="grid gap-16 md:grid-cols-12 md:gap-8">
+    <UiContainer v-if="c" class="grid gap-16 md:grid-cols-12 md:gap-8">
       <div class="flex flex-col gap-8 md:col-span-7">
         <div data-reveal class="flex flex-col gap-4">
           <p class="flex items-center gap-3 text-eyebrow">

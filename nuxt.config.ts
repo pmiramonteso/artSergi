@@ -27,6 +27,11 @@ export default defineNuxtConfig({
    * Keys outside `public` are server-only and never reach the browser.
    */
   runtimeConfig: {
+    /**
+     * PostgreSQL connection string (server-only). Empty = no database: the
+     * public site serves the static content in app/data.
+     */
+    databaseUrl: '',
     /** Newsletter provider id. Empty = sign-up not open yet (nothing stored). */
     newsletterProvider: '',
     /**
@@ -88,5 +93,8 @@ export default defineNuxtConfig({
     // compatible with cPanel's Node.js Application Manager. Vercel previews
     // auto-detect the `vercel` preset through the VERCEL env var.
     compressPublicAssets: true,
+    experimental: { tasks: true },
+    // Return stock from abandoned checkouts. Not on Vercel previews (cron limits; no DB there).
+    scheduledTasks: process.env.VERCEL ? {} : { '*/5 * * * *': ['inventory:expire'] },
   },
 })
