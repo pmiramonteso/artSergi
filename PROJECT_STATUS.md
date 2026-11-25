@@ -181,6 +181,10 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 
 - [ ] Mobile LCP target (< 2.5 s) not yet met in the simulation. Next lever if field data (Search Console) confirms it: trim initial JS (~48 KB unused in the entry chunk)
 
+## Fix — Vercel deployments (2026-11-25)
+
+- Every Vercel deploy from Phase 10 failed (`STATIC_BUILD_NO_OUT_DIR`), so the preview stayed on Phase 9. Cause: the `nitro.hooks.compiled` added in Phase 10 (to ship migrations) replaced the Vercel preset's own hook, so `.vercel/output/config.json` was never written. Fixed by registering the hook additively; both the Vercel and node-server builds were verified, and CI now builds the Vercel preset and asserts its output
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)

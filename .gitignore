@@ -26,3 +26,6 @@ logs
 # Playwright
 test-results
 playwright-report
+
+# Vercel build output
+.vercel

@@ -109,6 +109,23 @@ export default defineNuxtConfig({
     '/og/**': { headers: { 'cache-control': 'public, max-age=604800' } },
   },
 
+  hooks: {
+    /**
+     * Ship SQL migrations with the server bundle (for opt-in migrate-on-start).
+     * Registered with nitro.hooks.hook() so it ADDS to the deployment preset's
+     * own 'compiled' hook. Declaring nitro.hooks.compiled in the config would
+     * REPLACE it, and the Vercel preset uses that hook to write
+     * .vercel/output/config.json (deploys failed without it).
+     */
+    'nitro:init'(nitro) {
+      nitro.hooks.hook('compiled', () => {
+        cpSync('server/database/migrations', join(nitro.options.output.serverDir, 'migrations'), {
+          recursive: true,
+        })
+      })
+    },
+  },
+
   typescript: {
     strict: true,
     typeCheck: false, // run explicitly via `npm run typecheck` (keeps dev server fast)
@@ -129,14 +146,6 @@ export default defineNuxtConfig({
     // compatible with cPanel's Node.js Application Manager. Vercel previews
     // auto-detect the `vercel` preset through the VERCEL env var.
     compressPublicAssets: true,
-    hooks: {
-      // Ship SQL migrations with the server bundle (for opt-in migrate-on-start).
-      compiled(nitro) {
-        cpSync('server/database/migrations', join(nitro.options.output.serverDir, 'migrations'), {
-          recursive: true,
-        })
-      },
-    },
     experimental: { tasks: true },
     // Return stock from abandoned checkouts. Not on Vercel previews (cron limits; no DB there).
     scheduledTasks: process.env.VERCEL ? {} : { '*/5 * * * *': ['inventory:expire'] },
