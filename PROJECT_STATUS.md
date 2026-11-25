@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 1 — Technical foundation: complete locally, waiting for review.**
-Next phase: Phase 2 (design system). It needs approval first.
+**Phase 2 — Design system: complete, merged to `main`.**
+Next phase: Phase 3 (Living Canvas). It needs approval first.
 
 ## Phase 0 — Repository audit (done)
 
@@ -26,10 +26,22 @@ Next phase: Phase 2 (design system). It needs approval first.
 - [x] GitHub Actions CI: lint, format, typecheck, tests, build, audit
 - [x] Project docs: this file, ARCHITECTURE.md, SECURITY.md, ASSET_GUIDELINES.md
 
-## Pending (Phase 1 follow-ups that need the owner)
+## Phase 2 — Completed tasks
 
-- [ ] Commit and push to GitHub (prepared, not pushed yet)
-- [ ] Connect the repo to Vercel for preview deployments (needs the owner's Vercel account; check the Hobby plan terms before any commercial use)
+- [x] Full token set in `app/assets/css/main.css` (`@theme`): palette with semantic aliases, fluid type scale, layout and spacing, grid, shadows and motion
+- [x] Text-safe variants `tomato-ink` and `butter-ink`. Tomato and butter text on paper fails WCAG AA (2.66 and 1.57), so those two base tones are for decoration only
+- [x] `shared/design/tokens.ts` mirrors the tokens for TypeScript (GSAP/Three.js later). A unit test keeps it in sync with the CSS and checks every approved text pair for AA contrast
+- [x] Self-hosted fonts (Fontsource): Space Grotesk Variable and Instrument Serif (regular + italic), Latin and Latin-ext only
+- [x] Utilities: `page-container`, `bg-grid` (responsive density), `bg-paper-grain` (SVG noise, no bitmap) and `text-eyebrow`
+- [x] Components: `UiContainer`, `UiButton`, `UiLabel`, `UiSectionHeading`, `UiPlaceholder` (hatched and labeled, so it can never be mistaken for artwork), plus `DecorStar`, `DecorDots`, `DecorSquiggle` and `DecorArrow`
+- [x] Base accessibility: skip link, visible focus, reduced-motion override, text balance and pretty wrapping
+- [x] `/design-system` reference page (noindex)
+- [x] Temporary homepage rebuilt with the system. The artist name is typeset and clearly labeled "Placeholder lettering"
+- [x] Visual check of headless screenshots at 390 px, 1024 px and 1440 px: no horizontal overflow
+
+## Pending (owner)
+
+- [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
 - [ ] Turn on branch protection on `main` so CI must pass before merging
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
@@ -45,6 +57,6 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Owner reviews Phase 1 and approves the commit and push.
-2. Owner checks the hosting details (see ARCHITECTURE.md → Hosting).
-3. Phase 2: design system (tokens, typography with self-hosted fonts, grid, base UI components).
+1. Owner reviews Phase 2 locally (`/` and `/design-system`).
+2. Sergi: send the three painting photos, the handwritten lettering and the doodles (see ASSET_GUIDELINES.md). These are needed for Phases 3–4.
+3. Phase 3: Living Canvas (layered background, scroll transitions). This adds GSAP.
