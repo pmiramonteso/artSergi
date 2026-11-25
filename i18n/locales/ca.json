@@ -1,0 +1,183 @@
+{
+  "site": {
+    "name": "Sergi Tugas Art Studio",
+    "artist": "Sergi Tugas",
+    "skipToContent": "Salta al contingut",
+    "previewNotice": "Web en versió preliminar: contingut en preparació.",
+    "placeholder": "Provisional"
+  },
+  "nav": {
+    "main": "Principal",
+    "menu": "Menú",
+    "mainMenu": "Menú principal",
+    "close": "Tanca",
+    "works": "Obres",
+    "artMail": "Art Mail Club",
+    "collection": "Col·lecció",
+    "studio": "Estudi",
+    "about": "Sobre mi",
+    "language": "Idioma",
+    "home": "Inici",
+    "breadcrumb": "Ruta de navegació"
+  },
+  "meta": {
+    "home": {
+      "title": "Estudi d’art",
+      "description": "Sergi Tugas: artista independent. Pintures, l’Art Mail Club i la col·lecció Places We Keep."
+    },
+    "works": {
+      "title": "Obres",
+      "description": "Pintures de Sergi Tugas: obres disponibles i arxiu."
+    },
+    "work": {
+      "description": "{title}: una pintura de Sergi Tugas."
+    }
+  },
+  "hero": {
+    "label": "Sergi Tugas, artista",
+    "placeholderLettering": "Lettering provisional",
+    "originalPaintings": "Pintures originals",
+    "artworkPending": "Pintura {n}: foto pendent",
+    "scroll": "Llisca",
+    "scrollLabel": "Ves a la secció següent"
+  },
+  "intro": {
+    "eyebrow": "L’artista",
+    "title": "Mons, escenes i històries a través de la pintura",
+    "quote": "Creo històries visuals a través de la pintura, la imaginació i els objectes quotidians. Cada peça és un món propi.",
+    "quoteNote": "Provisional: no és una declaració aprovada per l’artista",
+    "bio": "Sergi Tugas és un artista visual independent. La seva biografia breu apareixerà aquí quan s’hagi redactat i aprovat amb ell.",
+    "bioNote": "Biografia pendent",
+    "portrait": "Retrat o foto d’en Sergi a l’estudi"
+  },
+  "works": {
+    "eyebrow": "Pintures",
+    "selected": "Obres seleccionades",
+    "all": "Totes les obres",
+    "allArrow": "Totes les obres →",
+    "backArrow": "← Totes les obres",
+    "intro": "Pintures originals, disponibles i venudes. S’hi aniran afegint més obres a mesura que es fotografiïn.",
+    "untitled": "Sense títol (títol pendent)",
+    "photoPending": "{title} · pintura {n}: foto pendent",
+    "number": "Núm. {n}",
+    "year": "Any",
+    "medium": "Tècnica",
+    "size": "Mides",
+    "pending": "Per confirmar",
+    "descriptionPending": "Descripció pendent de l’artista",
+    "notForSale": {
+      "sold": "Aquesta obra està venuda i no està disponible per a la compra.",
+      "archived": "Aquesta obra forma part de l’arxiu i no està disponible per a la compra."
+    },
+    "status": {
+      "available": "Disponible",
+      "sold": "Venuda",
+      "archived": "Arxiu"
+    }
+  },
+  "artMail": {
+    "eyebrow": "Art Mail Club",
+    "title": "Art col·leccionable, per correu",
+    "workingName": "Nom provisional: el nom del club encara no està decidit",
+    "lead": "Un petit sobre de l’univers artístic d’en Sergi: una targeta il·lustrada, adhesius, una història breu i un detall de col·leccionista, reunits al voltant d’una col·lecció cada vegada.",
+    "body": "El club es planteja com una subscripció mensual, també amb col·leccions soltes, regals i edicions especials. Els detalls i els preus s’anunciaran al llançament.",
+    "cta": "Descobreix la primera col·lecció",
+    "contentsLabel": "Contingut del sobre (imatges provisionals)",
+    "stickerSet": "Joc d’adhesius",
+    "pieces": {
+      "envelope": "Sobre + segell",
+      "card": "Art Card A6",
+      "story": "Story Card A7",
+      "detail": "Detall de col·leccionista",
+      "sticker": "Adhesiu {n}"
+    }
+  },
+  "collection": {
+    "eyebrow": "Col·lecció actual",
+    "illustration": "{title}: il·lustració principal",
+    "inside": "Què inclou",
+    "eachEnvelope": "A cada sobre",
+    "edition": "Edició",
+    "pilotOf": "Pilot de {n}",
+    "price": "Preu",
+    "priceLater": "S’anunciarà al llançament",
+    "plusShipping": "+ enviament",
+    "notify": "Avisa’m",
+    "notOnSale": "Encara no està a la venda. Subscriu-te a la newsletter per assabentar-te’n abans que ningú."
+  },
+  "process": {
+    "eyebrow": "Estudi",
+    "title": "Des de l’estudi",
+    "lead": "Com pren forma una peça, des del primer esbós fins al sobre.",
+    "photo": "Foto de l’estudi: {step}",
+    "steps": {
+      "painting": "Pintura",
+      "brushes": "Pinzells i textures acríliques",
+      "sketches": "Esbossos",
+      "wip": "Obra en procés",
+      "printing": "Impressió",
+      "packing": "Preparació de sobres"
+    }
+  },
+  "annual": {
+    "eyebrow": "Original anual",
+    "title": "Un original, un cop l’any",
+    "body": "Una iniciativa al voltant d’una única pintura original cada any. Com funcionarà encara s’està definint, i s’anunciarà aquí primer.",
+    "details": "Properament",
+    "notify": "Avisa’m →",
+    "perYear": "any"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter",
+    "title": "Cartes des de l’estudi",
+    "lead": "Noves col·leccions, obra original i el llançament de l’Art Mail Club, abans que ningú.",
+    "email": "Correu electrònic",
+    "consent": "Accepto rebre correus ocasionals de Sergi Tugas Art Studio. Em puc donar de baixa en qualsevol moment. Consulta la {link}.",
+    "privacyLink": "política de privadesa",
+    "subscribe": "Subscriu-me",
+    "sending": "Enviant…",
+    "errors": {
+      "email": "Introdueix un correu vàlid, per exemple nom{'@'}exemple.com.",
+      "consent": "Confirma que acceptes rebre la newsletter."
+    },
+    "success": "Gràcies, ja ets a la llista.",
+    "unavailable": "Les subscripcions s’obren aviat. El teu correu no s’ha desat; torna més endavant.",
+    "tooMany": "Massa intents. Espera uns minuts i torna-ho a provar.",
+    "error": "Alguna cosa ha fallat. Revisa les dades i torna-ho a provar."
+  },
+  "footer": {
+    "tagline": "Artista independent: pintures, art col·leccionable per correu i làmines.",
+    "label": "Peu de pàgina",
+    "explore": "Explora",
+    "shop": "Botiga",
+    "contact": "Contacte",
+    "legal": "Legal",
+    "soon": "Aviat",
+    "contactSoon": "Dades de contacte properament",
+    "shopItems": {
+      "originals": "Pintures originals",
+      "prints": "Làmines",
+      "gifts": "Subscripcions regal"
+    },
+    "copyright": "© {year} Sergi Tugas. Totes les obres © de l’artista."
+  },
+  "legal": {
+    "eyebrow": "Legal",
+    "preparing": "Aquesta pàgina s’està preparant i es publicarà abans que es vengui res en aquesta web.",
+    "back": "← Torna a l’inici",
+    "pages": {
+      "privacy": "Privadesa",
+      "cookies": "Galetes",
+      "terms": "Condicions",
+      "shipping-returns": "Enviaments i devolucions"
+    }
+  },
+  "error": {
+    "notFoundTitle": "Pàgina no trobada",
+    "notFound": "Aquesta pàgina no existeix.",
+    "genericTitle": "Alguna cosa ha fallat",
+    "generic": "Alguna cosa ha fallat.",
+    "code": "Error {code}",
+    "home": "Torna a l’inici"
+  }
+}

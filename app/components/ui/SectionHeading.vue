@@ -10,8 +10,10 @@ withDefaults(
     number?: string
     level?: 1 | 2 | 3
     font?: 'serif' | 'sans'
+    /** id for the heading element, so a section can use aria-labelledby. */
+    headingId?: string
   }>(),
-  { eyebrow: undefined, number: undefined, level: 2, font: 'serif' },
+  { eyebrow: undefined, number: undefined, level: 2, font: 'serif', headingId: undefined },
 )
 </script>
 
@@ -24,6 +26,7 @@ withDefaults(
     </p>
     <component
       :is="`h${level}`"
+      :id="headingId"
       :class="[
         font === 'serif' ? 'font-serif font-normal' : 'font-sans font-semibold tracking-tight',
         level === 1 ? 'text-h1' : level === 2 ? 'text-h2' : 'text-h3',

@@ -1,0 +1,183 @@
+{
+  "site": {
+    "name": "Sergi Tugas Art Studio",
+    "artist": "Sergi Tugas",
+    "skipToContent": "Saltar al contenido",
+    "previewNotice": "Web en versión preliminar: contenido en preparación.",
+    "placeholder": "Provisional"
+  },
+  "nav": {
+    "main": "Principal",
+    "menu": "Menú",
+    "mainMenu": "Menú principal",
+    "close": "Cerrar",
+    "works": "Obras",
+    "artMail": "Art Mail Club",
+    "collection": "Colección",
+    "studio": "Estudio",
+    "about": "Sobre mí",
+    "language": "Idioma",
+    "home": "Inicio",
+    "breadcrumb": "Ruta de navegación"
+  },
+  "meta": {
+    "home": {
+      "title": "Estudio de arte",
+      "description": "Sergi Tugas: artista independiente. Pinturas, el Art Mail Club y la colección Places We Keep."
+    },
+    "works": {
+      "title": "Obras",
+      "description": "Pinturas de Sergi Tugas: obras disponibles y archivo."
+    },
+    "work": {
+      "description": "{title}: una pintura de Sergi Tugas."
+    }
+  },
+  "hero": {
+    "label": "Sergi Tugas, artista",
+    "placeholderLettering": "Lettering provisional",
+    "originalPaintings": "Pinturas originales",
+    "artworkPending": "Pintura {n}: foto pendiente",
+    "scroll": "Desliza",
+    "scrollLabel": "Ir a la siguiente sección"
+  },
+  "intro": {
+    "eyebrow": "El artista",
+    "title": "Mundos, escenas e historias a través de la pintura",
+    "quote": "Creo historias visuales a través de la pintura, la imaginación y los objetos cotidianos. Cada pieza es un mundo propio.",
+    "quoteNote": "Provisional: no es una declaración aprobada por el artista",
+    "bio": "Sergi Tugas es un artista visual independiente. Su biografía breve aparecerá aquí cuando se haya redactado y aprobado con él.",
+    "bioNote": "Biografía pendiente",
+    "portrait": "Retrato o foto de Sergi en el estudio"
+  },
+  "works": {
+    "eyebrow": "Pinturas",
+    "selected": "Obras seleccionadas",
+    "all": "Todas las obras",
+    "allArrow": "Todas las obras →",
+    "backArrow": "← Todas las obras",
+    "intro": "Pinturas originales, disponibles y vendidas. Se irán añadiendo más obras a medida que se fotografíen.",
+    "untitled": "Sin título (título pendiente)",
+    "photoPending": "{title} · pintura {n}: foto pendiente",
+    "number": "Nº {n}",
+    "year": "Año",
+    "medium": "Técnica",
+    "size": "Medidas",
+    "pending": "Por confirmar",
+    "descriptionPending": "Descripción pendiente del artista",
+    "notForSale": {
+      "sold": "Esta obra está vendida y no está disponible para la compra.",
+      "archived": "Esta obra forma parte del archivo y no está disponible para la compra."
+    },
+    "status": {
+      "available": "Disponible",
+      "sold": "Vendida",
+      "archived": "Archivo"
+    }
+  },
+  "artMail": {
+    "eyebrow": "Art Mail Club",
+    "title": "Arte coleccionable, por correo",
+    "workingName": "Nombre provisional: el nombre del club aún no está decidido",
+    "lead": "Un pequeño sobre del universo artístico de Sergi: una tarjeta ilustrada, pegatinas, una historia breve y un detalle de coleccionista, reunidos en torno a una colección cada vez.",
+    "body": "El club se plantea como una suscripción mensual, también con colecciones sueltas, regalos y ediciones especiales. Los detalles y los precios se anunciarán en el lanzamiento.",
+    "cta": "Descubre la primera colección",
+    "contentsLabel": "Contenido del sobre (imágenes provisionales)",
+    "stickerSet": "Set de pegatinas",
+    "pieces": {
+      "envelope": "Sobre + sello",
+      "card": "Art Card A6",
+      "story": "Story Card A7",
+      "detail": "Detalle de coleccionista",
+      "sticker": "Pegatina {n}"
+    }
+  },
+  "collection": {
+    "eyebrow": "Colección actual",
+    "illustration": "{title}: ilustración principal",
+    "inside": "Qué incluye",
+    "eachEnvelope": "En cada sobre",
+    "edition": "Edición",
+    "pilotOf": "Piloto de {n}",
+    "price": "Precio",
+    "priceLater": "Se anunciará en el lanzamiento",
+    "plusShipping": "+ envío",
+    "notify": "Avísame",
+    "notOnSale": "Aún no está a la venta. Suscríbete a la newsletter para enterarte antes que nadie."
+  },
+  "process": {
+    "eyebrow": "Estudio",
+    "title": "Desde el estudio",
+    "lead": "Cómo toma forma una pieza, desde el primer boceto hasta el sobre.",
+    "photo": "Foto del estudio: {step}",
+    "steps": {
+      "painting": "Pintura",
+      "brushes": "Pinceles y texturas acrílicas",
+      "sketches": "Bocetos",
+      "wip": "Obra en proceso",
+      "printing": "Impresión",
+      "packing": "Preparación de sobres"
+    }
+  },
+  "annual": {
+    "eyebrow": "Original anual",
+    "title": "Un original, una vez al año",
+    "body": "Una iniciativa en torno a una única pintura original cada año. Cómo funcionará aún se está definiendo, y se anunciará aquí primero.",
+    "details": "Próximamente",
+    "notify": "Avísame →",
+    "perYear": "año"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter",
+    "title": "Cartas desde el estudio",
+    "lead": "Nuevas colecciones, obra original y el lanzamiento del Art Mail Club, antes que nadie.",
+    "email": "Email",
+    "consent": "Acepto recibir emails ocasionales de Sergi Tugas Art Studio. Puedo darme de baja en cualquier momento. Consulta la {link}.",
+    "privacyLink": "política de privacidad",
+    "subscribe": "Suscribirme",
+    "sending": "Enviando…",
+    "errors": {
+      "email": "Introduce un email válido, por ejemplo nombre{'@'}ejemplo.com.",
+      "consent": "Confirma que aceptas recibir la newsletter."
+    },
+    "success": "Gracias, ya estás en la lista.",
+    "unavailable": "Las suscripciones abren pronto. Tu email no se ha guardado; vuelve más adelante.",
+    "tooMany": "Demasiados intentos. Espera unos minutos y vuelve a probar.",
+    "error": "Algo ha fallado. Revisa los datos y vuelve a intentarlo."
+  },
+  "footer": {
+    "tagline": "Artista independiente: pinturas, arte coleccionable por correo y láminas.",
+    "label": "Pie de página",
+    "explore": "Explorar",
+    "shop": "Tienda",
+    "contact": "Contacto",
+    "legal": "Legal",
+    "soon": "Pronto",
+    "contactSoon": "Datos de contacto próximamente",
+    "shopItems": {
+      "originals": "Pinturas originales",
+      "prints": "Láminas",
+      "gifts": "Suscripciones regalo"
+    },
+    "copyright": "© {year} Sergi Tugas. Todas las obras © del artista."
+  },
+  "legal": {
+    "eyebrow": "Legal",
+    "preparing": "Esta página se está preparando y se publicará antes de que se venda nada en esta web.",
+    "back": "← Volver al inicio",
+    "pages": {
+      "privacy": "Privacidad",
+      "cookies": "Cookies",
+      "terms": "Condiciones",
+      "shipping-returns": "Envíos y devoluciones"
+    }
+  },
+  "error": {
+    "notFoundTitle": "Página no encontrada",
+    "notFound": "Esta página no existe.",
+    "genericTitle": "Algo ha fallado",
+    "generic": "Algo ha fallado.",
+    "code": "Error {code}",
+    "home": "Volver al inicio"
+  }
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { legalPages } from '~/data/site'
+import { legalPages, type LegalSlug } from '~/data/site'
 
 /**
  * Legal pages: reserved routes so footer links never 404. The actual legal
@@ -7,23 +7,29 @@ import { legalPages } from '~/data/site'
  * until real content exists.
  */
 const route = useRoute()
-const page = legalPages.find((p) => p.slug === route.params.slug)
-if (!page) {
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+const slug = String(route.params.slug)
+if (!(legalPages as readonly string[]).includes(slug)) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
+const label = computed(() => t(`legal.pages.${slug as LegalSlug}`))
 
 useSeoMeta({
-  title: page.label,
-  description: `${page.label}, Sergi Tugas Art Studio.`,
+  title: label,
+  description: () => `${label.value}, ${t('site.name')}.`,
   robots: 'noindex, nofollow',
 })
 </script>
 
 <template>
-  <UiContainer v-if="page" class="flex min-h-[70svh] flex-col justify-center gap-6 py-32">
-    <UiSectionHeading :level="1" eyebrow="Legal" :title="page.label">
-      This page is being prepared and will be published before anything is sold on this site.
+  <UiContainer class="flex min-h-[70svh] flex-col justify-center gap-6 py-32">
+    <UiSectionHeading :level="1" :eyebrow="$t('legal.eyebrow')" :title="label">
+      {{ $t('legal.preparing') }}
     </UiSectionHeading>
-    <UiButton to="/" variant="ghost" class="self-start">← Back to the homepage</UiButton>
+    <UiButton :to="localePath('/')" variant="ghost" class="self-start">
+      {{ $t('legal.back') }}
+    </UiButton>
   </UiContainer>
 </template>

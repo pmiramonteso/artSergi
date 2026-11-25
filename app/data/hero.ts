@@ -9,8 +9,8 @@ export type HeroImage = ArtworkImage
 
 export interface HeroArtworkSlot {
   id: string
-  /** Shown on the placeholder until the real photo exists. */
-  placeholderLabel: string
+  /** 1-based position, used for the localized placeholder label. */
+  position: number
   /** Width / height of the frame before the image loads. */
   ratio: string
   image: HeroImage | null
@@ -18,7 +18,7 @@ export interface HeroArtworkSlot {
 
 export const heroArtworks: HeroArtworkSlot[] = featuredArtworks.slice(0, 3).map((a, i) => ({
   id: a.id,
-  placeholderLabel: `Painting ${i + 1}: photo pending`,
+  position: i + 1,
   ratio: a.image ? `${a.image.width} / ${a.image.height}` : '4 / 5',
   image: a.image,
 }))

@@ -23,7 +23,7 @@ const [art1, art2, art3] = heroArtworks
   <section
     ref="root"
     data-canvas-scene="hero"
-    aria-label="Sergi Tugas — artist"
+    :aria-label="$t('hero.label')"
     class="relative flex h-svh min-h-[36rem] items-center justify-center overflow-x-clip"
   >
     <!-- Artworks (decorative arrangement; real photos replace placeholders) -->
@@ -58,7 +58,9 @@ const [art1, art2, art3] = heroArtworks
     <!-- Editorial details -->
     <div data-hero-decor class="pointer-events-none absolute inset-0 z-10">
       <div data-parallax="0.8" class="absolute top-[14%] left-[27%] hidden lg:block">
-        <UiLabel data-intro="decor" class="motion-intro bg-paper">Original paintings</UiLabel>
+        <UiLabel data-intro="decor" class="motion-intro bg-paper">
+          {{ $t('hero.originalPaintings') }}
+        </UiLabel>
       </div>
       <div data-parallax="0.9" class="absolute top-[24%] right-[6%] hidden md:block">
         <UiLabel tone="tomato" data-intro="decor" class="motion-intro">

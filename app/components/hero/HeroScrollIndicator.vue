@@ -7,9 +7,9 @@ defineProps<{ target: string }>()
   <a
     :href="target"
     class="group flex flex-col items-center gap-3 text-eyebrow"
-    aria-label="Scroll to the next section"
+    :aria-label="$t('hero.scrollLabel')"
   >
-    <span class="bg-paper px-1">Scroll</span>
+    <span class="bg-paper px-1">{{ $t('hero.scroll') }}</span>
     <span class="relative block h-12 w-px overflow-hidden bg-ink/20" aria-hidden="true">
       <span class="scroll-cue absolute inset-x-0 top-0 h-1/2 bg-ink" />
     </span>

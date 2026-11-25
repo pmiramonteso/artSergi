@@ -4,26 +4,19 @@
  * composition of the package contents. "Art Mail Club" is a working name,
  * and every image is a labeled placeholder until real product photos exist.
  */
+const localePath = useLocalePath()
+
 const pieces = [
+  { key: 'envelope', ratio: '162 / 114', cls: 'left-[4%] top-[30%] w-[62%] -rotate-3 z-0' },
+  { key: 'card', ratio: '148 / 105', cls: 'right-[2%] top-[6%] w-[54%] rotate-6 z-10' },
+  { key: 'story', ratio: '105 / 74', cls: 'right-[10%] bottom-[8%] w-[38%] -rotate-2 z-20' },
   {
-    label: 'Envelope + seal',
-    ratio: '162 / 114',
-    cls: 'left-[4%] top-[30%] w-[62%] -rotate-3 z-0',
-  },
-  { label: 'A6 Art Card', ratio: '148 / 105', cls: 'right-[2%] top-[6%] w-[54%] rotate-6 z-10' },
-  {
-    label: 'A7 Story Card',
-    ratio: '105 / 74',
-    cls: 'right-[10%] bottom-[8%] w-[38%] -rotate-2 z-20',
-  },
-  {
-    label: 'Collector detail',
+    key: 'detail',
     ratio: '1 / 1',
     cls: 'left-[10%] bottom-[6%] w-[20%] rotate-12 z-20',
     compact: true,
   },
-]
-const stickers = ['Sticker 1', 'Sticker 2', 'Sticker 3']
+] as const
 </script>
 
 <template>
@@ -36,21 +29,22 @@ const stickers = ['Sticker 1', 'Sticker 2', 'Sticker 3']
     <UiContainer class="grid items-center gap-16 md:grid-cols-12 md:gap-8">
       <div class="flex flex-col gap-8 md:col-span-5">
         <div data-reveal class="flex flex-col gap-4">
-          <UiSectionHeading number="03" eyebrow="Art Mail Club" title="Collectible art, by post" />
-          <UiPendingNote label="Working name: the club name is not chosen yet" />
+          <UiSectionHeading
+            heading-id="art-mail-title"
+            number="03"
+            :eyebrow="$t('artMail.eyebrow')"
+            :title="$t('artMail.title')"
+          />
+          <UiPendingNote :label="$t('artMail.workingName')" />
         </div>
         <div data-reveal class="flex flex-col gap-4">
-          <p class="text-lead">
-            A small envelope from Sergi’s artistic universe: an illustrated card, stickers, a short
-            story and a collector detail, gathered around one collection at a time.
-          </p>
-          <p>
-            The club is planned as a monthly subscription, with single collections, gifts and
-            special editions too. Details and pricing will be announced at launch.
-          </p>
+          <p class="text-lead">{{ $t('artMail.lead') }}</p>
+          <p>{{ $t('artMail.body') }}</p>
         </div>
         <div data-reveal>
-          <UiButton to="/#collection" size="lg">Discover the first collection</UiButton>
+          <UiButton :to="{ path: localePath('/'), hash: '#collection' }" size="lg">
+            {{ $t('artMail.cta') }}
+          </UiButton>
         </div>
       </div>
 
@@ -58,24 +52,31 @@ const stickers = ['Sticker 1', 'Sticker 2', 'Sticker 3']
         data-reveal
         class="relative mx-auto aspect-square w-full max-w-xl md:col-span-6 md:col-start-7"
         role="group"
-        aria-label="Package contents (placeholder images)"
+        :aria-label="$t('artMail.contentsLabel')"
       >
         <div
           v-for="piece in pieces"
-          :key="piece.label"
+          :key="piece.key"
           class="absolute bg-paper p-2 shadow-float"
           :class="piece.cls"
         >
-          <UiPlaceholder :label="piece.label" :ratio="piece.ratio" :compact="piece.compact" />
+          <UiPlaceholder
+            :label="$t(`artMail.pieces.${piece.key}`)"
+            :ratio="piece.ratio"
+            :compact="'compact' in piece"
+          />
         </div>
-        <ul class="absolute top-[4%] left-[6%] z-20 flex gap-2" aria-label="Sticker set">
+        <ul
+          class="absolute top-[4%] left-[6%] z-20 flex gap-2"
+          :aria-label="$t('artMail.stickerSet')"
+        >
           <li
-            v-for="(s, i) in stickers"
-            :key="s"
-            class="flex size-14 items-center justify-center rounded-full border border-dashed border-ink/40 bg-paper text-[0.6rem] shadow-paper sm:size-16"
-            :class="i === 1 ? 'translate-y-4 -rotate-6' : 'rotate-6'"
+            v-for="n in 3"
+            :key="n"
+            class="flex size-14 items-center justify-center rounded-full border border-dashed border-ink/40 bg-paper text-center text-[0.6rem] leading-tight shadow-paper sm:size-16"
+            :class="n === 2 ? 'translate-y-4 -rotate-6' : 'rotate-6'"
           >
-            {{ s }}
+            {{ $t('artMail.pieces.sticker', { n }) }}
           </li>
         </ul>
       </div>

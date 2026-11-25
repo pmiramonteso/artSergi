@@ -15,11 +15,7 @@ export const siteContact = {
 /** Social profiles. Empty until the real handles are confirmed. */
 export const socialLinks: SocialLink[] = []
 
-export const legalPages = [
-  { slug: 'privacy', label: 'Privacy' },
-  { slug: 'cookies', label: 'Cookies' },
-  { slug: 'terms', label: 'Terms' },
-  { slug: 'shipping-returns', label: 'Shipping & returns' },
-] as const
+/** Legal page slugs. Labels are i18n keys `legal.pages.<slug>`. */
+export const legalPages = ['privacy', 'cookies', 'terms', 'shipping-returns'] as const
 
-export type LegalSlug = (typeof legalPages)[number]['slug']
+export type LegalSlug = (typeof legalPages)[number]

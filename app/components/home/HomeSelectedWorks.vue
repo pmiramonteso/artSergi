@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { featuredArtworks } from '~/data/artworks'
-import { artworkTitle } from '#shared/utils/artwork'
 
 /**
  * 02 · Selected works: an asymmetric editorial layout (not identical shop
  * cards). Each work links to its detail page. The supplied works are sold.
  */
+const localePath = useLocalePath()
 const works = featuredArtworks.slice(0, 3)
 
 // Column placement and vertical offset per position (desktop).
@@ -26,13 +26,21 @@ const tilt = ['-rotate-1', 'rotate-2', '-rotate-2']
   >
     <UiContainer class="flex flex-col gap-16">
       <div data-reveal class="flex flex-wrap items-end justify-between gap-6">
-        <UiSectionHeading number="02" eyebrow="Paintings" title="Selected works" />
-        <UiButton to="/works" variant="ghost">All works →</UiButton>
+        <UiSectionHeading
+          heading-id="works-title"
+          number="02"
+          :eyebrow="$t('works.eyebrow')"
+          :title="$t('works.selected')"
+        />
+        <UiButton :to="localePath('/works')" variant="ghost">{{ $t('works.allArrow') }}</UiButton>
       </div>
 
       <ol class="grid gap-16 md:grid-cols-12 md:gap-8" role="list">
         <li v-for="(work, i) in works" :key="work.id" data-reveal :class="layout[i]">
-          <NuxtLink :to="`/works/${work.slug}`" class="group flex flex-col gap-4">
+          <NuxtLink
+            :to="localePath({ name: 'works-slug', params: { slug: work.slug } })"
+            class="group flex flex-col gap-4"
+          >
             <ArtworkFigure
               :artwork="work"
               :index="i"
@@ -42,10 +50,10 @@ const tilt = ['-rotate-1', 'rotate-2', '-rotate-2']
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-eyebrow text-electric-blue">
-                  Nº {{ String(i + 1).padStart(3, '0') }}
+                  {{ $t('works.number', { n: String(i + 1).padStart(3, '0') }) }}
                 </p>
                 <h3 class="font-serif text-h3 group-hover:underline">
-                  {{ artworkTitle(work) }}
+                  {{ work.title ?? $t('works.untitled') }}
                 </h3>
               </div>
               <ArtworkStatus :status="work.status" />

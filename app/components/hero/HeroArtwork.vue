@@ -34,7 +34,11 @@ defineProps<{
               decoding="async"
               class="block h-auto w-full"
             />
-            <UiPlaceholder v-else :label="artwork.placeholderLabel" :ratio="artwork.ratio" />
+            <UiPlaceholder
+              v-else
+              :label="$t('hero.artworkPending', { n: artwork.position })"
+              :ratio="artwork.ratio"
+            />
           </figure>
         </div>
       </div>

@@ -18,18 +18,19 @@ withDefaults(
 </script>
 
 <template>
-  <figure
+  <div
     class="relative flex w-full items-center justify-center overflow-hidden border border-dashed border-ink/40 bg-paper bg-[repeating-linear-gradient(135deg,transparent_0_10px,rgb(37_37_31/0.05)_10px_11px)]"
     :style="{ aspectRatio: ratio }"
     role="img"
     :aria-label="`Placeholder: ${label}`"
   >
-    <figcaption
+    <div
+      aria-hidden="true"
       class="flex flex-col items-center text-center"
       :class="compact ? 'gap-1 p-1' : 'gap-2 p-4'"
     >
       <span v-if="!compact" class="bg-ink px-2 py-1 text-eyebrow text-paper">Placeholder</span>
       <span :class="compact ? 'text-[0.6rem] leading-tight' : 'text-sm'">{{ label }}</span>
-    </figcaption>
-  </figure>
+    </div>
+  </div>
 </template>

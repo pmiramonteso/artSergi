@@ -1,10 +1,11 @@
 import tailwindcss from '@tailwindcss/vite'
+import { DEFAULT_LOCALE, LOCALES, LOCALIZED_PAGES } from './shared/constants/i18n'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  modules: ['@nuxt/eslint'],
+  modules: ['@nuxt/eslint', '@nuxtjs/i18n'],
 
   devtools: { enabled: true },
 
@@ -12,7 +13,6 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      htmlAttrs: { lang: 'en' },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       titleTemplate: '%s · Sergi Tugas',
@@ -40,6 +40,31 @@ export default defineNuxtConfig({
       siteName: 'Sergi Tugas Art Studio',
       /** Only `true` in the real production deployment. Previews stay noindex. */
       siteIndexable: false,
+    },
+  },
+
+  /**
+   * Multilingual routing: /en/, /es/, /ca/ (prefix strategy, no unprefixed
+   * duplicates). Locale list, default and localized paths live in
+   * shared/constants/i18n.ts. The absolute base URL for canonical/hreflang
+   * comes from NUXT_PUBLIC_SITE_URL at runtime (see app/plugins/i18n-base-url.ts).
+   */
+  i18n: {
+    strategy: 'prefix',
+    defaultLocale: DEFAULT_LOCALE,
+    locales: LOCALES.map(({ code, language, name, file }) => ({ code, language, name, file })),
+    langDir: 'locales',
+    customRoutes: 'config',
+    pages: {
+      ...LOCALIZED_PAGES,
+      // Internal reference page: not localized, not indexed.
+      'design-system': false,
+    },
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale',
+      redirectOn: 'root',
+      fallbackLocale: DEFAULT_LOCALE,
     },
   },
 

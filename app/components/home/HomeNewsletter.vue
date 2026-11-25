@@ -8,6 +8,9 @@ import type { NewsletterResult } from '#shared/schemas/newsletter'
  */
 type Status = 'idle' | 'submitting' | 'success' | 'unavailable' | 'error'
 
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
+
 const email = ref('')
 const consent = ref(false)
 const website = ref('') // honeypot
@@ -21,10 +24,8 @@ onMounted(() => (renderedAt.value = Date.now()))
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function validate() {
-  errors.email = EMAIL_PATTERN.test(email.value.trim())
-    ? undefined
-    : 'Enter a valid email address, like name@example.com.'
-  errors.consent = consent.value ? undefined : 'Please confirm you agree to receive the newsletter.'
+  errors.email = EMAIL_PATTERN.test(email.value.trim()) ? undefined : t('newsletter.errors.email')
+  errors.consent = consent.value ? undefined : t('newsletter.errors.consent')
   return !errors.email && !errors.consent
 }
 
@@ -44,24 +45,24 @@ async function submit() {
       body: {
         email: email.value,
         consent: consent.value,
-        locale: 'en',
+        locale: locale.value,
         website: website.value,
         elapsedMs: Math.max(0, Date.now() - renderedAt.value),
       },
     })
     status.value = 'success'
-    message.value = 'Thank you, you’re on the list.'
+    message.value = t('newsletter.success')
   } catch (err: unknown) {
     const e = err as { statusCode?: number; data?: Partial<NewsletterResult> }
     if (e.statusCode === 503 && e.data && 'message' in e.data) {
       status.value = 'unavailable'
-      message.value = 'Sign-up opens soon. Your email was not stored, so please come back later.'
+      message.value = t('newsletter.unavailable')
     } else if (e.statusCode === 429) {
       status.value = 'error'
-      message.value = 'Too many attempts. Please wait a few minutes and try again.'
+      message.value = t('newsletter.tooMany')
     } else {
       status.value = 'error'
-      message.value = 'Something went wrong. Please check your details and try again.'
+      message.value = t('newsletter.error')
     }
   }
 }
@@ -76,15 +77,20 @@ async function submit() {
   >
     <UiContainer class="grid gap-10 md:grid-cols-12">
       <div data-reveal class="flex flex-col gap-4 md:col-span-5">
-        <UiSectionHeading number="07" eyebrow="Newsletter" title="Letters from the studio">
-          New collections, original works and the Art Mail Club launch, first.
+        <UiSectionHeading
+          heading-id="newsletter-title"
+          number="07"
+          :eyebrow="$t('newsletter.eyebrow')"
+          :title="$t('newsletter.title')"
+        >
+          {{ $t('newsletter.lead') }}
         </UiSectionHeading>
       </div>
 
       <div data-reveal class="bg-paper p-6 shadow-paper md:col-span-6 md:col-start-7 md:p-8">
         <form novalidate class="flex flex-col gap-6" @submit.prevent="submit">
           <div class="flex flex-col gap-2">
-            <label for="nl-email" class="text-eyebrow">Email</label>
+            <label for="nl-email" class="text-eyebrow">{{ $t('newsletter.email') }}</label>
             <input
               id="nl-email"
               ref="emailInput"
@@ -130,11 +136,15 @@ async function submit() {
                 class="mt-1 size-5 shrink-0 accent-ink"
               />
               <label for="nl-consent" class="text-sm">
-                I agree to receive occasional emails from Sergi Tugas Art Studio. I can unsubscribe
-                at any time. See the
-                <NuxtLink to="/legal/privacy" class="underline underline-offset-2">
-                  privacy policy</NuxtLink
-                >.
+                <i18n-t keypath="newsletter.consent" tag="span" scope="global">
+                  <template #link>
+                    <NuxtLink
+                      :to="localePath('/legal/privacy')"
+                      class="underline underline-offset-2"
+                      >{{ $t('newsletter.privacyLink') }}</NuxtLink
+                    >
+                  </template>
+                </i18n-t>
               </label>
             </div>
             <p v-if="errors.consent" id="nl-consent-error" class="text-sm text-tomato-ink">
@@ -144,7 +154,7 @@ async function submit() {
 
           <div class="flex flex-wrap items-center gap-4">
             <UiButton type="submit" size="lg" :disabled="status === 'submitting'">
-              {{ status === 'submitting' ? 'Sending…' : 'Subscribe' }}
+              {{ status === 'submitting' ? $t('newsletter.sending') : $t('newsletter.subscribe') }}
             </UiButton>
           </div>
 
