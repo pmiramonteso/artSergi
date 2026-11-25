@@ -43,9 +43,9 @@ npm run dev            # http://localhost:3000
 
 ## Testing payments locally (Stripe TEST mode)
 
-No real money is involved. You need a free Stripe account, Docker (for Postgres) and the [Stripe CLI](https://docs.stripe.com/stripe-cli).
+No real money is involved. You need a free Stripe account, Docker (for MySQL) and the [Stripe CLI](https://docs.stripe.com/stripe-cli).
 
-1. `docker compose up -d`, then put `NUXT_DATABASE_URL=postgres://artsergi:artsergi@localhost:5432/artsergi` in `.env`.
+1. `docker compose up -d`, then put `NUXT_DATABASE_URL=mysql://artsergi:artsergi@127.0.0.1:3306/artsergi` in `.env`. Integration tests need `TEST_MYSQL_URL=mysql://root:artsergi@127.0.0.1:3306`.
 2. `npm run db:migrate`, then start `npm run dev` and run `npm run db:seed` in another terminal.
 3. Stripe Dashboard (Test mode) → Developers → API keys: copy the **secret test key** (`sk_test_…`) into `.env` as `NUXT_STRIPE_SECRET_KEY`. Never paste it in chats or commit it.
 4. `stripe login`, then `stripe listen --forward-to localhost:3000/api/webhooks/stripe`. Copy the printed `whsec_…` into `NUXT_STRIPE_WEBHOOK_SECRET`.

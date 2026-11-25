@@ -50,7 +50,7 @@ describe('database integrity', () => {
   })
 
   it('rejects negative prices and invalid currencies', async () => {
-    const [p] = await db.insert(products).values({ slug: 'print-x', type: 'print' }).returning()
+    const [p] = await db.insert(products).values({ slug: 'print-x', type: 'print' }).$returningId()
     await rejects(
       db
         .insert(productVariants)
@@ -84,7 +84,7 @@ describe('database integrity', () => {
         totalAmount: 1300,
         idempotencyKey: 'k2',
       })
-      .returning()
+      .$returningId()
     await rejects(
       db.insert(orders).values({
         number: 'ST-3',

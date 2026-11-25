@@ -1,28 +1,17 @@
-import { pgEnum } from 'drizzle-orm/pg-core'
-
-export const localeEnum = pgEnum('locale', ['en', 'es', 'ca'])
-
-export const artworkStatusEnum = pgEnum('artwork_status', ['available', 'sold', 'archived'])
-
-export const productTypeEnum = pgEnum('product_type', [
+/** Enum value lists (MySQL enums are declared per column with mysqlEnum). */
+export const LOCALES = ['en', 'es', 'ca'] as const
+export const ARTWORK_STATUSES = ['available', 'sold', 'archived'] as const
+export const PRODUCT_TYPES = [
   'original',
   'print',
   'art_mail_single',
   'art_mail_subscription',
   'art_mail_gift',
   'limited_edition',
-])
-
-export const billingIntervalEnum = pgEnum('billing_interval', ['month', 'year'])
-
-export const reservationStatusEnum = pgEnum('reservation_status', [
-  'active',
-  'committed',
-  'released',
-  'expired',
-])
-
-export const orderStatusEnum = pgEnum('order_status', [
+] as const
+export const BILLING_INTERVALS = ['month', 'year'] as const
+export const RESERVATION_STATUSES = ['active', 'committed', 'released', 'expired'] as const
+export const ORDER_STATUSES = [
   'pending',
   'awaiting_payment',
   'paid',
@@ -32,18 +21,16 @@ export const orderStatusEnum = pgEnum('order_status', [
   'cancelled',
   'refunded',
   'partially_refunded',
-])
-
-export const paymentStatusEnum = pgEnum('payment_status', [
+] as const
+export const PAYMENT_STATUSES = [
   'pending',
   'succeeded',
   'failed',
   'refunded',
   'partially_refunded',
-])
-
+] as const
 /** Mirrors Stripe subscription statuses. */
-export const subscriptionStatusEnum = pgEnum('subscription_status', [
+export const SUBSCRIPTION_STATUSES = [
   'incomplete',
   'incomplete_expired',
   'trialing',
@@ -52,9 +39,8 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'canceled',
   'unpaid',
   'paused',
-])
-
-export const shipmentStatusEnum = pgEnum('shipment_status', [
+] as const
+export const SHIPMENT_STATUSES = [
   'pending',
   'label_created',
   'shipped',
@@ -62,12 +48,6 @@ export const shipmentStatusEnum = pgEnum('shipment_status', [
   'delivered',
   'returned',
   'lost',
-])
-
-export const webhookStatusEnum = pgEnum('webhook_status', ['received', 'processed', 'failed'])
-
-export const newsletterStatusEnum = pgEnum('newsletter_status', [
-  'pending',
-  'subscribed',
-  'unsubscribed',
-])
+] as const
+export const WEBHOOK_STATUSES = ['received', 'processed', 'failed'] as const
+export const NEWSLETTER_STATUSES = ['pending', 'subscribed', 'unsubscribed'] as const

@@ -63,6 +63,8 @@ export default defineNuxtConfig({
     uploadsDir: '.data/uploads',
     /** Apply DB migrations at startup (deploys only; see server/plugins/migrate-on-start.ts). */
     dbMigrateOnStart: false,
+    /** Load initial content into an EMPTY database at startup (first install). */
+    dbSeedOnStart: false,
     /** ISO countries offered at checkout (provisional, OPEN_QUESTIONS B3). */
     shippingCountries: 'ES',
     public: {

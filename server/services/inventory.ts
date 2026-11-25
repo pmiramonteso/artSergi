@@ -1,6 +1,8 @@
-import { and, eq, lt, sql } from 'drizzle-orm'
+import { randomUUID } from 'node:crypto'
+import { and, eq, inArray, lt, sql } from 'drizzle-orm'
 import type { Database } from '../database/client'
 import { inventory, inventoryReservations } from '../database/schema'
+import { affectedRows } from '../database/result'
 
 export class InsufficientStockError extends Error {
   constructor(
@@ -72,19 +74,18 @@ export async function reserveStock(
           sql`${inventory.quantityTotal} - ${inventory.quantityReserved} - ${inventory.quantitySold} >= ${quantity}`,
         ),
       )
-      .returning({ variantId: inventory.variantId })
-    if (!updated.length) throw new InsufficientStockError(variantId, quantity)
+    if (affectedRows(updated) === 0) throw new InsufficientStockError(variantId, quantity)
 
-    const [reservation] = await tx
-      .insert(inventoryReservations)
-      .values({
-        variantId,
-        quantity,
-        reference,
-        expiresAt: new Date(now.getTime() + ttlMs),
-      })
-      .returning()
-    return reservation as Reservation
+    const reservation = {
+      id: randomUUID(),
+      variantId,
+      quantity,
+      reference,
+      expiresAt: new Date(now.getTime() + ttlMs),
+      status: 'active' as const,
+    }
+    await tx.insert(inventoryReservations).values(reservation)
+    return reservation
   })
 }
 
@@ -96,15 +97,25 @@ async function settle(
 ): Promise<number> {
   return db.transaction(async (tx) => {
     const rows = await tx
-      .update(inventoryReservations)
-      .set({ status: to })
+      .select()
+      .from(inventoryReservations)
       .where(
         and(
           eq(inventoryReservations.reference, reference),
           eq(inventoryReservations.status, 'active'),
         ),
       )
-      .returning()
+      .for('update')
+    if (!rows.length) return 0
+    await tx
+      .update(inventoryReservations)
+      .set({ status: to })
+      .where(
+        inArray(
+          inventoryReservations.id,
+          rows.map((r) => r.id),
+        ),
+      )
     for (const r of rows) {
       await tx
         .update(inventory)
@@ -133,12 +144,22 @@ export const releaseReservation = (db: Database, reference: string) =>
 export async function expireStaleReservations(db: Database, now = new Date()): Promise<number> {
   return db.transaction(async (tx) => {
     const rows = await tx
-      .update(inventoryReservations)
-      .set({ status: 'expired' })
+      .select()
+      .from(inventoryReservations)
       .where(
         and(eq(inventoryReservations.status, 'active'), lt(inventoryReservations.expiresAt, now)),
       )
-      .returning()
+      .for('update')
+    if (!rows.length) return 0
+    await tx
+      .update(inventoryReservations)
+      .set({ status: 'expired' })
+      .where(
+        inArray(
+          inventoryReservations.id,
+          rows.map((r) => r.id),
+        ),
+      )
     for (const r of rows) {
       await tx
         .update(inventory)

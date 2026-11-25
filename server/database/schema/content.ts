@@ -2,23 +2,24 @@ import { sql } from 'drizzle-orm'
 import {
   boolean,
   check,
+  decimal,
   index,
-  integer,
-  jsonb,
-  numeric,
-  pgTable,
+  int,
+  json,
+  mysqlEnum,
+  mysqlTable,
   primaryKey,
   text,
-  uuid,
-} from 'drizzle-orm/pg-core'
+  varchar,
+} from 'drizzle-orm/mysql-core'
 import type { ArtworkImage } from '../../../shared/types/artwork'
-import { timestamps } from './auth'
-import { artworkStatusEnum, localeEnum } from './enums'
+import { timestamps, uuidPk, uuidRef } from './columns'
+import { ARTWORK_STATUSES, LOCALES } from './enums'
 
-export const artists = pgTable('artists', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  slug: text('slug').notNull().unique(),
-  name: text('name').notNull(),
+export const artists = mysqlTable('artists', {
+  id: uuidPk(),
+  slug: varchar('slug', { length: 80 }).notNull().unique('artists_slug_unique'),
+  name: varchar('name', { length: 255 }).notNull(),
   ...timestamps,
 })
 
@@ -26,25 +27,28 @@ export const artists = pgTable('artists', {
  * Artworks. Unknown facts stay NULL (never invented); localized title,
  * description and image alt text live in artwork_translations.
  */
-export const artworks = pgTable(
+export const artworks = mysqlTable(
   'artworks',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    artistId: uuid('artist_id')
+    id: uuidPk(),
+    artistId: uuidRef('artist_id')
       .notNull()
       .references(() => artists.id, { onDelete: 'restrict' }),
-    slug: text('slug').notNull().unique(),
-    status: artworkStatusEnum('status').notNull(),
+    slug: varchar('slug', { length: 80 }).notNull().unique('artworks_slug_unique'),
+    status: mysqlEnum('status', ARTWORK_STATUSES).notNull(),
     featured: boolean('featured').notNull().default(false),
-    sortOrder: integer('sort_order').notNull().default(0),
-    year: integer('year'),
-    medium: text('medium'),
-    widthCm: numeric('width_cm', { precision: 6, scale: 1, mode: 'number' }),
-    heightCm: numeric('height_cm', { precision: 6, scale: 1, mode: 'number' }),
-    depthCm: numeric('depth_cm', { precision: 6, scale: 1, mode: 'number' }),
-    /** {src,width,height} — alt text is per locale in translations. */
-    image: jsonb('image').$type<Omit<ArtworkImage, 'alt'>>(),
-    gallery: jsonb('gallery').$type<Omit<ArtworkImage, 'alt'>[]>().notNull().default([]),
+    sortOrder: int('sort_order').notNull().default(0),
+    year: int('year'),
+    medium: varchar('medium', { length: 200 }),
+    widthCm: decimal('width_cm', { precision: 6, scale: 1, mode: 'number' }),
+    heightCm: decimal('height_cm', { precision: 6, scale: 1, mode: 'number' }),
+    depthCm: decimal('depth_cm', { precision: 6, scale: 1, mode: 'number' }),
+    /** {src,width,height,srcset?} — alt text is per locale in translations. */
+    image: json('image').$type<Omit<ArtworkImage, 'alt'> | null>(),
+    gallery: json('gallery')
+      .$type<Omit<ArtworkImage, 'alt'>[]>()
+      .notNull()
+      .$defaultFn(() => []),
     ...timestamps,
   },
   (t) => [
@@ -59,14 +63,14 @@ export const artworks = pgTable(
   ],
 )
 
-export const artworkTranslations = pgTable(
+export const artworkTranslations = mysqlTable(
   'artwork_translations',
   {
-    artworkId: uuid('artwork_id')
+    artworkId: uuidRef('artwork_id')
       .notNull()
       .references(() => artworks.id, { onDelete: 'cascade' }),
-    locale: localeEnum('locale').notNull(),
-    title: text('title'),
+    locale: mysqlEnum('locale', LOCALES).notNull(),
+    title: varchar('title', { length: 255 }),
     description: text('description'),
     imageAlt: text('image_alt'),
   },
@@ -78,30 +82,33 @@ export interface CollectionContentItem {
   detail: Record<'en' | 'es' | 'ca', string>
 }
 
-export const collections = pgTable(
+export const collections = mysqlTable(
   'collections',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    slug: text('slug').notNull().unique(),
-    number: text('number').notNull(),
-    title: text('title').notNull(),
-    editionSize: integer('edition_size').notNull(),
-    accent: text('accent').notNull().default('tomato'),
-    contents: jsonb('contents').$type<CollectionContentItem[]>().notNull().default([]),
+    id: uuidPk(),
+    slug: varchar('slug', { length: 80 }).notNull().unique('collections_slug_unique'),
+    number: varchar('number', { length: 32 }).notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    editionSize: int('edition_size').notNull(),
+    accent: varchar('accent', { length: 32 }).notNull().default('tomato'),
+    contents: json('contents')
+      .$type<CollectionContentItem[]>()
+      .notNull()
+      .$defaultFn(() => []),
     active: boolean('active').notNull().default(false),
     ...timestamps,
   },
   (t) => [check('collections_edition_size_positive', sql`${t.editionSize} > 0`)],
 )
 
-export const collectionTranslations = pgTable(
+export const collectionTranslations = mysqlTable(
   'collection_translations',
   {
-    collectionId: uuid('collection_id')
+    collectionId: uuidRef('collection_id')
       .notNull()
       .references(() => collections.id, { onDelete: 'cascade' }),
-    locale: localeEnum('locale').notNull(),
-    tagline: text('tagline').notNull(),
+    locale: mysqlEnum('locale', LOCALES).notNull(),
+    tagline: varchar('tagline', { length: 255 }).notNull(),
     description: text('description').notNull(),
   },
   (t) => [primaryKey({ columns: [t.collectionId, t.locale] })],

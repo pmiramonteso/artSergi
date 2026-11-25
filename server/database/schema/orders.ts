@@ -4,61 +4,63 @@ import {
   char,
   check,
   index,
-  integer,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core'
-import { timestamps, users } from './auth'
-import { productVariants, shippingMethods } from './commerce'
+  int,
+  json,
+  mysqlEnum,
+  mysqlTable,
+  varchar,
+} from 'drizzle-orm/mysql-core'
+import { users } from './auth'
+import { dateTime, exactVarchar, timestamps, uuidPk, uuidRef } from './columns'
+import { isoUpper, productVariants, shippingMethods } from './commerce'
 import {
-  localeEnum,
-  orderStatusEnum,
-  paymentStatusEnum,
-  shipmentStatusEnum,
-  subscriptionStatusEnum,
+  LOCALES,
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+  SHIPMENT_STATUSES,
+  SUBSCRIPTION_STATUSES,
 } from './enums'
 
-export const customers = pgTable(
+export const customers = mysqlTable(
   'customers',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: uuidPk(),
     /** Optional link to an account; guest checkout leaves it null. */
-    userId: uuid('user_id')
-      .unique()
+    userId: uuidRef('user_id')
+      .unique('customers_user_unique')
       .references(() => users.id, { onDelete: 'set null' }),
-    email: text('email').notNull(),
-    name: text('name'),
-    stripeCustomerId: text('stripe_customer_id').unique(),
-    locale: localeEnum('locale').notNull().default('en'),
+    email: varchar('email', { length: 255 }).notNull(),
+    name: varchar('name', { length: 255 }),
+    stripeCustomerId: exactVarchar('stripe_customer_id', { length: 255 }).unique(
+      'customers_stripe_unique',
+    ),
+    locale: mysqlEnum('locale', LOCALES).notNull().default('en'),
     ...timestamps,
   },
-  (t) => [index('customers_email_lower_idx').on(sql`lower(${t.email})`)],
+  (t) => [index('customers_email_idx').on(t.email)],
 )
 
-export const addresses = pgTable(
+export const addresses = mysqlTable(
   'addresses',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    customerId: uuid('customer_id')
+    id: uuidPk(),
+    customerId: uuidRef('customer_id')
       .notNull()
       .references(() => customers.id, { onDelete: 'cascade' }),
-    name: text('name').notNull(),
-    line1: text('line1').notNull(),
-    line2: text('line2'),
-    city: text('city').notNull(),
-    postalCode: text('postal_code').notNull(),
-    region: text('region'),
+    name: varchar('name', { length: 255 }).notNull(),
+    line1: varchar('line1', { length: 255 }).notNull(),
+    line2: varchar('line2', { length: 255 }),
+    city: varchar('city', { length: 120 }).notNull(),
+    postalCode: varchar('postal_code', { length: 32 }).notNull(),
+    region: varchar('region', { length: 120 }),
     country: char('country', { length: 2 }).notNull(),
-    phone: text('phone'),
+    phone: varchar('phone', { length: 40 }),
     isDefault: boolean('is_default').notNull().default(false),
     ...timestamps,
   },
   (t) => [
     index('addresses_customer_idx').on(t.customerId),
-    check('addresses_country_iso', sql`${t.country} ~ '^[A-Z]{2}$'`),
+    check('addresses_country_iso', isoUpper(t.country, 2)),
   ],
 )
 
@@ -77,27 +79,33 @@ export interface AddressSnapshot {
  * makes order creation safe to retry; Stripe ids are unique so a webhook can
  * never attach one payment to two orders.
  */
-export const orders = pgTable(
+export const orders = mysqlTable(
   'orders',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    number: text('number').notNull().unique(),
-    customerId: uuid('customer_id').references(() => customers.id, { onDelete: 'restrict' }),
-    email: text('email').notNull(),
-    status: orderStatusEnum('status').notNull().default('pending'),
-    locale: localeEnum('locale').notNull().default('en'),
+    id: uuidPk(),
+    number: varchar('number', { length: 32 }).notNull().unique('orders_number_unique'),
+    customerId: uuidRef('customer_id').references(() => customers.id, { onDelete: 'restrict' }),
+    email: varchar('email', { length: 255 }).notNull(),
+    status: mysqlEnum('status', ORDER_STATUSES).notNull().default('pending'),
+    locale: mysqlEnum('locale', LOCALES).notNull().default('en'),
     currency: char('currency', { length: 3 }).notNull().default('EUR'),
-    subtotalAmount: integer('subtotal_amount').notNull(),
-    shippingAmount: integer('shipping_amount').notNull().default(0),
-    taxAmount: integer('tax_amount').notNull().default(0),
-    totalAmount: integer('total_amount').notNull(),
-    shippingMethodId: uuid('shipping_method_id').references(() => shippingMethods.id, {
+    subtotalAmount: int('subtotal_amount').notNull(),
+    shippingAmount: int('shipping_amount').notNull().default(0),
+    taxAmount: int('tax_amount').notNull().default(0),
+    totalAmount: int('total_amount').notNull(),
+    shippingMethodId: uuidRef('shipping_method_id').references(() => shippingMethods.id, {
       onDelete: 'restrict',
     }),
-    shippingAddress: jsonb('shipping_address').$type<AddressSnapshot>(),
-    idempotencyKey: text('idempotency_key').notNull().unique(),
-    stripeCheckoutSessionId: text('stripe_checkout_session_id').unique(),
-    stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
+    shippingAddress: json('shipping_address').$type<AddressSnapshot | null>(),
+    idempotencyKey: exactVarchar('idempotency_key', { length: 64 })
+      .notNull()
+      .unique('orders_idempotency_unique'),
+    stripeCheckoutSessionId: exactVarchar('stripe_checkout_session_id', { length: 255 }).unique(
+      'orders_stripe_session_unique',
+    ),
+    stripePaymentIntentId: exactVarchar('stripe_payment_intent_id', { length: 255 }).unique(
+      'orders_stripe_pi_unique',
+    ),
     ...timestamps,
   },
   (t) => [
@@ -114,21 +122,21 @@ export const orders = pgTable(
   ],
 )
 
-export const orderItems = pgTable(
+export const orderItems = mysqlTable(
   'order_items',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    orderId: uuid('order_id')
+    id: uuidPk(),
+    orderId: uuidRef('order_id')
       .notNull()
       .references(() => orders.id, { onDelete: 'cascade' }),
-    variantId: uuid('variant_id')
+    variantId: uuidRef('variant_id')
       .notNull()
       .references(() => productVariants.id, { onDelete: 'restrict' }),
     /** Snapshot: the order keeps what was bought even if the product changes. */
-    titleSnapshot: text('title_snapshot').notNull(),
-    quantity: integer('quantity').notNull(),
-    unitAmount: integer('unit_amount').notNull(),
-    totalAmount: integer('total_amount').notNull(),
+    titleSnapshot: varchar('title_snapshot', { length: 255 }).notNull(),
+    quantity: int('quantity').notNull(),
+    unitAmount: int('unit_amount').notNull(),
+    totalAmount: int('total_amount').notNull(),
   },
   (t) => [
     index('order_items_order_idx').on(t.orderId),
@@ -138,18 +146,20 @@ export const orderItems = pgTable(
   ],
 )
 
-export const payments = pgTable(
+export const payments = mysqlTable(
   'payments',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    orderId: uuid('order_id')
+    id: uuidPk(),
+    orderId: uuidRef('order_id')
       .notNull()
       .references(() => orders.id, { onDelete: 'restrict' }),
-    provider: text('provider').notNull().default('stripe'),
-    providerPaymentId: text('provider_payment_id').notNull().unique(),
-    status: paymentStatusEnum('status').notNull().default('pending'),
-    amount: integer('amount').notNull(),
-    refundedAmount: integer('refunded_amount').notNull().default(0),
+    provider: varchar('provider', { length: 32 }).notNull().default('stripe'),
+    providerPaymentId: exactVarchar('provider_payment_id', { length: 255 })
+      .notNull()
+      .unique('payments_provider_id_unique'),
+    status: mysqlEnum('status', PAYMENT_STATUSES).notNull().default('pending'),
+    amount: int('amount').notNull(),
+    refundedAmount: int('refunded_amount').notNull().default(0),
     currency: char('currency', { length: 3 }).notNull().default('EUR'),
     ...timestamps,
   },
@@ -162,47 +172,49 @@ export const payments = pgTable(
   ],
 )
 
-export const shipments = pgTable(
+export const shipments = mysqlTable(
   'shipments',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    orderId: uuid('order_id')
+    id: uuidPk(),
+    orderId: uuidRef('order_id')
       .notNull()
       .references(() => orders.id, { onDelete: 'restrict' }),
-    shippingMethodId: uuid('shipping_method_id').references(() => shippingMethods.id, {
+    shippingMethodId: uuidRef('shipping_method_id').references(() => shippingMethods.id, {
       onDelete: 'restrict',
     }),
-    status: shipmentStatusEnum('status').notNull().default('pending'),
-    carrier: text('carrier'),
-    trackingReference: text('tracking_reference'),
-    shippedAt: timestamp('shipped_at', { withTimezone: true }),
-    deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+    status: mysqlEnum('status', SHIPMENT_STATUSES).notNull().default('pending'),
+    carrier: varchar('carrier', { length: 120 }),
+    trackingReference: varchar('tracking_reference', { length: 120 }),
+    shippedAt: dateTime('shipped_at'),
+    deliveredAt: dateTime('delivered_at'),
     ...timestamps,
   },
   (t) => [index('shipments_order_idx').on(t.orderId)],
 )
 
 /**
- * Subscriptions are activated only from verified Stripe webhooks (Phase 8),
- * never from a browser redirect.
+ * Subscriptions are activated only from verified Stripe webhooks, never
+ * from a browser redirect.
  */
-export const subscriptions = pgTable(
+export const subscriptions = mysqlTable(
   'subscriptions',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    customerId: uuid('customer_id')
+    id: uuidPk(),
+    customerId: uuidRef('customer_id')
       .notNull()
       .references(() => customers.id, { onDelete: 'restrict' }),
-    stripeCustomerId: text('stripe_customer_id').notNull(),
-    stripeSubscriptionId: text('stripe_subscription_id').notNull().unique(),
-    status: subscriptionStatusEnum('status').notNull(),
-    priceId: text('price_id').notNull(),
-    variantId: uuid('variant_id').references(() => productVariants.id, { onDelete: 'restrict' }),
-    currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
-    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+    stripeCustomerId: exactVarchar('stripe_customer_id', { length: 255 }).notNull(),
+    stripeSubscriptionId: exactVarchar('stripe_subscription_id', { length: 255 })
+      .notNull()
+      .unique('subscriptions_stripe_unique'),
+    status: mysqlEnum('status', SUBSCRIPTION_STATUSES).notNull(),
+    priceId: exactVarchar('price_id', { length: 255 }).notNull(),
+    variantId: uuidRef('variant_id').references(() => productVariants.id, { onDelete: 'restrict' }),
+    currentPeriodStart: dateTime('current_period_start'),
+    currentPeriodEnd: dateTime('current_period_end'),
     cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
     isGift: boolean('is_gift').notNull().default(false),
-    giftRecipientEmail: text('gift_recipient_email'),
+    giftRecipientEmail: varchar('gift_recipient_email', { length: 255 }),
     ...timestamps,
   },
   (t) => [

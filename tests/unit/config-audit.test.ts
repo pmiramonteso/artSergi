@@ -4,7 +4,7 @@ import { auditConfig } from '../../shared/utils/config-audit'
 const ok = {
   siteUrl: 'https://example.com',
   siteIndexable: true,
-  databaseUrl: 'postgres://x',
+  databaseUrl: 'mysql://x',
   authSecret: 'x'.repeat(40),
   smtpUrl: 'smtps://x',
   commerceMode: 'off',

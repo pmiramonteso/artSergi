@@ -1,79 +1,62 @@
-import { sql } from 'drizzle-orm'
-import {
-  bigint,
-  boolean,
-  index,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-  uuid,
-} from 'drizzle-orm/pg-core'
-
-const timestamps = {
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}
+import { bigint, boolean, index, int, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core'
+import { dateTime, exactVarchar, timestamps, uuidPk, uuidRef } from './columns'
 
 /*
- * Authentication tables, in the shape Better Auth expects (JS keys = Better
- * Auth field names; columns are snake_case). Better Auth owns password
- * hashing (scrypt, stored in accounts.password), sessions, verification
- * tokens, TOTP 2FA and roles (admin plugin: users.role). We never write
- * these tables by hand except users.role via the audited admin bootstrap.
+ * Authentication tables in the shape Better Auth expects (JS keys = Better
+ * Auth field names; columns snake_case). Better Auth owns password hashing
+ * (scrypt, in accounts.password), sessions, verification tokens, TOTP 2FA and
+ * roles (users.role).
+ *
+ * Emails are unique case-insensitively thanks to the server's default
+ * case-insensitive collation; tokens use a binary (case-sensitive) collation.
  */
 
-export const users = pgTable(
-  'users',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
-    email: text('email').notNull(),
-    emailVerified: boolean('email_verified').notNull().default(false),
-    image: text('image'),
-    twoFactorEnabled: boolean('two_factor_enabled').default(false),
-    /** 'user' | 'admin' (comma-separated for multiple roles). */
-    role: text('role').default('user'),
-    banned: boolean('banned').default(false),
-    banReason: text('ban_reason'),
-    banExpires: timestamp('ban_expires', { withTimezone: true }),
-    ...timestamps,
-  },
-  (t) => [uniqueIndex('users_email_lower_unique').on(sql`lower(${t.email})`)],
-)
+export const users = mysqlTable('users', {
+  id: uuidPk(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique('users_email_unique'),
+  emailVerified: boolean('email_verified').notNull().default(false),
+  image: text('image'),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
+  /** 'user' | 'admin' (comma-separated for multiple roles). */
+  role: varchar('role', { length: 64 }).default('user'),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: dateTime('ban_expires'),
+  ...timestamps,
+})
 
-export const sessions = pgTable(
+export const sessions = mysqlTable(
   'sessions',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    token: text('token').notNull().unique(),
-    ipAddress: text('ip_address'),
+    id: uuidPk(),
+    expiresAt: dateTime('expires_at').notNull(),
+    token: exactVarchar('token', { length: 255 }).notNull().unique('sessions_token_unique'),
+    ipAddress: varchar('ip_address', { length: 64 }),
     userAgent: text('user_agent'),
-    userId: uuid('user_id')
+    userId: uuidRef('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    impersonatedBy: text('impersonated_by'),
+    impersonatedBy: uuidRef('impersonated_by'),
     ...timestamps,
   },
   (t) => [index('sessions_user_idx').on(t.userId)],
 )
 
-export const accounts = pgTable(
+export const accounts = mysqlTable(
   'accounts',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    accountId: text('account_id').notNull(),
-    providerId: text('provider_id').notNull(),
-    userId: uuid('user_id')
+    id: uuidPk(),
+    accountId: varchar('account_id', { length: 255 }).notNull(),
+    providerId: varchar('provider_id', { length: 64 }).notNull(),
+    userId: uuidRef('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),
-    accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
-    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
+    accessTokenExpiresAt: dateTime('access_token_expires_at'),
+    refreshTokenExpiresAt: dateTime('refresh_token_expires_at'),
     scope: text('scope'),
     /** Better Auth scrypt hash. Never plaintext. */
     password: text('password'),
@@ -82,39 +65,39 @@ export const accounts = pgTable(
   (t) => [index('accounts_user_idx').on(t.userId)],
 )
 
-export const verifications = pgTable(
+export const verifications = mysqlTable(
   'verifications',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    identifier: text('identifier').notNull(),
+    id: uuidPk(),
+    identifier: exactVarchar('identifier', { length: 255 }).notNull(),
     value: text('value').notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    expiresAt: dateTime('expires_at').notNull(),
     ...timestamps,
   },
   (t) => [index('verifications_identifier_idx').on(t.identifier)],
 )
 
-export const twoFactors = pgTable(
+export const twoFactors = mysqlTable(
   'two_factors',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    secret: text('secret').notNull(),
+    id: uuidPk(),
+    secret: exactVarchar('secret', { length: 255 }).notNull(),
     backupCodes: text('backup_codes').notNull(),
-    userId: uuid('user_id')
+    userId: uuidRef('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     verified: boolean('verified').default(true),
-    failedVerificationCount: integer('failed_verification_count').default(0),
-    lockedUntil: timestamp('locked_until', { withTimezone: true }),
+    failedVerificationCount: int('failed_verification_count').default(0),
+    lockedUntil: dateTime('locked_until'),
   },
   (t) => [index('two_factors_user_idx').on(t.userId), index('two_factors_secret_idx').on(t.secret)],
 )
 
 /** Shared rate-limit counters (works across processes, unlike memory). */
-export const rateLimits = pgTable('rate_limits', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  key: text('key').notNull().unique(),
-  count: integer('count').notNull(),
+export const rateLimits = mysqlTable('rate_limits', {
+  id: uuidPk(),
+  key: exactVarchar('key', { length: 255 }).notNull().unique('rate_limits_key_unique'),
+  count: int('count').notNull(),
   lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
 })
 

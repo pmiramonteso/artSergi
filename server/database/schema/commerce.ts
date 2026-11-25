@@ -4,33 +4,41 @@ import {
   char,
   check,
   index,
-  integer,
-  pgTable,
+  int,
+  json,
+  mysqlEnum,
+  mysqlTable,
   primaryKey,
   text,
-  timestamp,
   unique,
-  uuid,
-} from 'drizzle-orm/pg-core'
-import { timestamps } from './auth'
+  varchar,
+} from 'drizzle-orm/mysql-core'
+import { dateTime, exactVarchar, timestamps, uuidPk, uuidRef } from './columns'
 import { artworks, collections } from './content'
-import { billingIntervalEnum, localeEnum, productTypeEnum, reservationStatusEnum } from './enums'
+import { BILLING_INTERVALS, LOCALES, PRODUCT_TYPES, RESERVATION_STATUSES } from './enums'
+
+/**
+ * Upper-case ISO code check (case-sensitive regex, MySQL 8 ICU). The pattern
+ * is a code constant inlined as a literal: DDL cannot take bound parameters.
+ */
+export const isoUpper = (col: unknown, n: 2 | 3) =>
+  sql`REGEXP_LIKE(${col}, ${sql.raw(`'^[A-Z]{${n}}$'`)}, 'c')`
 
 /**
  * Catalogue. Prices are integer minor units (cents) and are ONLY trusted
  * from here (or Stripe), never from the browser. Products are inactive by
  * default: nothing is sellable until explicitly activated.
  */
-export const products = pgTable(
+export const products = mysqlTable(
   'products',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    slug: text('slug').notNull().unique(),
-    type: productTypeEnum('type').notNull(),
-    collectionId: uuid('collection_id').references(() => collections.id, {
+    id: uuidPk(),
+    slug: varchar('slug', { length: 80 }).notNull().unique('products_slug_unique'),
+    type: mysqlEnum('type', PRODUCT_TYPES).notNull(),
+    collectionId: uuidRef('collection_id').references(() => collections.id, {
       onDelete: 'restrict',
     }),
-    artworkId: uuid('artwork_id').references(() => artworks.id, { onDelete: 'restrict' }),
+    artworkId: uuidRef('artwork_id').references(() => artworks.id, { onDelete: 'restrict' }),
     active: boolean('active').notNull().default(false),
     ...timestamps,
   },
@@ -43,41 +51,43 @@ export const products = pgTable(
   ],
 )
 
-export const productTranslations = pgTable(
+export const productTranslations = mysqlTable(
   'product_translations',
   {
-    productId: uuid('product_id')
+    productId: uuidRef('product_id')
       .notNull()
       .references(() => products.id, { onDelete: 'cascade' }),
-    locale: localeEnum('locale').notNull(),
-    title: text('title').notNull(),
+    locale: mysqlEnum('locale', LOCALES).notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
     description: text('description'),
   },
   (t) => [primaryKey({ columns: [t.productId, t.locale] })],
 )
 
-export const productVariants = pgTable(
+export const productVariants = mysqlTable(
   'product_variants',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    productId: uuid('product_id')
+    id: uuidPk(),
+    productId: uuidRef('product_id')
       .notNull()
       .references(() => products.id, { onDelete: 'cascade' }),
-    sku: text('sku').notNull().unique(),
-    name: text('name').notNull(),
-    priceAmount: integer('price_amount').notNull(),
+    sku: varchar('sku', { length: 40 }).notNull().unique('product_variants_sku_unique'),
+    name: varchar('name', { length: 255 }).notNull(),
+    priceAmount: int('price_amount').notNull(),
     currency: char('currency', { length: 3 }).notNull().default('EUR'),
-    /** Set in Phase 8. Unique so one Stripe price maps to one variant. */
-    stripePriceId: text('stripe_price_id').unique(),
-    billingInterval: billingIntervalEnum('billing_interval'),
-    intervalCount: integer('interval_count'),
+    /** Unique so one Stripe price maps to one variant. */
+    stripePriceId: exactVarchar('stripe_price_id', { length: 255 }).unique(
+      'product_variants_stripe_price_unique',
+    ),
+    billingInterval: mysqlEnum('billing_interval', BILLING_INTERVALS),
+    intervalCount: int('interval_count'),
     active: boolean('active').notNull().default(false),
     ...timestamps,
   },
   (t) => [
     index('product_variants_product_idx').on(t.productId),
     check('product_variants_price_non_negative', sql`${t.priceAmount} >= 0`),
-    check('product_variants_currency_upper', sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check('product_variants_currency_upper', isoUpper(t.currency, 3)),
     check(
       'product_variants_interval_pair',
       sql`(${t.billingInterval} IS NULL) = (${t.intervalCount} IS NULL) AND (${t.intervalCount} IS NULL OR ${t.intervalCount} > 0)`,
@@ -89,16 +99,18 @@ export const productVariants = pgTable(
  * Stock per variant. The CHECK constraints make overselling impossible at
  * the database level: reserved + sold can never exceed total.
  */
-export const inventory = pgTable(
+export const inventory = mysqlTable(
   'inventory',
   {
-    variantId: uuid('variant_id')
+    variantId: uuidRef('variant_id')
       .primaryKey()
       .references(() => productVariants.id, { onDelete: 'cascade' }),
-    quantityTotal: integer('quantity_total').notNull(),
-    quantityReserved: integer('quantity_reserved').notNull().default(0),
-    quantitySold: integer('quantity_sold').notNull().default(0),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    quantityTotal: int('quantity_total').notNull(),
+    quantityReserved: int('quantity_reserved').notNull().default(0),
+    quantitySold: int('quantity_sold').notNull().default(0),
+    updatedAt: dateTime('updated_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP(3)`),
   },
   (t) => [
     check(
@@ -113,19 +125,21 @@ export const inventory = pgTable(
 )
 
 /** Temporary holds during checkout; expire automatically if not committed. */
-export const inventoryReservations = pgTable(
+export const inventoryReservations = mysqlTable(
   'inventory_reservations',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    variantId: uuid('variant_id')
+    id: uuidPk(),
+    variantId: uuidRef('variant_id')
       .notNull()
       .references(() => inventory.variantId, { onDelete: 'cascade' }),
-    quantity: integer('quantity').notNull(),
-    status: reservationStatusEnum('status').notNull().default('active'),
+    quantity: int('quantity').notNull(),
+    status: mysqlEnum('status', RESERVATION_STATUSES).notNull().default('active'),
     /** Checkout session / order reference: makes reserve() idempotent. */
-    reference: text('reference').notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    reference: exactVarchar('reference', { length: 255 }).notNull(),
+    expiresAt: dateTime('expires_at').notNull(),
+    createdAt: dateTime('created_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP(3)`),
   },
   (t) => [
     unique('inventory_reservations_reference_variant').on(t.reference, t.variantId),
@@ -135,22 +149,22 @@ export const inventoryReservations = pgTable(
 )
 
 /** Shipping options. Rates are configured by the business (none invented). */
-export const shippingMethods = pgTable(
+export const shippingMethods = mysqlTable(
   'shipping_methods',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    code: text('code').notNull().unique(),
-    name: text('name').notNull(),
-    carrier: text('carrier'),
-    priceAmount: integer('price_amount').notNull(),
+    id: uuidPk(),
+    code: varchar('code', { length: 64 }).notNull().unique('shipping_methods_code_unique'),
+    name: varchar('name', { length: 255 }).notNull(),
+    carrier: varchar('carrier', { length: 120 }),
+    priceAmount: int('price_amount').notNull(),
     currency: char('currency', { length: 3 }).notNull().default('EUR'),
     /** ISO 3166-1 alpha-2 destination codes. */
-    countries: text('countries')
-      .array()
+    countries: json('countries')
+      .$type<string[]>()
       .notNull()
-      .default(sql`'{}'::text[]`),
+      .$defaultFn(() => []),
     active: boolean('active').notNull().default(false),
-    sortOrder: integer('sort_order').notNull().default(0),
+    sortOrder: int('sort_order').notNull().default(0),
     ...timestamps,
   },
   (t) => [check('shipping_methods_price_non_negative', sql`${t.priceAmount} >= 0`)],

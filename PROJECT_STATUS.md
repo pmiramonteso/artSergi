@@ -196,11 +196,23 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] **ADMIN_GUIDE.md**: a Spanish guide for Sergi (access, first-time setup, adding works, orders)
 - Not included by decision: newsletter management (not wanted yet). Still open: editing collections, creating new products, shipping methods (B3)
 
+## Database moved to MySQL 8.4 (2026-11-25)
+
+The Sered hosting has MySQL 8.4.9 (no PostgreSQL), and the owner wants the database on the same server. The whole data layer was ported; **features and security guarantees stay the same**.
+
+- [x] Schema (27 tables, 21 CHECK constraints, 24 foreign keys) and a fresh MySQL migration
+- [x] Services without RETURNING: stock reservation (atomic conditional UPDATE), settle/expire (`FOR UPDATE`), checkout, Stripe webhooks (duplicate-key claim), DB rate limiter (upsert + read in one transaction), admin, seed (idempotent, never resets admin edits or stock)
+- [x] Better Auth on the MySQL adapter; tokens and Stripe ids case-sensitive (`utf8mb4_bin`); all datetimes UTC
+- [x] Integration tests on a real MySQL 8.4 (Docker locally, a CI service): 72 tests, including 200 concurrent buyers for 50 units (exactly 50 succeed), parallel idempotent retries, a parallel rate-limit burst and case sensitivity
+- [x] End-to-end on MySQL: migrate-on-start → seed → public site → sign-up, email verification, 2FA → admin (create artwork, upload photo, published)
+- [x] Backups: `db-backup.sh` / `db-restore.sh` rewritten for `mysqldump`. Restore drill identical (tables, rows, constraints); a non-empty target is refused
+- [x] Docs: DEPLOYMENT (cPanel database wizard, URL format), OPERATIONS (cPanel cron backups), README, ARCHITECTURE #49
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
 - [ ] Turn on branch protection on `main` so CI must pass before merging
-- [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
+- [x] Sered cPanel checked: Node 24.22 ✅, Terminal ✅, email accounts ✅, MySQL 8.4.9 (app ported) ✅
 
 ## Known issues
 
