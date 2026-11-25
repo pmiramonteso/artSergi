@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { artworkSources as staticArtworks } from '../../app/data/artworks'
 import { currentCollection } from '../../app/data/collections'
 import { LOCALE_CODES } from '../../shared/constants/i18n'
@@ -27,11 +27,12 @@ import {
  */
 export async function seedDatabase(db: Database) {
   return db.transaction(async (tx) => {
-    const [artist] = await tx
+    // MySQL has no RETURNING: upsert, then read the row back by its unique key.
+    await tx
       .insert(artists)
       .values({ slug: 'sergi-tugas', name: 'Sergi Tugas' })
-      .onConflictDoUpdate({ target: artists.slug, set: { name: 'Sergi Tugas' } })
-      .returning()
+      .onDuplicateKeyUpdate({ set: { name: 'Sergi Tugas' } })
+    const [artist] = await tx.select().from(artists).where(eq(artists.slug, 'sergi-tugas'))
 
     for (const [i, a] of staticArtworks.entries()) {
       const values = {
@@ -55,11 +56,11 @@ export async function seedDatabase(db: Database) {
           : null,
         gallery: a.gallery.map(({ src, width, height }) => ({ src, width, height })),
       }
-      const [row] = await tx
+      await tx
         .insert(artworks)
         .values(values)
-        .onConflictDoUpdate({ target: artworks.slug, set: { ...values, updatedAt: new Date() } })
-        .returning()
+        .onDuplicateKeyUpdate({ set: { ...values, updatedAt: new Date() } })
+      const [row] = await tx.select().from(artworks).where(eq(artworks.slug, a.slug))
       // Title/description are not localized yet (null until supplied); alt text is.
       for (const locale of LOCALE_CODES) {
         const tr = {
@@ -70,10 +71,7 @@ export async function seedDatabase(db: Database) {
         await tx
           .insert(artworkTranslations)
           .values({ artworkId: row!.id, locale, ...tr })
-          .onConflictDoUpdate({
-            target: [artworkTranslations.artworkId, artworkTranslations.locale],
-            set: tr,
-          })
+          .onDuplicateKeyUpdate({ set: tr })
       }
     }
 
@@ -87,23 +85,17 @@ export async function seedDatabase(db: Database) {
       contents: c.contents,
       active: true,
     }
-    const [collection] = await tx
+    await tx
       .insert(collections)
       .values(collectionValues)
-      .onConflictDoUpdate({
-        target: collections.slug,
-        set: { ...collectionValues, updatedAt: new Date() },
-      })
-      .returning()
+      .onDuplicateKeyUpdate({ set: { ...collectionValues, updatedAt: new Date() } })
+    const [collection] = await tx.select().from(collections).where(eq(collections.slug, c.slug))
     for (const locale of LOCALE_CODES) {
       const tr = { tagline: c.tagline[locale], description: c.description[locale] }
       await tx
         .insert(collectionTranslations)
         .values({ collectionId: collection!.id, locale, ...tr })
-        .onConflictDoUpdate({
-          target: [collectionTranslations.collectionId, collectionTranslations.locale],
-          set: tr,
-        })
+        .onDuplicateKeyUpdate({ set: tr })
     }
 
     const typeByOffer = {
@@ -114,7 +106,7 @@ export async function seedDatabase(db: Database) {
     } as const
     for (const offer of artMailOffers) {
       const slug = offer.id === 'art-mail-single' ? `${c.slug}-single` : offer.id
-      const [product] = await tx
+      await tx
         .insert(products)
         .values({
           slug,
@@ -122,23 +114,18 @@ export async function seedDatabase(db: Database) {
           collectionId: offer.id === 'art-mail-single' ? collection!.id : null,
           active: false,
         })
-        .onConflictDoNothing({ target: products.slug })
-        .returning()
-      const productId =
-        product?.id ??
-        (await tx.select().from(products).where(eq(products.slug, slug)).limit(1))[0]!.id
+        // Existing products are left untouched (the admin may have activated them).
+        .onDuplicateKeyUpdate({ set: { id: sql`id` } })
+      const productId = (await tx.select().from(products).where(eq(products.slug, slug)))[0]!.id
       for (const locale of LOCALE_CODES) {
         await tx
           .insert(productTranslations)
           .values({ productId, locale, title: offer.label[locale] })
-          .onConflictDoUpdate({
-            target: [productTranslations.productId, productTranslations.locale],
-            set: { title: offer.label[locale] },
-          })
+          .onDuplicateKeyUpdate({ set: { title: offer.label[locale] } })
       }
 
       const sku = offer.id.toUpperCase()
-      const [variant] = await tx
+      await tx
         .insert(productVariants)
         .values({
           productId,
@@ -150,13 +137,18 @@ export async function seedDatabase(db: Database) {
           intervalCount: offer.interval ? 1 : null,
           active: false,
         })
-        .onConflictDoNothing({ target: productVariants.sku })
-        .returning()
-      if (variant && offer.id === 'art-mail-single') {
+        // Existing variants keep their (possibly admin-edited) price and state.
+        .onDuplicateKeyUpdate({ set: { id: sql`id` } })
+      if (offer.id === 'art-mail-single') {
+        const [variant] = await tx
+          .select()
+          .from(productVariants)
+          .where(eq(productVariants.sku, sku))
+        // Stock is only set the first time; later runs never reset it.
         await tx
           .insert(inventory)
-          .values({ variantId: variant.id, quantityTotal: c.editionSize })
-          .onConflictDoNothing()
+          .values({ variantId: variant!.id, quantityTotal: c.editionSize })
+          .onDuplicateKeyUpdate({ set: { variantId: sql`variant_id` } })
       }
     }
 

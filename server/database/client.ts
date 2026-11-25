@@ -1,26 +1,39 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
-import type { PgDatabase } from 'drizzle-orm/pg-core'
-import postgres from 'postgres'
+import { drizzle } from 'drizzle-orm/mysql2'
+import type { MySql2Database } from 'drizzle-orm/mysql2'
+import mysql from 'mysql2/promise'
 import * as schema from './schema'
 
 /**
- * Any Drizzle Postgres database bound to our schema: postgres.js in the app,
- * PGlite in tests. Repositories and services depend on this type only.
+ * Drizzle database bound to our schema (MySQL 8.4 via mysql2). Repositories
+ * and services depend on this type only.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Database = PgDatabase<any, typeof schema>
+export type Database = MySql2Database<typeof schema>
 
 export { schema }
 
-export function createDatabase(url: string): { db: Database; close: () => Promise<void> } {
-  const client = postgres(url, {
-    // Small pool: shared 2 GB hosting, one Node process.
-    max: 5,
-    idle_timeout: 20,
-    connect_timeout: 10,
-    // Never print query parameters (may contain personal data).
-    debug: false,
-    onnotice: () => {},
+export function createPool(url: string, opts: { connectionLimit?: number } = {}) {
+  const pool = mysql.createPool({
+    uri: url,
+    // Small pool: shared hosting, one Node process.
+    connectionLimit: opts.connectionLimit ?? 5,
+    connectTimeout: 10_000,
+    waitForConnections: true,
+    // All datetimes are UTC, in the driver and in the session.
+    timezone: 'Z',
+    charset: 'utf8mb4',
+    supportBigNumbers: true,
+    enableKeepAlive: true,
   })
-  return { db: drizzle({ client, schema }), close: () => client.end({ timeout: 5 }) }
+  pool.on('connection', (conn) => {
+    conn.query("SET time_zone = '+00:00'")
+  })
+  return pool
+}
+
+export function createDatabase(url: string): { db: Database; close: () => Promise<void> } {
+  const pool = createPool(url)
+  return {
+    db: drizzle({ client: pool, schema, mode: 'default' }),
+    close: () => pool.end(),
+  }
 }

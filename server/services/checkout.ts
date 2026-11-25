@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { and, eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import type { CheckoutRequest } from '../../shared/schemas/checkout'
@@ -118,18 +119,18 @@ export async function createCheckout(
 
   // 3 · Order + stock reservation, atomically.
   const order = await db.transaction(async (tx) => {
-    const [created] = await tx
-      .insert(orders)
-      .values({
-        number: generateOrderNumber(now),
-        email: 'pending@checkout.invalid', // replaced by the verified Stripe email
-        status: 'awaiting_payment',
-        locale: input.locale as 'en' | 'es' | 'ca',
-        currency: variant.currency,
-        ...totals,
-        idempotencyKey: opts.idempotencyKey,
-      })
-      .returning()
+    const orderId = randomUUID()
+    await tx.insert(orders).values({
+      id: orderId,
+      number: generateOrderNumber(now),
+      email: 'pending@checkout.invalid', // replaced by the verified Stripe email
+      status: 'awaiting_payment',
+      locale: input.locale as 'en' | 'es' | 'ca',
+      currency: variant.currency,
+      ...totals,
+      idempotencyKey: opts.idempotencyKey,
+    })
+    const [created] = await tx.select().from(orders).where(eq(orders.id, orderId))
     await tx.insert(orderItems).values({
       orderId: created!.id,
       variantId: variant.id,

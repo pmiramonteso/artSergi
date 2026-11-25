@@ -64,17 +64,27 @@ export async function hitDbRateLimit(
   const { rateLimits } = await import('../database/schema')
   const now = opts.now ?? Date.now()
   const windowStart = now - opts.windowMs
-  const [row] = await db
-    .insert(rateLimits)
-    .values({ key: `app:${key}`, count: 1, lastRequest: now })
-    .onConflictDoUpdate({
-      target: rateLimits.key,
-      set: {
-        count: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN 1 ELSE ${rateLimits.count} + 1 END`,
-        lastRequest: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN ${now} ELSE ${rateLimits.lastRequest} END`,
-      },
-    })
-    .returning({ count: rateLimits.count, lastRequest: rateLimits.lastRequest })
+  const { eq } = await import('drizzle-orm')
+  const fullKey = `app:${key}`
+  // One transaction: the upsert row-locks the key until commit, so the
+  // read-back sees exactly this hit's value (MySQL has no RETURNING).
+  // Assignment order matters in MySQL: count reads the OLD last_request.
+  const row = await db.transaction(async (tx) => {
+    await tx
+      .insert(rateLimits)
+      .values({ key: fullKey, count: 1, lastRequest: now })
+      .onDuplicateKeyUpdate({
+        set: {
+          count: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN 1 ELSE ${rateLimits.count} + 1 END`,
+          lastRequest: sql`CASE WHEN ${rateLimits.lastRequest} < ${windowStart} THEN ${now} ELSE ${rateLimits.lastRequest} END`,
+        },
+      })
+    const [r] = await tx
+      .select({ count: rateLimits.count, lastRequest: rateLimits.lastRequest })
+      .from(rateLimits)
+      .where(eq(rateLimits.key, fullKey))
+    return r
+  })
   const count = row?.count ?? 1
   const started = row?.lastRequest ?? now
   return {

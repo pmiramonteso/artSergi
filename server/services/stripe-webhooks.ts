@@ -1,8 +1,10 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { randomUUID } from 'node:crypto'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import { applyStatus, type SubscriptionStatus } from '../../shared/domain/subscription'
 import type { Database } from '../database/client'
 import { customers, orders, payments, subscriptions, webhookEvents } from '../database/schema'
+import { isDuplicateKey } from '../database/result'
 import { commitReservation, releaseReservation } from './inventory'
 
 /**
@@ -33,11 +35,14 @@ export async function processStripeEvent(
 ): Promise<WebhookOutcome> {
   if (!HANDLED.has(event.type)) return 'ignored'
 
-  const [claimed] = await db
-    .insert(webhookEvents)
-    .values({ id: event.id, type: event.type })
-    .onConflictDoNothing()
-    .returning()
+  // Claim the event id: the primary key rejects a second delivery.
+  let claimed = true
+  try {
+    await db.insert(webhookEvents).values({ id: event.id, type: event.type })
+  } catch (err) {
+    if (!isDuplicateKey(err)) throw err
+    claimed = false
+  }
   if (!claimed) {
     const [existing] = await db.select().from(webhookEvents).where(eq(webhookEvents.id, event.id))
     if (existing?.status === 'processed') return 'duplicate'
@@ -146,7 +151,7 @@ export async function markSessionPaid(db: Database, session: Stripe.Checkout.Ses
       amount: session.amount_total ?? 0,
       currency: order.currency,
     })
-    .onConflictDoNothing()
+    .onDuplicateKeyUpdate({ set: { id: sql`id` } })
 
   await commitReservation(db, order.id)
 }
@@ -173,12 +178,18 @@ async function upsertCustomer(
       .limit(1)
     if (found) return found.id
   }
-  const [created] = await db
+  const id = randomUUID()
+  await db
     .insert(customers)
-    .values({ email: c.email, stripeCustomerId: c.stripeCustomerId, locale: c.locale })
-    .onConflictDoUpdate({ target: customers.stripeCustomerId, set: { email: c.email } })
-    .returning()
-  return created!.id
+    .values({ id, email: c.email, stripeCustomerId: c.stripeCustomerId, locale: c.locale })
+    .onDuplicateKeyUpdate({ set: { email: c.email } })
+  if (!c.stripeCustomerId) return id
+  // A concurrent insert may have won the unique key: read the real row id.
+  const [row] = await db
+    .select({ id: customers.id })
+    .from(customers)
+    .where(eq(customers.stripeCustomerId, c.stripeCustomerId))
+  return row!.id
 }
 
 async function upsertSubscription(db: Database, sub: Stripe.Subscription) {

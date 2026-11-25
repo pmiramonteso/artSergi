@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
 import { canSetManually, type OrderStatus } from '../../shared/domain/order-status'
 import type {
@@ -291,10 +292,7 @@ export async function updateArtwork(
       await tx
         .insert(artworkTranslations)
         .values({ artworkId: a.id, locale: locale as 'en' | 'es' | 'ca', ...values })
-        .onConflictDoUpdate({
-          target: [artworkTranslations.artworkId, artworkTranslations.locale],
-          set: values,
-        })
+        .onDuplicateKeyUpdate({ set: values })
       changes[`translations.${locale}`] = values
     }
     if (Object.keys(changes).length) {
@@ -326,21 +324,21 @@ export async function createArtwork(db: Database, actorUserId: string, input: Ar
       .select({ max: sql<number>`coalesce(max(${artworks.sortOrder}), -1)` })
       .from(artworks)
     const { translations, ...fields } = input
-    const [row] = await tx
-      .insert(artworks)
-      .values({
-        artistId: artist.id,
-        slug: fields.slug,
-        status: fields.status,
-        featured: fields.featured ?? false,
-        sortOrder: fields.sortOrder ?? Number(max) + 1,
-        year: fields.year ?? null,
-        medium: fields.medium ?? null,
-        widthCm: fields.widthCm ?? null,
-        heightCm: fields.heightCm ?? null,
-        depthCm: fields.depthCm ?? null,
-      })
-      .returning()
+    const id = randomUUID()
+    await tx.insert(artworks).values({
+      id,
+      artistId: artist.id,
+      slug: fields.slug,
+      status: fields.status,
+      featured: fields.featured ?? false,
+      sortOrder: fields.sortOrder ?? Number(max) + 1,
+      year: fields.year ?? null,
+      medium: fields.medium ?? null,
+      widthCm: fields.widthCm ?? null,
+      heightCm: fields.heightCm ?? null,
+      depthCm: fields.depthCm ?? null,
+    })
+    const [row] = await tx.select().from(artworks).where(eq(artworks.id, id))
     for (const [locale, tr] of Object.entries(translations ?? {})) {
       await tx.insert(artworkTranslations).values({
         artworkId: row!.id,
@@ -378,10 +376,7 @@ export async function setArtworkImage(
       await tx
         .insert(artworkTranslations)
         .values({ artworkId: a.id, locale: locale as 'en' | 'es' | 'ca', imageAlt: text })
-        .onConflictDoUpdate({
-          target: [artworkTranslations.artworkId, artworkTranslations.locale],
-          set: { imageAlt: text },
-        })
+        .onDuplicateKeyUpdate({ set: { imageAlt: text } })
     }
     await writeAudit(tx as unknown as Database, {
       actorUserId,

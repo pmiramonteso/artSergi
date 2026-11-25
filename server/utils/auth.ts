@@ -39,7 +39,7 @@ export function createAuth(
     secret: opts.secret,
     trustedOrigins: [opts.baseURL],
     database: drizzleAdapter(db, {
-      provider: 'pg',
+      provider: 'mysql',
       schema: {
         user: users,
         session: sessions,

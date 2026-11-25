@@ -1,7 +1,15 @@
 export * from './enums'
+export * from './columns'
 export { users, sessions, accounts, verifications, twoFactors, rateLimits } from './auth'
 export * from './content'
-export * from './commerce'
+export {
+  products,
+  productTranslations,
+  productVariants,
+  inventory,
+  inventoryReservations,
+  shippingMethods,
+} from './commerce'
 export {
   customers,
   addresses,
