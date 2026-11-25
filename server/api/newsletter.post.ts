@@ -1,9 +1,5 @@
 import { looksAutomated, newsletterSignupSchema } from '#shared/schemas/newsletter'
 import type { NewsletterResult } from '#shared/schemas/newsletter'
-import { createRateLimiter } from '../utils/rate-limit'
-
-// 5 attempts per IP per 10 minutes (single-process store; see rate-limit.ts).
-const limiter = createRateLimiter({ limit: 5, windowMs: 10 * 60_000 })
 
 /**
  * Newsletter sign-up.
@@ -13,13 +9,11 @@ const limiter = createRateLimiter({ limit: 5, windowMs: 10 * 60_000 })
  * answer: the address is NOT stored or logged anywhere.
  */
 export default defineEventHandler(async (event): Promise<NewsletterResult> => {
-  const { newsletterProvider, trustProxy } = useRuntimeConfig(event)
-  const ip = getRequestIP(event, { xForwardedFor: trustProxy === true }) ?? 'unknown'
-  const rate = limiter.hit(`newsletter:${ip}`)
-  if (!rate.allowed) {
-    setResponseHeader(event, 'Retry-After', rate.retryAfter)
-    throw createError({ statusCode: 429, statusMessage: 'Too many requests' })
-  }
+  const { newsletterProvider } = useRuntimeConfig(event)
+  await hitRateLimit(event, `newsletter:${clientIp(event)}`, {
+    limit: 5,
+    windowMs: 10 * 60_000,
+  })
 
   const parsed = await readValidatedBody(event, (body) => newsletterSignupSchema.safeParse(body))
   if (!parsed.success) {

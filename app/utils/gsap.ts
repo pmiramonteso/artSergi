@@ -21,6 +21,8 @@ export function loadGsap(): Promise<GsapTools> {
   toolsPromise ??= Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(
     ([{ gsap }, { ScrollTrigger }]) => {
       gsap.registerPlugin(ScrollTrigger)
+      // Some sections render conditionally (e.g. no artworks yet): missing targets are fine.
+      gsap.config({ nullTargetWarn: false })
 
       const refresh = () => ScrollTrigger.refresh()
       if (document.readyState === 'complete') queueMicrotask(refresh)

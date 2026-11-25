@@ -20,7 +20,7 @@ beforeAll(async () => {
     secret: 'test-secret-test-secret-test-secret-123',
     secure: false,
     // Distinguish simulated client IPs via X-Forwarded-For.
-    trustProxy: true,
+    clientIpHeader: 'x-forwarded-for',
     send: async (m) => {
       outbox.push(m)
     },

@@ -28,6 +28,40 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 - **Authorization:** `requireUser` / `requireAdmin` run on the server for every request. Admin requires role `admin` AND 2FA. The bootstrap allowlist needs a verified email and is audited. Customers only ever see their own data (verified email or linked customer). Admin inputs use strict Zod schemas (unknown fields → 400), and admin responses are `no-store`. Every admin mutation is audited with a field diff.
 - Better Auth's trusted origins (CSRF on its endpoints) = `NUXT_PUBLIC_SITE_URL`.
 
+- **Hardening (Phase 10):**
+  - Per-request **nonce-based CSP** on HTML (`script-src 'self' 'nonce-…' 'strict-dynamic'`, no unsafe-inline/eval for scripts; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), with zero violations measured in a real browser on production builds (GSAP still loads and animates).
+  - Restrictive CSP on APIs. HSTS on https. nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options DENY, COOP/CORP same-origin. HTML is `private, no-store`.
+  - Body size limits (64 KB; 1 MB for webhooks).
+  - **Spoof-resistant client IP** (`NUXT_CLIENT_IP_HEADER`; the first X-Forwarded-For entry is never trusted).
+  - **DB-backed, multi-process rate limits** for checkout and newsletter (exact under concurrency, tested), plus Better Auth's own.
+  - Startup **config audit** (refuses unsafe configs).
+  - JSON error logs without PII.
+  - Readiness probe without internals.
+  - Release workflow: manual, full checks + audit, checksum, protected environment with approval, pinned SSH host key.
+  - Dependabot.
+  - Backups with encryption option and a verified restore drill.
+
+## OWASP Top 10 (2021) mapping
+
+| Risk                          | Controls                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A01 Broken access control     | Server-side `requireUser`/`requireAdmin` (role + 2FA) on every request; customers see only their own data; strict schemas reject extra fields; tests for isolation |
+| A02 Cryptographic failures    | scrypt via Better Auth; HttpOnly/Secure cookies; HSTS; secrets only in env; tokens hashed or opaque; no card data (Stripe-hosted)                                  |
+| A03 Injection                 | Drizzle parameterised queries; Zod on all inputs; CSP with nonces; Vue escaping (only one `v-html`: a locally generated QR SVG)                                    |
+| A04 Insecure design           | Prices only server-side; payment state only from verified webhooks; stock invariants enforced by DB CHECKs; commerce safety switch                                 |
+| A05 Security misconfiguration | Config audit at startup; noindex by default; security headers; prod-only CSP; `.env.example` without values                                                        |
+| A06 Vulnerable components     | `npm audit` in CI and release; Dependabot weekly; pinned lockfile                                                                                                  |
+| A07 Auth failures             | Rate limits (DB), verification required, reset revokes sessions, 2FA, no account enumeration on reset                                                              |
+| A08 Integrity failures        | Stripe signature on the raw body; release checksum; protected deploy environment; lockfile `npm ci`                                                                |
+| A09 Logging & monitoring      | Admin audit log with diffs; JSON error logs (no PII); readiness probe; runbook                                                                                     |
+| A10 SSRF                      | No user-supplied URLs are fetched server-side; outbound calls only to Stripe/SMTP from config; redirects are same-site only                                        |
+
+## Known limitations
+
+- No automated DAST/SAST beyond ESLint + strict TypeScript. CodeQL/secret scanning need GitHub Advanced Security on private repos (paid). Consider them, or a periodic external pentest, before scaling.
+- The in-memory limiter is only a fallback when there is no DB.
+- Style attributes are allowed by CSP (`style-src-attr 'unsafe-inline'`) for SSR layout and animation; the risk is low (no script execution).
+
 ## Planned controls (by phase)
 
 | Control                                                                                                                                                     | Phase  |

@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 9 — Customer accounts & admin: complete, merged to `main`.**
-Phase 10 (security hardening & production readiness) in progress.
+**Phase 10 — Security & production readiness: complete, merged to `main`. All 10 phases are implemented.**
+What remains is inputs and decisions (OPEN_QUESTIONS.md) and the first real deployment (DEPLOYMENT.md).
 
 See **OPEN_QUESTIONS.md** for everything still pending from the artist, the business and hosting.
 
@@ -144,6 +144,19 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] End-to-end against real PostgreSQL over HTTP: anonymous 401 → unverified 403 → verified account → allowlisted admin without 2FA → MFA_REQUIRED → 2FA enabled → password-only sign-in has no admin access → TOTP → admin 200 → artwork edit visible on the public API, invalid or unknown fields 400, audit entries written. Admin and account pages render server-side with the session; axe shows 0 violations from site code
 - [x] **Bugs found and fixed during e2e:** Zod 4 `record(enum)` required every locale (now `partialRecord`, with a test); session token echoed in JSON bodies (now stripped)
 
+## Phase 10 — Completed tasks
+
+- [x] **Security headers + per-request nonce CSP** (prod), API CSP, HSTS on https, `private, no-store` HTML. Measured in a real browser on a production build: 0 CSP violations, and GSAP still loads and animates
+- [x] **Fix:** client IP for rate limiting was spoofable via the first `X-Forwarded-For` entry. Now `NUXT_CLIENT_IP_HEADER` (Cloudflare / last hop / peer), tested
+- [x] **DB-backed rate limits** (shared across processes, exact under 20 concurrent hits) for checkout and newsletter; in-memory only as a fallback
+- [x] Request body limits (413), JSON error logging without PII, `/api/health/ready` (DB check)
+- [x] Startup **config audit** (fatal on unsafe settings, warnings otherwise, no secret values in logs)
+- [x] Opt-in **migrate-on-start** for cPanel (migrations shipped in `.output/server/migrations`, idempotent, exits on failure). Verified on a fresh Postgres 17: 27 tables created, restart is a no-op
+- [x] `server.cjs` Passenger entry; **DEPLOYMENT.md** (cPanel layout with atomic releases, env vars, Stripe and Cloudflare settings)
+- [x] **Release workflow** (manual; full checks + prod audit; artifact + sha256; deploy only through the protected `production` environment, with pinned SSH host key, atomic symlink switch, Passenger restart and smoke test). **Dependabot** for npm and Actions
+- [x] **Backups:** `scripts/db-backup.sh` / `db-restore.sh` (custom-format dump, integrity check, sha256, optional age encryption, retention; restore refuses non-empty targets). **Restore drill passed** (identical row counts)
+- [x] **OPERATIONS.md** (monitoring, backups, rollback, incident checklist, routine) and an OWASP Top 10 mapping in SECURITY.md
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -183,5 +196,10 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Phase 10 (in progress): security headers/CSP, production deployment (cPanel), backups, monitoring, rollback.
-2. Owner: choose the SMTP/email provider (B6) and the admin email(s) (`NUXT_ADMIN_EMAILS`).
+All phases are built. To go live:
+
+1. **Hosting (C1–C3):** confirm Node 24, a CommonJS startup file, SSH and PostgreSQL on Sered (or choose a managed Postgres).
+2. **Business (B1–B18):** club name, prices, shipping, entity/tax, legal texts, email provider, admins, domain.
+3. **Content (A1–A11):** high-res photos, painting data, lettering, statement, bio, collection artwork.
+4. **Stripe:** create the account and run a TEST purchase (README). Then configure the live webhook and Customer Portal.
+5. First deployment following DEPLOYMENT.md, with `NUXT_PUBLIC_SITE_INDEXABLE=false` until launch day.

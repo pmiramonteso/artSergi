@@ -1,3 +1,5 @@
+import { cpSync } from 'node:fs'
+import { join } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import { DEFAULT_LOCALE, LOCALES, LOCALIZED_PAGES } from './shared/constants/i18n'
 
@@ -35,10 +37,11 @@ export default defineNuxtConfig({
     /** Newsletter provider id. Empty = sign-up not open yet (nothing stored). */
     newsletterProvider: '',
     /**
-     * Trust X-Forwarded-For for the client IP (rate limiting). Enable ONLY when
-     * the app runs behind a proxy that overwrites the header (cPanel/Cloudflare).
+     * Header with the real client IP set by OUR proxy, for rate limiting:
+     * '' (TCP peer, default) | 'cf-connecting-ip' | 'x-real-ip' | 'x-forwarded-for'
+     * (last hop only). See shared/utils/client-ip.ts.
      */
-    trustProxy: false,
+    clientIpHeader: '',
     /**
      * Commerce: 'off' (default) | 'test' | 'live'. See shared/domain/commerce.ts:
      * live additionally requires live keys AND validated pricing.
@@ -53,6 +56,8 @@ export default defineNuxtConfig({
     mailFrom: 'Sergi Tugas Art Studio <no-reply@localhost>',
     /** Comma-separated emails allowed to become admin (with verified email + 2FA). */
     adminEmails: '',
+    /** Apply DB migrations at startup (deploys only; see server/plugins/migrate-on-start.ts). */
+    dbMigrateOnStart: false,
     /** ISO countries offered at checkout (provisional, OPEN_QUESTIONS B3). */
     shippingCountries: 'ES',
     public: {
@@ -113,6 +118,14 @@ export default defineNuxtConfig({
     // compatible with cPanel's Node.js Application Manager. Vercel previews
     // auto-detect the `vercel` preset through the VERCEL env var.
     compressPublicAssets: true,
+    hooks: {
+      // Ship SQL migrations with the server bundle (for opt-in migrate-on-start).
+      compiled(nitro) {
+        cpSync('server/database/migrations', join(nitro.options.output.serverDir, 'migrations'), {
+          recursive: true,
+        })
+      },
+    },
     experimental: { tasks: true },
     // Return stock from abandoned checkouts. Not on Vercel previews (cron limits; no DB there).
     scheduledTasks: process.env.VERCEL ? {} : { '*/5 * * * *': ['inventory:expire'] },

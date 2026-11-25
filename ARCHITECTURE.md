@@ -37,7 +37,7 @@ page/component ─useFetch─▶ /api/* (Zod) ─▶ services/content ─┬─ 
 
 - Business rules live in `server/services` and `shared/domain`, never in components.
 - The database enforces the invariants too (CHECK/FK/UNIQUE): code bugs cannot oversell or create inconsistent totals.
-- **Migrations:** `npm run db:generate` after schema changes (commit the SQL). Apply with `npm run db:migrate` against the target DB from CI or a trusted machine. The app process never migrates on its own.
+- **Migrations:** `npm run db:generate` after schema changes (commit the SQL). Apply with `npm run db:migrate` from a trusted machine, or on cPanel with the explicit opt-in `NUXT_DB_MIGRATE_ON_START=true` for that deploy only (DEPLOYMENT.md). Migrations are forward-only and backward compatible.
 
 ## Payments (Phase 8)
 
@@ -128,3 +128,7 @@ Empty folders are not created ahead of time.
 | 39  | Admin = role AND 2FA, checked per request in `requireAdmin`                             | Spec: server-side RBAC + mandatory admin MFA. UI hiding is never relied on.                                                                                               |
 | 40  | Payment states only via webhooks; staff only fulfil/cancel unpaid                       | Keeps money state consistent with Stripe and auditable.                                                                                                                   |
 | 41  | Initial migration regenerated in Phase 9                                                | No production database existed yet. From now on schema changes are new, reviewed migrations.                                                                              |
+| 42  | Hand-written nonce CSP (Nitro render hooks) instead of a security module                | Small, explicit, tested; SSR-only app, so no SSG hashing needed.                                                                                                          |
+| 43  | Configurable client-IP header (no blanket "trust proxy")                                | The first X-Forwarded-For value is attacker-controlled.                                                                                                                   |
+| 44  | Opt-in migrate-on-start for cPanel                                                      | Only `.output` ships to the host (no drizzle-kit there); explicit per deploy, fails fast.                                                                                 |
+| 45  | Atomic symlink releases + Passenger restart                                             | Instant rollback to any kept release.                                                                                                                                     |
