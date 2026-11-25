@@ -1,4 +1,4 @@
-import { artworks as staticArtworks } from '../../app/data/artworks'
+import { artworkSources } from '../../app/data/artworks'
 import { currentCollection } from '../../app/data/collections'
 import type { Database } from '../database/client'
 import {
@@ -28,7 +28,7 @@ export function contentRepositories(db: Database | null): ContentRepositories {
     }
   }
   return {
-    artworks: createStaticArtworkRepository(staticArtworks),
+    artworks: createStaticArtworkRepository(artworkSources),
     collections: createStaticCollectionRepository([currentCollection]),
     source: 'static',
   }

@@ -110,6 +110,15 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] **Bug from Phase 6 found and fixed:** "All works" and the breadcrumbs linked to `/es/works` and `/ca/works` (404) instead of `/es/obras` and `/ca/obres`. Regression test added; the internal link crawler shows 27 URLs × 3 locales with 0 broken
 - [x] Checked end-to-end with a real DB: migrate → seed (idempotent) → API/pages served from Postgres. Without a DB the site falls back to static content
 
+## Content update — real paintings (2026-11-25)
+
+- [x] The 3 sold paintings supplied by Sergi are live in the hero, Selected Works, /works and the detail pages
+- [x] Originals preserved in `assets-src/artworks/<slug>/original.jpeg`. Web derivatives (WebP 480w + full size, 33–77 KB) built reproducibly by `npm run images:artworks` (sharp: crop to the framed painting, no colour filters, never upscaled). Crop boxes are in `assets-src/artworks/manifest.json`
+- [x] Alt text in EN/ES/CA describing only what is visible. Title, year, medium, size and description stay "to be confirmed" (A2)
+- [x] `srcset`/`sizes` on artwork images. The hero's first painting keeps `fetchpriority="high"` (LCP)
+- [x] Tests: alt text in every locale, every referenced file exists, and DB ↔ static parity in all 3 locales (110 tests)
+- [ ] Higher-resolution photos (A1): current sources are WhatsApp-compressed, slightly soft on the desktop detail page
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)

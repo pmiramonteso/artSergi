@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { artworks as staticArtworks } from '../../app/data/artworks'
+import { artworkSources as staticArtworks } from '../../app/data/artworks'
 import { currentCollection } from '../../app/data/collections'
 import { LOCALE_CODES } from '../../shared/constants/i18n'
 import { artMailOffers } from '../../shared/constants/products'
@@ -50,7 +50,14 @@ export async function seedDatabase(db: Database) {
         widthCm: a.dimensions?.widthCm ?? null,
         heightCm: a.dimensions?.heightCm ?? null,
         depthCm: a.dimensions?.depthCm ?? null,
-        image: a.image ? { src: a.image.src, width: a.image.width, height: a.image.height } : null,
+        image: a.image
+          ? {
+              src: a.image.src,
+              width: a.image.width,
+              height: a.image.height,
+              ...(a.image.srcset ? { srcset: a.image.srcset } : {}),
+            }
+          : null,
         gallery: a.gallery.map(({ src, width, height }) => ({ src, width, height })),
       }
       const [row] = await tx
@@ -58,9 +65,13 @@ export async function seedDatabase(db: Database) {
         .values(values)
         .onConflictDoUpdate({ target: artworks.slug, set: { ...values, updatedAt: new Date() } })
         .returning()
-      // Static content is not localized per field yet: same text for every locale.
+      // Title/description are not localized yet (null until supplied); alt text is.
       for (const locale of LOCALE_CODES) {
-        const tr = { title: a.title, description: a.description, imageAlt: a.image?.alt ?? null }
+        const tr = {
+          title: a.title,
+          description: a.description,
+          imageAlt: a.image?.alt[locale] ?? null,
+        }
         await tx
           .insert(artworkTranslations)
           .values({ artworkId: row!.id, locale, ...tr })

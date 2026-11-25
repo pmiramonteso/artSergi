@@ -6,6 +6,8 @@ export interface ArtworkImage {
   height: number
   /** Describe only what is visible. Reviewed with the artist. */
   alt: string
+  /** Optional responsive candidates, e.g. "/a-480.webp 480w, /a-960.webp 960w". */
+  srcset?: string
 }
 
 export interface ArtworkDimensions {
