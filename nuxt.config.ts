@@ -39,12 +39,23 @@ export default defineNuxtConfig({
      * the app runs behind a proxy that overwrites the header (cPanel/Cloudflare).
      */
     trustProxy: false,
+    /**
+     * Commerce: 'off' (default) | 'test' | 'live'. See shared/domain/commerce.ts:
+     * live additionally requires live keys AND validated pricing.
+     */
+    commerceMode: 'off',
+    stripeSecretKey: '',
+    stripeWebhookSecret: '',
+    /** ISO countries offered at checkout (provisional, OPEN_QUESTIONS B3). */
+    shippingCountries: 'ES',
     public: {
       /** Absolute site origin, e.g. https://example.com — set per environment. */
       siteUrl: '',
       siteName: 'Sergi Tugas Art Studio',
       /** Only `true` in the real production deployment. Previews stay noindex. */
       siteIndexable: false,
+      /** Mirrors the server commerce mode for UI hints (no secrets). */
+      commerceMode: 'off',
     },
   },
 

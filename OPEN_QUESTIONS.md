@@ -37,6 +37,8 @@ Legend: 🔴 blocks launch · 🟠 blocks a specific feature · 🟢 nice to hav
 | B9  | Public contact email and social profiles                                                                                                             | Footer, Person schema                   | 🟠     |
 | B10 | Default language and whether `/` should auto-redirect by browser language (currently: yes, falls back to EN)                                         | i18n                                    | 🟢     |
 | B11 | Whether the 3-month gift is prepaid or a recurring subscription with an end date                                                                     | Stripe Billing (Phase 8)                | 🟠     |
+| B15 | Stripe account: who owns it (business entity, B4), payout bank account, statement descriptor. Needed for TEST keys now (free) and live later         | Testing payments, live                  | 🟠     |
+| B16 | Gift purchases: collect the recipient's name/address/email and a gift message at checkout?                                                           | Gift flow                               | 🟠     |
 | B13 | Cookie policy must list the functional cookie `i18n_locale` (remembers the chosen language, 1 year). No analytics or marketing cookies are set today | Cookie policy (B5)                      | 🟠     |
 | B14 | Should legal page URLs be localized (e.g. `/es/legal/privacidad`)?                                                                                   | SEO polish                              | 🟢     |
 | B12 | Annual collector product contents (€99, "subject to validation")                                                                                     | Product catalogue                       | 🟠     |

@@ -132,10 +132,15 @@ export async function seedDatabase(db: Database) {
       const productId =
         product?.id ??
         (await tx.select().from(products).where(eq(products.slug, slug)).limit(1))[0]!.id
-      await tx
-        .insert(productTranslations)
-        .values({ productId, locale: 'en', title: offer.label })
-        .onConflictDoNothing()
+      for (const locale of LOCALE_CODES) {
+        await tx
+          .insert(productTranslations)
+          .values({ productId, locale, title: offer.label[locale] })
+          .onConflictDoUpdate({
+            target: [productTranslations.productId, productTranslations.locale],
+            set: { title: offer.label[locale] },
+          })
+      }
 
       const sku = offer.id.toUpperCase()
       const [variant] = await tx
@@ -143,7 +148,7 @@ export async function seedDatabase(db: Database) {
         .values({
           productId,
           sku,
-          name: offer.label,
+          name: offer.label.en,
           priceAmount: offer.amount,
           currency: offer.currency,
           billingInterval: offer.interval,

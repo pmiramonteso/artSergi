@@ -179,5 +179,34 @@
     "generic": "Something went wrong.",
     "code": "Error {code}",
     "home": "Back to the homepage"
+  },
+  "commerce": {
+    "testBanner": "TEST MODE: payments use Stripe test cards (e.g. 4242 4242 4242 4242). No real money is charged.",
+    "buy": "Buy",
+    "subscribe": "Subscribe",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "left": "{n} left",
+    "soldOut": "Sold out",
+    "provisional": "Provisional test prices",
+    "redirecting": "Opening secure checkout…",
+    "errors": {
+      "soldOut": "Sorry, this edition just sold out.",
+      "unavailable": "Checkout is not available right now. Please try again later.",
+      "generic": "Something went wrong starting the checkout. Please try again."
+    },
+    "success": {
+      "title": "Thank you!",
+      "confirmed": "Your payment is confirmed. Order {number}.",
+      "pending": "We are confirming your payment with the bank…",
+      "pendingLong": "The confirmation is taking longer than usual. You will receive an email when it is complete.",
+      "cancelled": "This checkout was cancelled. Nothing was charged.",
+      "unknown": "We could not find this checkout."
+    },
+    "cancel": {
+      "title": "Checkout cancelled",
+      "body": "Nothing was charged and your reservation has been released.",
+      "back": "Back to the collection"
+    }
   }
 }

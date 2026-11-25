@@ -4,8 +4,8 @@ _Last updated: 2026-11-25_
 
 ## Current phase
 
-**Phase 7 — Database & backend: complete, merged to `main`.**
-Next phase: Phase 8 (e-commerce in Stripe **test mode**). It needs business decisions first: B2 prices, B3 shipping, B4 tax/legal entity, B11 gift model.
+**Phase 8 — E-commerce (Stripe TEST mode): complete, merged to `main`.** Real payments are impossible by design until the business approves (see Commerce safety switch).
+Next phase: Phase 9 (customer accounts & admin).
 
 See **OPEN_QUESTIONS.md** for everything still pending from the artist, the business and hosting.
 
@@ -119,6 +119,18 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] Tests: alt text in every locale, every referenced file exists, and DB ↔ static parity in all 3 locales (110 tests)
 - [ ] Higher-resolution photos (A1): current sources are WhatsApp-compressed, slightly soft on the desktop detail page
 
+## Phase 8 — Completed tasks
+
+- [x] **Safety switch** (`shared/domain/commerce.ts`, `NUXT_COMMERCE_MODE`): `off` by default; `test` only accepts Stripe TEST keys; `live` is refused unless the keys are live AND `PRICING_PUBLISHED` is true AND products/variants are `active`. Any mismatch disables checkout instead of guessing
+- [x] `POST /api/checkout`: the client sends only `{ sku, quantity, locale }` plus an `Idempotency-Key`. Prices, currency and totals come from the database. It creates the order, reserves stock (pilot of 50) and opens a Stripe Checkout session (payment or subscription with recurring price data). If Stripe fails, the stock is released and the order cancelled. Rate-limited
+- [x] `POST /api/webhooks/stripe`: signature verified on the raw body. Idempotent via `webhook_events` (duplicates skipped, failures retried). Handles: session completed / async success → paid (**the charged amount must equal the order total**), stock committed, payment + customer recorded; async failure / expired → cancelled, stock released; subscription created/updated/deleted (out-of-order safe, periods from subscription items); charge.refunded
+- [x] `GET /api/checkout/status`: the success page reads OUR database. If the webhook is late it reconciles server-to-server with Stripe, so a browser redirect is never trusted. No personal data in the response
+- [x] `GET /api/commerce/offers`: purchasable Art Mail offers (empty when commerce is off, so the UI keeps "Notify me")
+- [x] UI: offers with Buy/Subscribe in the collection section, success/cancel pages (noindex, live status), a fixed TEST MODE notice, EN/ES/CA copy. Stripe Checkout has no Catalan, so `ca` uses `auto`
+- [x] Tests: 22 new (132 in total): safety switch, schema (client prices rejected), checkout (server price, recurring, idempotency, live refuses unapproved items, sold out, Stripe failure releases stock) and webhooks with **real Stripe signatures** (tampering rejected, paid/duplicate/amount-mismatch/unpaid/expired/refund/subscription ordering)
+- [x] End-to-end against real PostgreSQL + HTTP: offers listed; missing idempotency key or a client price → 400; a Stripe error → order cancelled and reservation released; webhooks without, forged or tampered signatures → 400; valid → order paid; duplicate → skipped; status endpoint → paid
+- [ ] Not done here: **Customer Portal** (needs customer accounts, Phase 9); **real Stripe test run** (needs the owner's Stripe TEST keys, see README); shipping rates and tax (B3/B4)
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
@@ -126,6 +138,11 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [ ] Check the Sered cPanel account: Node version, Node.js App Manager, env vars, PostgreSQL availability
 
 ## Known issues
+
+- Commerce needs a database. Without `NUXT_DATABASE_URL` checkout stays disabled (503) even in test mode.
+- Shipping is 0 and tax is not computed until B3/B4 are decided. Live mode is blocked anyway.
+- The gift product is sold as a one-off payment (provisional, B11) and does not collect the recipient yet.
+- The checkout rate limit is in-memory (single process), like the newsletter's.
 
 - **Production migrations:** run `npm run db:migrate` from CI or a trusted machine against the production DB (not from the app process). This is documented in ARCHITECTURE; the automated pipeline comes in Phase 10.
 - `npm run db:seed` runs as a Nitro task and needs the dev server running with `NUXT_DATABASE_URL` set.
@@ -149,7 +166,6 @@ See ARCHITECTURE.md → "Decision log".
 
 ## Next actions
 
-1. Owner reviews Phases 6–7 locally (switch languages; everything else looks the same).
-2. **Hosting (C3, blocking):** confirm whether Sered offers PostgreSQL. If not, choose a managed Postgres (cost to review).
-3. **Business decisions before Phase 8:** B2 prices, B3 shipping, B4 tax/legal entity, B11 gift model, B5 legal texts.
-4. Phase 8: Stripe Checkout and Billing in **test mode only**, verified webhooks, Customer Portal.
+1. **Owner:** create a Stripe account and run a real TEST purchase locally (README → "Testing payments locally"). Card 4242 4242 4242 4242, any future date and any CVC.
+2. **Business:** B2 prices, B3 shipping, B4 tax/entity, B5 legal texts, B11 gift model. Only then can live mode be considered.
+3. Phase 9: customer accounts (secure sessions), order history, subscription management via the Stripe Customer Portal, and the admin area with RBAC, MFA and audit log.

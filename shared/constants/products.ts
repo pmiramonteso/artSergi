@@ -7,11 +7,13 @@
  * "Price announced at launch" instead. Never trust a price from the browser:
  * checkout will look prices up server-side by `id`.
  */
+import type { LocalizedText } from './i18n'
+
 export const PRICING_PUBLISHED = false
 
 export interface Offer {
   id: 'art-mail-monthly' | 'art-mail-single' | 'art-mail-gift-3' | 'art-mail-annual'
-  label: string
+  label: LocalizedText
   /** Integer minor units (cents). */
   amount: number
   currency: 'EUR'
@@ -25,7 +27,7 @@ export interface Offer {
 export const artMailOffers: Offer[] = [
   {
     id: 'art-mail-monthly',
-    label: 'Monthly subscription',
+    label: { en: 'Monthly subscription', es: 'Suscripción mensual', ca: 'Subscripció mensual' },
     amount: 890,
     currency: 'EUR',
     interval: 'month',
@@ -33,7 +35,11 @@ export const artMailOffers: Offer[] = [
   },
   {
     id: 'art-mail-single',
-    label: 'Individual collection',
+    label: {
+      en: 'Places We Keep Nº 001 (single envelope)',
+      es: 'Places We Keep Nº 001 (sobre suelto)',
+      ca: 'Places We Keep Nº 001 (sobre solt)',
+    },
     amount: 990,
     currency: 'EUR',
     interval: null,
@@ -41,7 +47,7 @@ export const artMailOffers: Offer[] = [
   },
   {
     id: 'art-mail-gift-3',
-    label: 'Three-month gift',
+    label: { en: 'Three-month gift', es: 'Regalo de tres meses', ca: 'Regal de tres mesos' },
     amount: 2670,
     currency: 'EUR',
     interval: null,
@@ -49,7 +55,7 @@ export const artMailOffers: Offer[] = [
   },
   {
     id: 'art-mail-annual',
-    label: 'Annual collector',
+    label: { en: 'Annual collector', es: 'Coleccionista anual', ca: 'Col·leccionista anual' },
     amount: 9900,
     currency: 'EUR',
     interval: 'year',
