@@ -35,7 +35,6 @@
   },
   "hero": {
     "label": "Sergi Tugas, artist",
-    "placeholderLettering": "Placeholder lettering",
     "originalPaintings": "Original paintings",
     "artworkPending": "Painting {n}: photo pending",
     "scroll": "Scroll",
@@ -45,9 +44,7 @@
     "eyebrow": "The artist",
     "title": "Worlds, scenes and stories through painting",
     "quote": "I create visual stories through painting, imagination and everyday objects. Each piece is a world of its own.",
-    "quoteNote": "Placeholder: not an approved artist statement",
-    "bio": "Sergi Tugas is an independent visual artist. His short biography will appear here once it has been written and approved with him.",
-    "bioNote": "Biography pending",
+    "bio": "Sergi Tugas is an independent visual artist based in Barcelona. His paintings move between surrealism and conceptual art: dreamlike scenes, everyday objects and unexpected characters that tell small stories. Through them he seeks to capture raw emotions and true feelings.",
     "portrait": "Portrait or studio photo of Sergi"
   },
   "works": {
@@ -64,7 +61,6 @@
     "medium": "Medium",
     "size": "Size",
     "pending": "To be confirmed",
-    "descriptionPending": "Description pending from the artist",
     "notForSale": {
       "sold": "This work is sold and is not available for purchase.",
       "archived": "This work is in the archive and is not available for purchase."
@@ -78,7 +74,6 @@
   "artMail": {
     "eyebrow": "Art Mail Club",
     "title": "Collectible art, by post",
-    "workingName": "Working name: the club name is not chosen yet",
     "lead": "A small envelope from Sergi’s artistic universe: an illustrated card, stickers, a short story and a collector detail, gathered around one collection at a time.",
     "body": "The club is planned as a monthly subscription, with single collections, gifts and special editions too. Details and pricing will be announced at launch.",
     "cta": "Discover the first collection",

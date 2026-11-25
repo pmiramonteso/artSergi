@@ -35,7 +35,6 @@
   },
   "hero": {
     "label": "Sergi Tugas, artista",
-    "placeholderLettering": "Lettering provisional",
     "originalPaintings": "Pinturas originales",
     "artworkPending": "Pintura {n}: foto pendiente",
     "scroll": "Desliza",
@@ -45,9 +44,7 @@
     "eyebrow": "El artista",
     "title": "Mundos, escenas e historias a través de la pintura",
     "quote": "Creo historias visuales a través de la pintura, la imaginación y los objetos cotidianos. Cada pieza es un mundo propio.",
-    "quoteNote": "Provisional: no es una declaración aprobada por el artista",
-    "bio": "Sergi Tugas es un artista visual independiente. Su biografía breve aparecerá aquí cuando se haya redactado y aprobado con él.",
-    "bioNote": "Biografía pendiente",
+    "bio": "Sergi Tugas es un artista visual independiente afincado en Barcelona. Su pintura se mueve entre el surrealismo y el arte conceptual: escenas oníricas, objetos cotidianos y personajes inesperados que cuentan pequeñas historias. Con ellas busca capturar emociones en crudo y sentimientos verdaderos.",
     "portrait": "Retrato o foto de Sergi en el estudio"
   },
   "works": {
@@ -64,7 +61,6 @@
     "medium": "Técnica",
     "size": "Medidas",
     "pending": "Por confirmar",
-    "descriptionPending": "Descripción pendiente del artista",
     "notForSale": {
       "sold": "Esta obra está vendida y no está disponible para la compra.",
       "archived": "Esta obra forma parte del archivo y no está disponible para la compra."
@@ -78,7 +74,6 @@
   "artMail": {
     "eyebrow": "Art Mail Club",
     "title": "Arte coleccionable, por correo",
-    "workingName": "Nombre provisional: el nombre del club aún no está decidido",
     "lead": "Un pequeño sobre del universo artístico de Sergi: una tarjeta ilustrada, pegatinas, una historia breve y un detalle de coleccionista, reunidos en torno a una colección cada vez.",
     "body": "El club se plantea como una suscripción mensual, también con colecciones sueltas, regalos y ediciones especiales. Los detalles y los precios se anunciarán en el lanzamiento.",
     "cta": "Descubre la primera colección",

@@ -10,14 +10,6 @@ import { heroLettering } from '~/data/hero'
 
 <template>
   <div data-hero-lettering class="relative">
-    <UiLabel
-      v-if="!heroLettering"
-      tone="butter"
-      class="motion-intro absolute -top-7 left-1 whitespace-nowrap md:-top-8"
-      data-intro="decor"
-    >
-      {{ $t('hero.placeholderLettering') }}
-    </UiLabel>
     <h1 data-intro="lettering" class="motion-intro" data-parallax="0.15">
       <img
         v-if="heroLettering"
@@ -26,7 +18,7 @@ import { heroLettering } from '~/data/hero'
         :height="heroLettering.height"
         :alt="heroLettering.alt"
         fetchpriority="high"
-        class="block h-auto w-[min(78vw,56rem)]"
+        class="block h-auto w-[min(84vw,50rem)]"
       />
       <span
         v-else

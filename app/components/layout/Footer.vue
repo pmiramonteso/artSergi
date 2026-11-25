@@ -11,7 +11,16 @@ const shopSoon = ['originals', 'prints', 'gifts'] as const
   <footer class="relative z-10 border-t border-ink/15 bg-paper">
     <UiContainer class="grid gap-12 py-16 md:grid-cols-12">
       <div class="flex flex-col gap-4 md:col-span-4">
-        <p class="font-serif text-h2 italic">{{ $t('site.artist') }}</p>
+        <p>
+          <img
+            src="/illustrations/lettering/hero-lettering.svg"
+            :alt="$t('site.artist')"
+            width="1532"
+            height="729"
+            loading="lazy"
+            class="block h-16 w-auto"
+          />
+        </p>
         <p class="max-w-xs text-sm opacity-80">{{ $t('footer.tagline') }}</p>
       </div>
 

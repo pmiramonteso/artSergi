@@ -28,7 +28,12 @@ export function toHeroSlots(artworks: Artwork[]): HeroArtworkSlot[] {
 }
 
 /**
- * Sergi's handwritten lettering (SVG). `null` shows a clearly labeled
- * typeset placeholder. Expected file: /illustrations/lettering/hero-lettering.svg
+ * Sergi's handwritten signature, vectorized from his supplied image
+ * (assets-src/lettering/original.png, `npm run lettering`). Traced, not redrawn.
  */
-export const heroLettering: HeroImage | null = null
+export const heroLettering: HeroImage | null = {
+  src: '/illustrations/lettering/hero-lettering.svg',
+  width: 1532,
+  height: 729,
+  alt: 'Sergi Tugas',
+}

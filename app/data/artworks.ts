@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, type LocaleCode, type LocalizedText } from '../../share
  *
  * The three paintings Sergi supplied (2026-11-25). They are SOLD.
  * Photos: preserved originals in assets-src/artworks/, web derivatives built
- * with `npm run images:artworks`. They are WhatsApp-compressed, so
+ * with `npm run images`. They are WhatsApp-compressed, so
  * higher-resolution photos are still requested (OPEN_QUESTIONS A1).
  *
  * Titles, years, media, dimensions and descriptions stay `null`: they must

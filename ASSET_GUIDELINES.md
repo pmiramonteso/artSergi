@@ -33,11 +33,19 @@ For each painting, also send: **title, year, medium, dimensions (cm), short desc
 - Final artwork for the A6 postcard (front and back), the 3 stickers, the A7 story card, the collector detail and the envelope/seal.
 - Print-ready files (PDF/TIFF, CMYK, with bleed) are kept separately from the web versions. Web versions are generated from the originals.
 
+## Large originals
+
+Full-resolution camera files (often 5–20 MB) are **not** committed. The repo keeps an optimized master (max 2400 px, JPEG q88, metadata stripped) in `assets-src/`, which is plenty for every web size. The owner keeps the untouched originals in their own archive or cloud storage.
+
 ## Updating painting photos (for developers)
 
 1. Put the new photo in `assets-src/artworks/<slug>/original.<ext>` (replace the old one; it stays in git history).
 2. Adjust the crop box in `assets-src/artworks/manifest.json` if the framing changed.
-3. Run `npm run images:artworks` and update the width/height in `app/data/artworks.ts` if the size changed.
+3. Run `npm run images` and update the width/height in `app/data/artworks.ts` if the size changed.
+
+## Updating the signature (for developers)
+
+Replace `assets-src/lettering/original.png` (black ink on a white or transparent background, ≥ 2000 px wide) and run `npm run lettering`. It writes `public/illustrations/lettering/hero-lettering.svg`; update width/height in `app/data/hero.ts` if they changed. Always compare the SVG with the original by eye.
 
 ## How files are organised (for developers)
 

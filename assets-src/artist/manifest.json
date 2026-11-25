@@ -1,0 +1,4 @@
+{
+  "$comment": "Artist photos. original.jpg is an optimized master (max 2400 px, no metadata) to keep the repo light; the full-resolution camera file is kept by the owner outside git. Web derivatives: `npm run images`.",
+  "portrait": { "name": "artist-portrait-studio" }
+}

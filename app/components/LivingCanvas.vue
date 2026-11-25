@@ -59,8 +59,8 @@ const doodles = [
   {
     id: 'squiggle',
     is: 'squiggle',
-    x: 24,
-    y: 62,
+    x: 22,
+    y: 78,
     depth: 0.4,
     cls: 'text-tomato-ink',
     mobile: false,
