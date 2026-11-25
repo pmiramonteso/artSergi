@@ -30,7 +30,7 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 
 - **Hardening (Phase 10):**
   - Per-request **nonce-based CSP** on HTML (`script-src 'self' 'nonce-…' 'strict-dynamic'`, no unsafe-inline/eval for scripts; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), with zero violations measured in a real browser on production builds (GSAP still loads and animates).
-  - Restrictive CSP on APIs. HSTS on https. nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options DENY, COOP/CORP same-origin. HTML is `private, no-store`.
+  - Restrictive CSP on APIs. HSTS on https. nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options DENY, COOP/CORP same-origin. HTML is `private, no-cache`.
   - Body size limits (64 KB; 1 MB for webhooks).
   - **Spoof-resistant client IP** (`NUXT_CLIENT_IP_HEADER`; the first X-Forwarded-For entry is never trusted).
   - **DB-backed, multi-process rate limits** for checkout and newsletter (exact under concurrency, tested), plus Better Auth's own.

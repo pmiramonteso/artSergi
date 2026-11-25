@@ -17,16 +17,18 @@ npm run dev            # http://localhost:3000
 
 ## Scripts
 
-| Script                            | Purpose                                                |
-| --------------------------------- | ------------------------------------------------------ |
-| `npm run dev`                     | Dev server                                             |
-| `npm run build`                   | Production build → `.output/`                          |
-| `npm start`                       | Run the built server (`node .output/server/index.mjs`) |
-| `npm run lint` / `lint:fix`       | ESLint                                                 |
-| `npm run format` / `format:check` | Prettier                                               |
-| `npm run typecheck`               | `vue-tsc` via `nuxt typecheck`                         |
-| `npm test`                        | Vitest unit tests                                      |
-| `npm run check`                   | Everything CI runs                                     |
+| Script                                | Purpose                                                            |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| `npm run dev`                         | Dev server                                                         |
+| `npm run build`                       | Production build → `.output/`                                      |
+| `npm start`                           | Run the built server (`node .output/server/index.mjs`)             |
+| `npm run lint` / `lint:fix`           | ESLint                                                             |
+| `npm run format` / `format:check`     | Prettier                                                           |
+| `npm run typecheck`                   | `vue-tsc` via `nuxt typecheck`                                     |
+| `npm test`                            | Vitest unit tests                                                  |
+| `npm run check`                       | Everything CI runs                                                 |
+| `npm run test:e2e`                    | Playwright E2E on the production build (run `npm run build` first) |
+| `npm run images` / `lettering` / `og` | Rebuild web images / signature SVG / share image                   |
 
 ## Docs
 

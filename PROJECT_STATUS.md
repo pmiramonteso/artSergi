@@ -146,7 +146,7 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 
 ## Phase 10 — Completed tasks
 
-- [x] **Security headers + per-request nonce CSP** (prod), API CSP, HSTS on https, `private, no-store` HTML. Measured in a real browser on a production build: 0 CSP violations, and GSAP still loads and animates
+- [x] **Security headers + per-request nonce CSP** (prod), API CSP, HSTS on https, `private, no-cache` HTML. Measured in a real browser on a production build: 0 CSP violations, and GSAP still loads and animates
 - [x] **Fix:** client IP for rate limiting was spoofable via the first `X-Forwarded-For` entry. Now `NUXT_CLIENT_IP_HEADER` (Cloudflare / last hop / peer), tested
 - [x] **DB-backed rate limits** (shared across processes, exact under 20 concurrent hits) for checkout and newsletter; in-memory only as a fallback
 - [x] Request body limits (413), JSON error logging without PII, `/api/health/ready` (DB check)
@@ -162,6 +162,24 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 - [x] **Studio portrait** in the artist introduction: optimized master (1818×2400, 288 KB, no metadata) in `assets-src/artist/` (the 5.6 MB camera original is kept by the owner outside git), WebP 480/960/1400 (24–95 KB) with **all metadata stripped** (the original has no GPS), EN/ES/CA alt text describing only what is visible, and added as `image` to the Person JSON-LD
 - [x] **Signature** vectorized to SVG (`npm run lettering`, potrace as a dev-only tool: traced, not redrawn, brand ink colour, 16 KB). Used as the hero `<h1>` (alt "Sergi Tugas", clip-reveal intro), and in the header and footer. The "placeholder lettering" label is gone
 - [x] `npm run images` now builds artworks and artist photos from one script. Hero decorations moved so they no longer cross the signature
+
+## Phase 11 — QA & launch preparation (beyond the original 10 phases)
+
+- [x] **Playwright E2E suite** (`npm run test:e2e`, 33 tests × desktop/mobile against the production build): homepage in 3 locales (signature h1, real paintings, no console errors), no horizontal overflow, canonical/hreflang, language switcher keeping the page with localized slugs, "All works" navigation, mobile menu, sold work not purchasable, real 404, newsletter validation + honest server state, **axe WCAG 2.2 AA on 4 pages**, CSP header and zero CSP violations. Stable (66/66 on repeat). Runs in CI after the main job
+- [x] **Bugs found by E2E and fixed:**
+  - Scroll reveal used `visibility: hidden`, which removed below-the-fold sections from the accessibility tree (screen readers couldn't reach them). Now opacity only
+  - A newsletter submit before hydration did a GET that put the email in the URL. The form is now `method="post"`
+- [x] **Social share image** (A11): 1200×630 from real paintings + signature (`npm run og`), absolute `og:image` with size/alt, `summary_large_image`. Artwork pages use absolute image URLs
+- [x] **Lighthouse (production build):**
+
+  |                            | Performance | Accessibility | Best practices | LCP                   | CLS   |
+  | -------------------------- | ----------- | ------------- | -------------- | --------------------- | ----- |
+  | Desktop                    | 99–100      | 100           | 100            | 0.8 s                 | 0.001 |
+  | Mobile (simulated slow 4G) | 92–93       | 100           | 100            | 3.1–3.4 s (was 4.3 s) | 0     |
+
+  SEO shows 69 only because previews are noindex (intended). Fixes: the LCP artwork is no longer faded in, the LCP image is preloaded, 240w artwork variants, label-in-name (WCAG 2.5.3) on the scroll cue, a 7-day cache for public images, and `private, no-cache` HTML (bfcache works)
+
+- [ ] Mobile LCP target (< 2.5 s) not yet met in the simulation. Next lever if field data (Search Console) confirms it: trim initial JS (~48 KB unused in the entry chunk)
 
 ## Pending (owner)
 

@@ -26,17 +26,18 @@ const description = computed(
   () => artwork.value?.description ?? t('meta.work.description', { title: title.value }),
 )
 
+const origin = config.siteUrl || requestUrl.origin
+const abs = (path: string) => new URL(path, origin).toString()
+
 useSeoMeta({
   title,
   ogTitle: title,
   description,
   ogDescription: description,
-  ogImage: () => artwork.value?.image?.src,
+  ogImage: () => (artwork.value?.image ? abs(artwork.value.image.src) : undefined),
 })
 
 // Structured data: only verified, visible facts (VisualArtwork needs a real title).
-const origin = config.siteUrl || requestUrl.origin
-const abs = (path: string) => new URL(path, origin).toString()
 const jsonLd = computed(() =>
   [
     breadcrumbJsonLd([

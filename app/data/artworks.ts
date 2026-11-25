@@ -19,7 +19,9 @@ export interface ArtworkSource extends Omit<Artwork, 'image'> {
 
 const img = (slug: string, name: string, full: [number, number], alt: LocalizedText) => ({
   src: `/images/artworks/${slug}/artwork-${name}-${full[0]}.webp`,
-  srcset: `/images/artworks/${slug}/artwork-${name}-480.webp 480w, /images/artworks/${slug}/artwork-${name}-${full[0]}.webp ${full[0]}w`,
+  srcset: [240, 480, full[0]]
+    .map((w) => `/images/artworks/${slug}/artwork-${name}-${w}.webp ${w}w`)
+    .join(', '),
   width: full[0],
   height: full[1],
   alt,

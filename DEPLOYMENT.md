@@ -70,7 +70,7 @@ At startup the server runs a **config audit**. It logs warnings and refuses to s
 Cloudflare does not secure the app by itself. The app keeps all its own controls.
 
 - DNS proxied (orange cloud), **SSL/TLS: Full (strict)**, Always Use HTTPS, minimum TLS 1.2.
-- **Cache:** bypass for `/api/*`, `/admin*`, `/*/account*`, `/*/checkout*`. HTML responses already send `Cache-Control: private, no-store`. Cache `/_nuxt/*`, `/images/*` and `/fonts` aggressively (fingerprinted).
+- **Cache:** bypass for `/api/*`, `/admin*`, `/*/account*`, `/*/checkout*`. HTML responses already send `Cache-Control: private, no-cache`. Cache `/_nuxt/*`, `/images/*` and `/fonts` aggressively (fingerprinted).
 - **WAF:** managed rules on. Rate-limit rules for `/api/auth/*` (e.g. 20 req/min/IP), `/api/checkout` (10/min) and `/api/newsletter` (5/min), on top of the app's own DB-backed limits.
 - Set `NUXT_CLIENT_IP_HEADER=cf-connecting-ip`, and ideally restrict the origin to Cloudflare IPs at the host.
 - Bot Fight Mode: test that it does not block Stripe webhooks (or skip the webhook path).
