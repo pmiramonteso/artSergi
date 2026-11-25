@@ -29,21 +29,24 @@ Passenger restarts the app when `current/tmp/restart.txt` is touched (the releas
 
 Set them in the cPanel app settings. Never commit them. Generate secrets with `openssl rand -base64 48`.
 
-| Variable                                               | Value                                                                    |
-| ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| `NODE_ENV`                                             | `production`                                                             |
-| `NUXT_PUBLIC_SITE_URL`                                 | `https://<final-domain>` (B8)                                            |
-| `NUXT_PUBLIC_SITE_INDEXABLE`                           | `true` only for the real launch                                          |
-| `NUXT_DATABASE_URL`                                    | Postgres URL (least-privilege app role; `?sslmode=require` if remote)    |
-| `NUXT_AUTH_SECRET`                                     | ≥ 32 random characters                                                   |
-| `NUXT_SMTP_URL`, `NUXT_MAIL_FROM`                      | transactional email (B6)                                                 |
-| `NUXT_ADMIN_EMAILS`                                    | admin email(s) (B17)                                                     |
-| `NUXT_CLIENT_IP_HEADER`                                | `cf-connecting-ip` behind Cloudflare, else the host proxy's header       |
-| `NUXT_COMMERCE_MODE`, `NUXT_PUBLIC_COMMERCE_MODE`      | `off` until approved; `test` for staging                                 |
-| `NUXT_STRIPE_SECRET_KEY`, `NUXT_STRIPE_WEBHOOK_SECRET` | only when commerce is on                                                 |
-| `NUXT_DB_MIGRATE_ON_START`                             | `true` **only** for a release that adds migrations, then back to `false` |
+| Variable                                               | Value                                                                                                                                  |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`                                             | `production`                                                                                                                           |
+| `NUXT_PUBLIC_SITE_URL`                                 | `https://<final-domain>` (B8)                                                                                                          |
+| `NUXT_PUBLIC_SITE_INDEXABLE`                           | `true` only for the real launch                                                                                                        |
+| `NUXT_DATABASE_URL`                                    | Postgres URL (least-privilege app role; `?sslmode=require` if remote)                                                                  |
+| `NUXT_AUTH_SECRET`                                     | ≥ 32 random characters                                                                                                                 |
+| `NUXT_SMTP_URL`, `NUXT_MAIL_FROM`                      | transactional email (B6)                                                                                                               |
+| `NUXT_ADMIN_EMAILS`                                    | admin email(s) (B17)                                                                                                                   |
+| `NUXT_CLIENT_IP_HEADER`                                | `cf-connecting-ip` behind Cloudflare, else the host proxy's header                                                                     |
+| `NUXT_COMMERCE_MODE`, `NUXT_PUBLIC_COMMERCE_MODE`      | `off` until approved; `test` for staging                                                                                               |
+| `NUXT_STRIPE_SECRET_KEY`, `NUXT_STRIPE_WEBHOOK_SECRET` | only when commerce is on                                                                                                               |
+| `NUXT_UPLOADS_DIR`                                     | Persistent folder for admin-uploaded photos, **outside** `releases/`, e.g. `/home/<user>/apps/artsergi/uploads`. Include it in backups |
+| `NUXT_DB_MIGRATE_ON_START`                             | `true` **only** for a release that adds migrations, then back to `false`                                                               |
 
 At startup the server runs a **config audit**. It logs warnings and refuses to start on unsafe settings: an indexable non-https site, or a weak auth secret.
+
+> **Vercel previews** can't keep uploaded photos (read-only, ephemeral filesystem; request bodies are limited to 4.5 MB). Uploads are meant for the cPanel production server. If you ever host on serverless, switch uploads to object storage (S3/R2/Vercel Blob).
 
 ## 4. Releasing
 

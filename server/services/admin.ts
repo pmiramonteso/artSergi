@@ -1,9 +1,15 @@
 import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
 import { canSetManually, type OrderStatus } from '../../shared/domain/order-status'
-import type { ArtworkUpdate, OrderUpdate } from '../../shared/schemas/admin'
+import type {
+  ArtworkCreate,
+  ArtworkUpdate,
+  ImageAlt,
+  OrderUpdate,
+} from '../../shared/schemas/admin'
 import type { Database } from '../database/client'
 import {
   adminAuditLogs,
+  artists,
   artworks,
   artworkTranslations,
   customers,
@@ -79,7 +85,12 @@ export async function getOrder(db: Database, id: string) {
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id))
   const pays = await db.select().from(payments).where(eq(payments.orderId, id))
   const ships = await db.select().from(shipments).where(eq(shipments.orderId, id))
-  return { order, items, payments: pays, shipments: ships }
+  const history = await db
+    .select()
+    .from(adminAuditLogs)
+    .where(and(eq(adminAuditLogs.entityType, 'order'), eq(adminAuditLogs.entityId, id)))
+    .orderBy(desc(adminAuditLogs.id))
+  return { order, items, payments: pays, shipments: ships, history }
 }
 
 /** Manual fulfilment step (never payment states). Audited. */
@@ -295,6 +306,90 @@ export async function updateArtwork(
         changes,
       })
     }
+  })
+}
+
+/** Create a new artwork (appended at the end of the list). Audited. */
+export async function createArtwork(db: Database, actorUserId: string, input: ArtworkCreate) {
+  return db.transaction(async (tx) => {
+    const [exists] = await tx
+      .select({ id: artworks.id })
+      .from(artworks)
+      .where(eq(artworks.slug, input.slug))
+    if (exists) throw new AdminError(409, 'An artwork with this slug already exists')
+    if ((input.widthCm == null) !== (input.heightCm == null)) {
+      throw new AdminError(400, 'Width and height must be set together')
+    }
+    const [artist] = await tx.select().from(artists).where(eq(artists.slug, 'sergi-tugas'))
+    if (!artist) throw new AdminError(409, 'Artist record missing (run the seed)')
+    const [{ max } = { max: -1 }] = await tx
+      .select({ max: sql<number>`coalesce(max(${artworks.sortOrder}), -1)` })
+      .from(artworks)
+    const { translations, ...fields } = input
+    const [row] = await tx
+      .insert(artworks)
+      .values({
+        artistId: artist.id,
+        slug: fields.slug,
+        status: fields.status,
+        featured: fields.featured ?? false,
+        sortOrder: fields.sortOrder ?? Number(max) + 1,
+        year: fields.year ?? null,
+        medium: fields.medium ?? null,
+        widthCm: fields.widthCm ?? null,
+        heightCm: fields.heightCm ?? null,
+        depthCm: fields.depthCm ?? null,
+      })
+      .returning()
+    for (const [locale, tr] of Object.entries(translations ?? {})) {
+      await tx.insert(artworkTranslations).values({
+        artworkId: row!.id,
+        locale: locale as 'en' | 'es' | 'ca',
+        title: tr.title ?? null,
+        description: tr.description ?? null,
+        imageAlt: tr.imageAlt ?? null,
+      })
+    }
+    await writeAudit(tx as unknown as Database, {
+      actorUserId,
+      action: 'artwork.create',
+      entityType: 'artwork',
+      entityId: input.slug,
+      changes: { ...fields, translations },
+    })
+    return row!
+  })
+}
+
+/** Attach a processed photo (and its alt text per locale) to an artwork. Audited. */
+export async function setArtworkImage(
+  db: Database,
+  actorUserId: string,
+  slug: string,
+  image: { src: string; srcset: string; width: number; height: number },
+  alt: ImageAlt,
+) {
+  return db.transaction(async (tx) => {
+    const [a] = await tx.select().from(artworks).where(eq(artworks.slug, slug))
+    if (!a) throw new AdminError(404, 'Artwork not found')
+    await tx.update(artworks).set({ image, updatedAt: new Date() }).where(eq(artworks.id, a.id))
+    for (const [locale, text] of Object.entries(alt)) {
+      if (!text) continue
+      await tx
+        .insert(artworkTranslations)
+        .values({ artworkId: a.id, locale: locale as 'en' | 'es' | 'ca', imageAlt: text })
+        .onConflictDoUpdate({
+          target: [artworkTranslations.artworkId, artworkTranslations.locale],
+          set: { imageAlt: text },
+        })
+    }
+    await writeAudit(tx as unknown as Database, {
+      actorUserId,
+      action: 'artwork.image',
+      entityType: 'artwork',
+      entityId: slug,
+      changes: { image: { from: a.image?.src ?? null, to: image.src } },
+    })
   })
 }
 

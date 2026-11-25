@@ -41,6 +41,8 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
   - Dependabot.
   - Backups with encryption option and a verified restore drill.
 
+- **Uploads (admin only):** require admin + 2FA. Real format detected from the bytes, 20 MB cap, pixel limit against decompression bombs, re-encoded server-side (no original bytes are ever served), all metadata stripped, content-hashed names. Only WebP variants are served, through a traversal-safe resolver with `nosniff`. Masters are kept private.
+
 ## OWASP Top 10 (2021) mapping
 
 | Risk                          | Controls                                                                                                                                                           |

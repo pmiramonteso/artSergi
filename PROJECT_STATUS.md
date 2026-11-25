@@ -186,6 +186,16 @@ See **OPEN_QUESTIONS.md** for everything still pending from the artist, the busi
 
 - Every Vercel deploy from Phase 10 failed (`STATIC_BUILD_NO_OUT_DIR`), so the preview stayed on Phase 9. Cause: the `nitro.hooks.compiled` added in Phase 10 (to ship migrations) replaced the Vercel preset's own hook, so `.vercel/output/config.json` was never written. Fixed by registering the hook additively; both the Vercel and node-server builds were verified, and CI now builds the Vercel preset and asserts its output
 
+## Admin — artworks and order details (2026-11-25)
+
+- [x] **Create artworks from the admin** (slug, status, featured, order, year, medium, size, EN/ES/CA title and description). No code needed anymore
+- [x] **Photo upload** in the admin: the format is checked from the file bytes (JPEG/PNG/WebP/TIFF), max 20 MB, with a decompression-bomb guard. Orientation is fixed, **all metadata is stripped**, and the server builds an optimized master + WebP 240/480/960 with content-hashed names. English alt text is required (ES/CA optional, falling back to EN). Served from `/media/**` (WebP only, traversal-safe, immutable cache). Stored in `NUXT_UPLOADS_DIR` (persistent, include it in backups)
+- [x] **Readable order sheet** (customer, address, items with totals, payments with an "Open in Stripe" link, shipments and change history) replaces the raw JSON
+- [x] Fix: public artwork mapping now falls back per field (a translation row without alt text no longer hides the image)
+- [x] Tests: 16 new (image processing, metadata stripping, format/size rejections, path traversal, create + upload + publish). End-to-end with real Postgres and a 2FA admin session: create → duplicate 409 / bad slug 400 → upload → no-alt 400 / fake image 400 → served WebP without EXIF → traversal 404 → visible on the public site. Admin UI checked in the browser
+- [x] **ADMIN_GUIDE.md**: a Spanish guide for Sergi (access, first-time setup, adding works, orders)
+- Not included by decision: newsletter management (not wanted yet). Still open: editing collections, creating new products, shipping methods (B3)
+
 ## Pending (owner)
 
 - [ ] Confirm Vercel is connected and preview deployments build (check the Hobby plan terms before any commercial use)
