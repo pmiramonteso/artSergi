@@ -14,7 +14,6 @@ import {
   products,
   productTranslations,
   productVariants,
-  roles,
 } from './schema'
 
 /**
@@ -28,10 +27,6 @@ import {
  */
 export async function seedDatabase(db: Database) {
   return db.transaction(async (tx) => {
-    for (const name of ['admin', 'editor', 'customer']) {
-      await tx.insert(roles).values({ name }).onConflictDoNothing()
-    }
-
     const [artist] = await tx
       .insert(artists)
       .values({ slug: 'sergi-tugas', name: 'Sergi Tugas' })

@@ -24,6 +24,10 @@ Report suspected vulnerabilities privately to the repository owner. Do not open 
 - **Payments (Phase 8):** Stripe secret and webhook secret are server-only runtime config. The commerce switch refuses live keys outside live mode and live mode without validated pricing. The client can't set prices (strict Zod schema). The webhook signature is verified on the raw body, and invalid or tampered requests get 400. Events are deduplicated by id. The amount charged must equal the order total. Orders are marked paid only by verified webhooks or server-side reconciliation with Stripe. Checkout is rate-limited and needs an Idempotency-Key. No card data ever touches our servers (Stripe-hosted Checkout). Webhook payloads are not stored.
   - CSP (Phase 10) must allow Stripe's documented origins only if Stripe.js is ever embedded. Hosted Checkout is a plain redirect.
 
+- **Authentication (Phase 9):** Better Auth handles scrypt password hashing (10–128 chars), required email verification, 1 h reset tokens that revoke all sessions, DB sessions in HttpOnly cookies (Secure on https, `st.` prefix, SameSite=Lax), 30-day expiry refreshed daily, sign-out invalidation, TOTP 2FA + backup codes with lockout, account deletion, and DB rate limits (sign-in 5/min/IP, sign-up 5/5 min, reset 3/5 min, 2FA 5/min). Session tokens are removed from JSON responses. Password reset gives no account enumeration.
+- **Authorization:** `requireUser` / `requireAdmin` run on the server for every request. Admin requires role `admin` AND 2FA. The bootstrap allowlist needs a verified email and is audited. Customers only ever see their own data (verified email or linked customer). Admin inputs use strict Zod schemas (unknown fields → 400), and admin responses are `no-store`. Every admin mutation is audited with a field diff.
+- Better Auth's trusted origins (CSRF on its endpoints) = `NUXT_PUBLIC_SITE_URL`.
+
 ## Planned controls (by phase)
 
 | Control                                                                                                                                                     | Phase  |

@@ -46,6 +46,13 @@ export default defineNuxtConfig({
     commerceMode: 'off',
     stripeSecretKey: '',
     stripeWebhookSecret: '',
+    /** Better Auth secret (≥ 32 random chars). Empty = accounts disabled. */
+    authSecret: '',
+    /** SMTP connection URL for transactional email (verification, reset). */
+    smtpUrl: '',
+    mailFrom: 'Sergi Tugas Art Studio <no-reply@localhost>',
+    /** Comma-separated emails allowed to become admin (with verified email + 2FA). */
+    adminEmails: '',
     /** ISO countries offered at checkout (provisional, OPEN_QUESTIONS B3). */
     shippingCountries: 'ES',
     public: {
@@ -75,6 +82,8 @@ export default defineNuxtConfig({
       ...LOCALIZED_PAGES,
       // Internal reference page: not localized, not indexed.
       'design-system': false,
+      // Admin area: English only, not localized, never indexed.
+      admin: false,
     },
     detectBrowserLanguage: {
       useCookie: true,
